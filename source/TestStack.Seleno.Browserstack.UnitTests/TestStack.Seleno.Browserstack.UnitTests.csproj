@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6AE6F108-6096-4A21-B2E6-876E278B4833}</ProjectGuid>
+    <ProjectGuid>{CE191EB6-B2D6-429E-9DC2-0FAB36BA8225}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestStack.Seleno.BrowserStack.SpecFlowPlugin</RootNamespace>
-    <AssemblyName>TestStack.Seleno.BrowserStack.SpecFlowPlugin</AssemblyName>
+    <RootNamespace>TestStack.Seleno.Browserstack.UnitTests</RootNamespace>
+    <AssemblyName>TestStack.Seleno.Browserstack.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,8 +30,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Gherkin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=86496cfa5b4a5851, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpecFlow.CustomPlugin.2.0.0\lib\net45\Gherkin.dll</HintPath>
+    <Reference Include="Castle.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.3.3.3\lib\net45\Castle.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentAssertions, Version=4.4.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.4.0\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.4.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NSubstitute, Version=1.10.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
+      <HintPath>..\packages\NSubstitute.1.10.0.0\lib\net45\NSubstitute.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework, Version=3.0.5797.27534, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
@@ -39,10 +51,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,25 +63,28 @@
       <HintPath>..\packages\SpecFlow.2.0.0\lib\net45\TechTalk.SpecFlow.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="TechTalk.SpecFlow.Generator, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0778194805d6db41, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpecFlow.CustomPlugin.2.0.0\lib\net45\TechTalk.SpecFlow.Generator.dll</HintPath>
+    <Reference Include="TestStack.Seleno, Version=0.9.56.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TestStack.Seleno.0.9.56\lib\NET40\TestStack.Seleno.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="TechTalk.SpecFlow.Parser, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0778194805d6db41, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpecFlow.CustomPlugin.2.0.0\lib\net45\TechTalk.SpecFlow.Parser.dll</HintPath>
+    <Reference Include="WebDriver, Version=2.50.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.2.50.1\lib\net40\WebDriver.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="TechTalk.SpecFlow.Utils, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0778194805d6db41, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpecFlow.CustomPlugin.2.0.0\lib\net45\TechTalk.SpecFlow.Utils.dll</HintPath>
+    <Reference Include="WebDriver.Support, Version=2.50.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.Support.2.50.1\lib\net40\WebDriver.Support.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseNunitTestGeneratorProvider.cs" />
-    <Compile Include="GeneratorPlugin.cs" />
+    <Compile Include="Bindings\TestResultNotifierSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Capabilities\CapabilitiesBuilderSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Configuration\BrowserConfigurationParserSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Configuration\BrowserHostFactorySpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Configuration\RemoteBrowserConfiguratorSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Extensions\CategorySelectionSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Extensions\CodeAttributeDeclarationExtensionsSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RuntimePlugin.cs" />
-    <Compile Include="SeleniumNUnitTestGeneratorProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -79,8 +92,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TestStack.Seleno.BrowserStack.Core\TestStack.Seleno.BrowserStack.Core.csproj">
-      <Project>{305f8222-f4f1-4543-a999-7f1e453491a1}</Project>
+      <Project>{305F8222-F4F1-4543-A999-7F1E453491A1}</Project>
       <Name>TestStack.Seleno.BrowserStack.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestStack.Seleno.BrowserStack.SpecFlowPlugin\TestStack.Seleno.BrowserStack.SpecFlowPlugin.csproj">
+      <Project>{6AE6F108-6096-4A21-B2E6-876E278B4833}</Project>
+      <Name>TestStack.Seleno.BrowserStack.SpecFlowPlugin</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

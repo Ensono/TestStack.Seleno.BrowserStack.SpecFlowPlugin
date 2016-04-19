@@ -4,6 +4,7 @@ using System.Linq;
 using TechTalk.SpecFlow.Generator;
 using TechTalk.SpecFlow.Generator.UnitTestProvider;
 using TechTalk.SpecFlow.Utils;
+using TestStack.Seleno.BrowserStack.Core;
 
 namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 {

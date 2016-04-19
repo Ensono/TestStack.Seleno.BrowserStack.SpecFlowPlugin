@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TechTalk.SpecFlow.Generator;
 using TechTalk.SpecFlow.Utils;
-using TestStack.Seleno.BrowserStack.SpecFlowPlugin.Extensions;
+using TestStack.Seleno.BrowserStack.Core.Extensions;
 
 namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 {
@@ -150,8 +150,8 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
         private static void AddTestAutomationCoreAndSeleniumRemoteNamespaces(TestClassGenerationContext generationContext)
         {
-            generationContext.Namespace.Imports.Add(new CodeNamespaceImport("CBRE.TestAutomation.SpecFlowPlugin.Configuration"));
-            generationContext.Namespace.Imports.Add(new CodeNamespaceImport("CBRE.TestAutomation.SpecFlowPlugin.Services.TestSession"));
+            generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Configuration"));
+            generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Services.TestSession"));
         }
 
         private void AddTestCaseAttributeForEachBrowser(CodeMemberMethod testMethod, string browser,
