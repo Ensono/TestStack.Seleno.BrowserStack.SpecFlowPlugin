@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <specFlow>
+        <plugins>
+      <add name="TestStack.Seleno.BrowserStack" path="..\packages\TestStack.Seleno.BrowserStack.SpecFlowPlugin.$version$\lib\net451" type="GeneratorAndRuntime" />
+    </plugins>
+    <stepAssemblies>
+      <stepAssembly assembly="TestStack.Seleno.BrowserStack.Core" />
+    </stepAssemblies>
+    </specFlow>
+	<appSettings>
+    <add key="browserStack.user" value="" />
+    <add key="browserstack.key" value="" />
+    <add key="browserStackRemoteDriverUrl" value="http://hub.browserstack.com/wd/hub/" />
+    <add key="buildNumber" value="" />
+  </appSettings>
+</configuration>

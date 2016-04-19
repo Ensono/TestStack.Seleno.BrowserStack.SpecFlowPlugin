@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="App.config.transform" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
