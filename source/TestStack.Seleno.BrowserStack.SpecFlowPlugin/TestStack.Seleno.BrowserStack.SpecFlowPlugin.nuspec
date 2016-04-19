@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Franck Theolade</authors>
+    <owners>Amido</owners>
+    <projectUrl>https://github.com/amido/TestStack.Seleno.BrowserStack.SpecFlowPlugin</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Custom plugin to generate nunit test to support multiple browser configuration on browser stack using TestStack Seleno</description>
+    <releaseNotes>
+		- Multiple browser support with just tag places on scenario like @browser:firefox,43.0,OS_X,Lion
+		- Error notification done with after scenario hook and browser stack api to pass error message.
+	</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Selenium Seleno SpecFlow</tags>
+  </metadata>
+</package>

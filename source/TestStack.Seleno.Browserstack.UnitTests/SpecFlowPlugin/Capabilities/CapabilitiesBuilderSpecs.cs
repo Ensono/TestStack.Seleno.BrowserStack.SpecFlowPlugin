@@ -22,7 +22,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Capabilities
         [Test]
         public void Build_ShouldCreateDefaultBrowserCapabilities()
         {
-            
             // Act
             var result = _sut.Build();
 
@@ -99,10 +98,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Capabilities
             result
                 .Should()
                 .Match(HaveDesktopCapabilities(browserName, version, osName, osVersion, PlatformType.Windows));
-
         }
-
-
 
         private Expression<Func<ICapabilities, bool>> DefaultBrowserCapabilities
         {
@@ -121,7 +117,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Capabilities
 
             }
         }
-
 
         private Expression<Func<ICapabilities, bool>> HaveMobileCapabilities(string browserName, string device)
         {
