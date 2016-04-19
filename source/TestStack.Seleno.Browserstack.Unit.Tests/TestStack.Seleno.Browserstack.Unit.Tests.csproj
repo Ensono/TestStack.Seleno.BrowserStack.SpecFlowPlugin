@@ -59,6 +59,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="TechTalk.SpecFlow, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0778194805d6db41, processorArchitecture=MSIL">
+      <HintPath>..\packages\SpecFlow.2.0.0\lib\net45\TechTalk.SpecFlow.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="TestStack.Seleno, Version=0.9.56.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\TestStack.Seleno.0.9.56\lib\NET40\TestStack.Seleno.dll</HintPath>
       <Private>True</Private>
@@ -73,10 +77,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Capabilities\CapabilitiesBuilderSpecs.cs" />
-    <Compile Include="Configuration\BrowserConfigurationParserSpecs.cs" />
-    <Compile Include="Configuration\BrowserHostFactorySpecs.cs" />
-    <Compile Include="Configuration\RemoteBrowserConfiguratorSpecs.cs" />
+    <Compile Include="Bindings\TestResultNotifierSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Capabilities\CapabilitiesBuilderSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Configuration\BrowserConfigurationParserSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Configuration\BrowserHostFactorySpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Configuration\RemoteBrowserConfiguratorSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Extensions\CategorySelectionSpecs.cs" />
+    <Compile Include="SpecFlowPlugin\Extensions\CodeAttributeDeclarationExtensionsSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +91,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TestStack.Seleno.BrowserStack.Bindings\TestStack.Seleno.BrowserStack.Bindings.csproj">
+      <Project>{305F8222-F4F1-4543-A999-7F1E453491A1}</Project>
+      <Name>TestStack.Seleno.BrowserStack.Bindings</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TestStack.Seleno.BrowserStack.SpecFlowPlugin\TestStack.Seleno.BrowserStack.SpecFlowPlugin.csproj">
       <Project>{6AE6F108-6096-4A21-B2E6-876E278B4833}</Project>
       <Name>TestStack.Seleno.BrowserStack.SpecFlowPlugin</Name>

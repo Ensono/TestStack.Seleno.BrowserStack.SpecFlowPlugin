@@ -5,7 +5,9 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestStack.Seleno.BrowserStack.SpecFlowPlugin", "TestStack.Seleno.BrowserStack.SpecFlowPlugin\TestStack.Seleno.BrowserStack.SpecFlowPlugin.csproj", "{6AE6F108-6096-4A21-B2E6-876E278B4833}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestStack.Seleno.Browserstack.SpecFlowPlugin.UnitTests", "TestStack.Seleno.Browserstack.SpecFlowPlugin.Unit.Tests\TestStack.Seleno.Browserstack.SpecFlowPlugin.UnitTests.csproj", "{CE191EB6-B2D6-429E-9DC2-0FAB36BA8225}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestStack.Seleno.BrowserStack.Bindings", "TestStack.Seleno.BrowserStack.Bindings\TestStack.Seleno.BrowserStack.Bindings.csproj", "{305F8222-F4F1-4543-A999-7F1E453491A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestStack.Seleno.Browserstack.Unit.Tests", "TestStack.Seleno.Browserstack.Unit.Tests\TestStack.Seleno.Browserstack.Unit.Tests.csproj", "{CE191EB6-B2D6-429E-9DC2-0FAB36BA8225}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,10 @@ Global
 		{6AE6F108-6096-4A21-B2E6-876E278B4833}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AE6F108-6096-4A21-B2E6-876E278B4833}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6AE6F108-6096-4A21-B2E6-876E278B4833}.Release|Any CPU.Build.0 = Release|Any CPU
+		{305F8222-F4F1-4543-A999-7F1E453491A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{305F8222-F4F1-4543-A999-7F1E453491A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{305F8222-F4F1-4543-A999-7F1E453491A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{305F8222-F4F1-4543-A999-7F1E453491A1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CE191EB6-B2D6-429E-9DC2-0FAB36BA8225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CE191EB6-B2D6-429E-9DC2-0FAB36BA8225}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE191EB6-B2D6-429E-9DC2-0FAB36BA8225}.Release|Any CPU.ActiveCfg = Release|Any CPU

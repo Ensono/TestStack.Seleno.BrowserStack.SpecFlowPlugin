@@ -23,7 +23,6 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin.Extensions
             }
 
             return description;
-
         }
 
         public static string ToSentenceCase(this string str)
