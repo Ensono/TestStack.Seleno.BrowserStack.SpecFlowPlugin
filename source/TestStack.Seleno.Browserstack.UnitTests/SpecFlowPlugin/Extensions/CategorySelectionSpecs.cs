@@ -69,5 +69,16 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Extensions
             // Assert
             result.Should().Be("firefox 43.0 OS X Lion");
         }
+
+        [TestCase("iPhone,iPhone_6S_Plus", "iPhone 6S Plus")]
+        [TestCase("Android,Samsung Galaxy S5", "Android Samsung Galaxy S5")]
+        public void UserFriendlyBrowserConfiguration_ShouldRemoveDuplicates(string unProcessedBrowserConfiguration, string expectedBrowserConfiguration)
+        {
+            // Act
+            var result = unProcessedBrowserConfiguration.UserFriendlyBrowserConfiguration();
+
+            // Assert
+            result.Should().Be(expectedBrowserConfiguration);
+        }
     }
 }

@@ -15,6 +15,20 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         public SeleniumNUnitTestGeneratorProvider(CodeDomHelper codeDomHelper) : base(codeDomHelper)
         { }
 
+        public override void SetTestMethod(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string friendlyTestName)
+        {
+            base.SetTestMethod(generationContext, testMethod, friendlyTestName);
+
+            if (!_scenarioSetupMethodsAdded)
+            {
+                generationContext.ScenarioInitializeMethod.Statements.Add(
+                    new CodeSnippetStatement(
+                        @"            InitialiseAndRegisterBrowserHost(_currentBrowserConfiguration);"));
+                _scenarioSetupMethodsAdded = true;
+            }
+            testMethod.Statements.Insert(0,new CodeSnippetStatement("            _currentBrowserConfiguration = null;"));
+        }
+
         public override void SetTestMethodCategories(TestClassGenerationContext generationContext,
             CodeMemberMethod testMethod, IEnumerable<string> scenarioCategories)
         {
@@ -33,14 +47,18 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
             if (hasBrowserTag)
             {
-                if (!_scenarioSetupMethodsAdded)
+                testMethod.Parameters.Insert(0,
+                    new CodeParameterDeclarationExpression("System.string", "browserConfiguration"));
+
+                var statement = testMethod.Statements.OfType<CodeSnippetStatement>().FirstOrDefault(c => c.Value.Contains("_currentBrowserConfiguration"));
+
+                if (statement != null)
                 {
-                    generationContext.ScenarioInitializeMethod.Statements.Add(new CodeSnippetStatement("            InitialiseAndRegisterBrowserHost(_currentBrowserConfiguration);"));
-                    _scenarioSetupMethodsAdded = true;
+                    testMethod.Statements.Remove(statement);
                 }
 
-                testMethod.Parameters.Insert(0, new CodeParameterDeclarationExpression("System.string", "browserConfiguration"));
-                testMethod.Statements.Insert(0, new CodeSnippetStatement("            _currentBrowserConfiguration = browserConfiguration;"));
+                testMethod.Statements.Insert(0,
+                    new CodeSnippetStatement("            _currentBrowserConfiguration = browserConfiguration;"));
             }
         }
 
@@ -117,7 +135,10 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         public override void SetTestClassInitializeMethod(TestClassGenerationContext generationContext)
         {
             base.SetTestClassInitializeMethod(generationContext);
-            generationContext.TestClassInitializeMethod.Statements.Add(new CodeSnippetStatement(@"            _remoteBrowserConfigurator = new RemoteBrowserConfigurator();"));
+            generationContext.TestClassInitializeMethod.Statements.Add(new CodeSnippetStatement(@"            var configurationProvider = new ConfigurationProvider();
+            _remoteBrowserConfigurator = new RemoteBrowserConfigurator(new BrowserHostFactory(configurationProvider),
+                                                                       new BrowserConfigurationParser(),
+                                                                       new CapabilitiesBuilder(configurationProvider));"));
         }
 
         #region private methods
@@ -133,7 +154,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         private static void AddInitialiseAndRegisterBrowserHostMethod(TestClassGenerationContext generationContext)
         {
             var initializeSelenoMethod = new CodeMemberMethod {Name = "InitialiseAndRegisterBrowserHost" };
-            initializeSelenoMethod.Parameters.Add(new CodeParameterDeclarationExpression("System.String", "browserConfiguration"));
+            initializeSelenoMethod.Parameters.Add(new CodeParameterDeclarationExpression("System.String", "browserConfiguration = null"));
             initializeSelenoMethod.Statements.Add(new CodeSnippetExpression(@"ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<ConfigurationProvider, IConfigurationProvider>();
             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<BrowserStackService, IBrowserStackService>(); ;
 
@@ -152,6 +173,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         {
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Configuration"));
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Services.TestSession"));
+            generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Capabilities"));
         }
 
         private void AddTestCaseAttributeForEachBrowser(CodeMemberMethod testMethod, string browser,
@@ -168,7 +190,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
             if (testNameFormatter == null)
             {
-                testNameFormatter = () => $"{testMethod.Name} on {browserSpecifications}";
+                testNameFormatter = () => $"{testMethod.GetDescription()} on {browserSpecifications}";
             }
 
             var withBrowserArgs = new[] {new CodeAttributeArgument(new CodePrimitiveExpression(browser))}

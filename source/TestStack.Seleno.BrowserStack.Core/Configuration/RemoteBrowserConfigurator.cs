@@ -7,28 +7,18 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         private readonly IBrowserHostFactory _browserHostFactory;
         private readonly IBrowserConfigurationParser _parser;
         private readonly ICapabilitiesBuilder _capabilitiesBuilder;
-        private readonly IConfigurationProvider _configurationProvider;
-
-        public RemoteBrowserConfigurator()
-            : this(new BrowserHostFactory(), new BrowserConfigurationParser(), new CapabilitiesBuilder(), new ConfigurationProvider())
-        {
-
-        }
 
         public RemoteBrowserConfigurator(IBrowserHostFactory browserHostFactory, IBrowserConfigurationParser parser,
-            ICapabilitiesBuilder capabilitiesBuilder, IConfigurationProvider configurationProvider)
+            ICapabilitiesBuilder capabilitiesBuilder)
         {
             _browserHostFactory = browserHostFactory;
             _parser = parser;
             _capabilitiesBuilder = capabilitiesBuilder;
-            _configurationProvider = configurationProvider;
         }
 
         public IBrowserHost CreateAndConfigure(TestSpecification testSpecification, string browser = null)
         {
-            var builder = _capabilitiesBuilder
-                            .WithCredentials(_configurationProvider.UserName, _configurationProvider.AccessKey)
-                            .WithTestSpecification(testSpecification);
+            var builder = _capabilitiesBuilder.WithTestSpecification(testSpecification);
 
             if (browser != null)
             {

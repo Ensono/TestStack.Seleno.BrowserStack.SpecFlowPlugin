@@ -7,11 +7,17 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
 {
     public class CapabilitiesBuilder : ICapabilitiesBuilder
     {
+        private readonly IConfigurationProvider _configurationProvider;
         private TestSpecification _testSpecification = new TestSpecification(string.Empty, string.Empty);
-        private string _userName = "automate@amido.com";
-        private string _accessKey = "EN1jzb16rb26dett";
+        private string _userName = string.Empty;
+        private string _accessKey = string.Empty;
         private BrowserConfiguration _browserConfiguration = new BrowserConfiguration();
         private string _buildNumber = string.Empty;
+
+        public CapabilitiesBuilder(IConfigurationProvider configurationProvider)
+        {
+            _configurationProvider = configurationProvider;
+        }
 
         public ICapabilitiesBuilder WithTestSpecification(TestSpecification testSpecification)
         {
@@ -83,8 +89,10 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
 
         private void SetCredentials(DesiredCapabilities result)
         {
-            result.SetCapability(RemoteCapabilityType.BrowserStack.UserName, _userName);
-            result.SetCapability(RemoteCapabilityType.BrowserStack.AccessKey, _accessKey);
+            result.SetCapability(RemoteCapabilityType.BrowserStack.UserName,
+                string.IsNullOrWhiteSpace(_userName) ? _configurationProvider.UserName : _userName);
+            result.SetCapability(RemoteCapabilityType.BrowserStack.AccessKey,
+                string.IsNullOrWhiteSpace(_accessKey) ? _configurationProvider.AccessKey : _accessKey);
         }
     }
 }

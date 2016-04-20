@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using TestStack.Seleno.BrowserStack.Core.Capabilities;
@@ -12,21 +13,30 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Capabilities
     public class CapabilitiesBuilderSpecs
     {
         private CapabilitiesBuilder _sut;
+        private IConfigurationProvider _configuration;
 
         [SetUp]
         public void SetUp()
         {
-            _sut = new CapabilitiesBuilder();
+            _configuration = Substitute.For<IConfigurationProvider>();
+            _sut = new CapabilitiesBuilder(_configuration);
         }
 
         [Test]
         public void Build_ShouldCreateDefaultBrowserCapabilities()
-        {
+        {   
+            // Arrange
+            const string userName = "automation@host.com";
+            var accessKey = Guid.NewGuid().ToString();
+
+            _configuration.UserName.Returns(userName);
+            _configuration.AccessKey.Returns(accessKey);
+
             // Act
             var result = _sut.Build();
 
             // Assert
-            result.Should().Match(DefaultBrowserCapabilities);
+            result.Should().Match(DefaultBrowserCapabilities(userName, accessKey));
         }
         
         [Test]
@@ -50,11 +60,15 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Capabilities
         }
 
         [Test]
-        public void Build_ShouldSetCredentials()
+        public void Build_ShouldOverrideCredentialsSpecifiedByConfigurationProvider()
         {
             //Arrange
             const string userName = "someUserName";
             var accessKey = Guid.NewGuid().ToString();
+
+            _configuration.UserName.Returns(Guid.NewGuid().ToString());
+            _configuration.AccessKey.Returns(Guid.NewGuid().ToString());
+
             _sut.WithCredentials(userName, accessKey);
 
             // Act
@@ -100,22 +114,19 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Capabilities
                 .Match(HaveDesktopCapabilities(browserName, version, osName, osVersion, PlatformType.Windows));
         }
 
-        private Expression<Func<ICapabilities, bool>> DefaultBrowserCapabilities
+        private Expression<Func<ICapabilities, bool>> DefaultBrowserCapabilities(string userName, string accessKey)
         {
-            get
-            {
                 return x => x.GetCapability("version").Equals("ANY") &&
                             x.GetCapability("os").Equals("ANY") &&
                             x.GetCapability("os_version").Equals("ANY") &&
                             x.GetCapabilityAs<Platform>("platform").PlatformType == PlatformType.Any &&
                             !x.HasCapability("device") &&
-                            x.GetCapability("browserstack.user").Equals("automate@amido.com") &&
-                            x.GetCapability("browserstack.key").Equals("EN1jzb16rb26dett") &&
+                            x.GetCapability("browserstack.user").Equals(userName) &&
+                            x.GetCapability("browserstack.key").Equals(accessKey) &&
                             x.GetCapability("name").Equals(string.Empty) &&
                             x.GetCapability("project").Equals(string.Empty) &&
                             x.GetCapability("build").Equals(string.Empty);
 
-            }
         }
 
         private Expression<Func<ICapabilities, bool>> HaveMobileCapabilities(string browserName, string device)

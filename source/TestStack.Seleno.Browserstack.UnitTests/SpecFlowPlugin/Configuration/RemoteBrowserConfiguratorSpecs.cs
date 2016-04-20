@@ -16,7 +16,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Configuration
         private IBrowserHostFactory _browserHostFactory;
         private IBrowserConfigurationParser _parser;
         private ICapabilitiesBuilder _capabilitiesBuilder;
-        private IConfigurationProvider _configurationProvider;
 
         [SetUp]
         public void SetUp()
@@ -24,31 +23,24 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Configuration
             _browserHostFactory = Substitute.For<IBrowserHostFactory>();
             _parser = Substitute.For<IBrowserConfigurationParser>();
             _capabilitiesBuilder = Substitute.For<ICapabilitiesBuilder>();
-            _configurationProvider = Substitute.For<IConfigurationProvider>();
 
-            _capabilitiesBuilder.WithCredentials(Arg.Any<string>(), Arg.Any<string>()).Returns(_capabilitiesBuilder);
             _capabilitiesBuilder.WithTestSpecification(Arg.Any<TestSpecification>()).Returns(_capabilitiesBuilder);
-            _sut = new RemoteBrowserConfigurator(_browserHostFactory,_parser, _capabilitiesBuilder, _configurationProvider);
+            _sut = new RemoteBrowserConfigurator(_browserHostFactory,_parser, _capabilitiesBuilder);
         }
 
         [TestCase(null)]
         [TestCase("configuration")]
-        public void CreateAndConfigure_ShouldAlwaysConfigureCredentialsAndTestSpecifications(string browser)
+        public void CreateAndConfigure_ShouldAlwaysConfigureTestSpecifications(string browser)
         {
             // Arrange
             var testSpecification = new TestSpecification("Fancy scenario", "178wq76essf");
-            const string userName = "someUserName";
-            var accessKey = Guid.NewGuid().ToString();
-
-            _configurationProvider.UserName.Returns(userName);
-            _configurationProvider.AccessKey.Returns(accessKey);
 
             // Act
             _sut.CreateAndConfigure(testSpecification, browser);
 
             // Assert
 
-            _capabilitiesBuilder.Received().WithCredentials(userName, accessKey);
+            _capabilitiesBuilder.DidNotReceive().WithCredentials(Arg.Any<string>(), Arg.Any<string>());
             _capabilitiesBuilder.Received().WithTestSpecification(testSpecification);
 
         }

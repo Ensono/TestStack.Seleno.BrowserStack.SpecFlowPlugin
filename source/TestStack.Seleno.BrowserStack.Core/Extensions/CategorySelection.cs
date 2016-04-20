@@ -25,7 +25,15 @@ namespace TestStack.Seleno.BrowserStack.Core.Extensions
 
         public static string UserFriendlyBrowserConfiguration(this string browser)
         {
-            return Regex.Replace(browser, "_|,", " ");
+            var result = Regex.Replace(browser, "_|,", " ");
+            var items = result.Split(' ');
+
+            if (items.Count(s => s.Equals(items[0], StringComparison.InvariantCultureIgnoreCase)) == 2)
+            {
+                result = string.Join(" ",items.Skip(1));
+            }
+
+            return result;
         }
     }
 }

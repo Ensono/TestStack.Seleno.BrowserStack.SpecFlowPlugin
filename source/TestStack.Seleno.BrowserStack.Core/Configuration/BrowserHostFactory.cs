@@ -13,10 +13,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         public TimeSpan CommandTimeOut { get; set; }
 
-        public BrowserHostFactory() : this(new ConfigurationProvider())
-        {
-        }
-
         public BrowserHostFactory(IConfigurationProvider configurationProvider)
         {
             _configurationProvider = configurationProvider;

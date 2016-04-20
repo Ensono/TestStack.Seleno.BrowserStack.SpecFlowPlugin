@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using NUnit.Framework;
@@ -32,18 +33,15 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Configuration
                 .WithMessage("No browser configuration was specified");
         }
 
-        [TestCase("chrome")]
         [TestCase("firefox,43.0,Windows")]
         [TestCase("firefox,43.0,OS_X,Lion,Other")]
         [TestCase("android,Samsung_Galaxy_S5,45")]
-        [TestCase("android|Samsung_Galaxy_S5")]
-        [TestCase("firefox 43.0 OS_X Lion")]
         public void Parse_ShouldThrowAnInvalidBrowserConfigurationExceptionWhenTheBrowserConfigurationHasNeitherTwoNorFourParts(string invalidBrowserConfig)
         {
             // Arrange
             Action attemptToParseInvalidBrowserConfiguration = () => _sut.Parse(invalidBrowserConfig);
             const string errorMessage = "Browser configuration is expected to contain browser name, browser version, " +
-                                        "operating system and operating system version or browser and device name";
+                                        "operating system and operating system version or browser name or platform name and device name";
 
             // Act & Assert
             attemptToParseInvalidBrowserConfiguration
@@ -66,16 +64,22 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Configuration
                     .WithMessage(errorMessage);
         }
 
-        [Test]
-        public void Parse_ShouldReturnDesktopBrowserConfiguration()
+        [TestCase("chrome")]
+        [TestCase("firefox,43.0,OS_X,Lion")]
+        public void Parse_ShouldReturnDesktopBrowserConfiguration(string desktopBrowserConfiguration)
         {
             // Arrange
-            const string browserName = "firefox";
-            const string browserVersion = "43.0";
-            const string osName = "OS X";
-            const string osVersion = "Lion";
-            var desktopBrowserConfiguration =
-                $"{browserName},{browserVersion},{osName.Replace(" ","_")},{osVersion}";
+            var parts = desktopBrowserConfiguration.Split(',').Select(x => x.Replace("_", " ")).ToList();
+            var browserName = parts[0];
+            var browserVersion = "ANY";
+            var osName = "ANY";
+            var osVersion = "ANY";
+            if (parts.Count == 4)
+            {
+                browserVersion = parts[1];
+                osName = parts[2];
+                osVersion = parts[3];
+            }
 
             // Act 
             var result = _sut.Parse(desktopBrowserConfiguration);
@@ -90,9 +94,9 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Configuration
         public void Parse_ShouldReturnMobileBrowserConfiguration()
         {
             // Arrange
-            const string browserName = "iphone";
+            const string browserName = "iPhone";
             const string device = "iPhone 6S Plus";
-            var mobileBrowserConfiguration =$"{browserName},{device}";
+            var mobileBrowserConfiguration =$"{browserName},{device.Replace(" ","_")}";
 
             // Act 
             var result = _sut.Parse(mobileBrowserConfiguration);
