@@ -138,7 +138,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             generationContext.TestClassInitializeMethod.Statements.Add(new CodeSnippetStatement(@"            var configurationProvider = new ConfigurationProvider();
             _remoteBrowserConfigurator = new RemoteBrowserConfigurator(new BrowserHostFactory(configurationProvider),
                                                                        new BrowserConfigurationParser(),
-                                                                       new CapabilitiesBuilder(configurationProvider));"));
+                                                                       new CapabilitiesBuilder(configurationProvider);"));
         }
 
         #region private methods

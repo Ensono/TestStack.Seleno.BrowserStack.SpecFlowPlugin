@@ -34,5 +34,10 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         {
             get { return ConfigurationManager.AppSettings[Constants.BuildNumber]; }
         }
+
+        public string BrowserStackApiUrl
+        {
+            get { return ConfigurationManager.AppSettings[Constants.BrowserStackApiUrl]; }
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         string Encoded64Token { get; }
         string RemoteUrl { get; }
         string BuildNumber { get; }
+        string BrowserStackApiUrl { get; }
     }
 }

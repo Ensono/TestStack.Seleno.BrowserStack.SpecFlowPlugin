@@ -111,15 +111,21 @@
     <Compile Include="Configuration\IConfigurationProvider.cs" />
     <Compile Include="Configuration\RemoteBrowserConfigurator.cs" />
     <Compile Include="Configuration\TestSpecification.cs" />
+    <Compile Include="Disposable.cs" />
     <Compile Include="Exceptions\InvalidBrowserConfigurationException.cs" />
     <Compile Include="Extensions\CategorySelection.cs" />
     <Compile Include="Extensions\CodeAttributeDeclarationExtensions.cs" />
     <Compile Include="NUnitAttributeConstants.cs" />
+    <Compile Include="Services\Client\HttpClientFactory.cs" />
+    <Compile Include="Services\Client\HttpClientWrapper.cs" />
+    <Compile Include="Services\Client\IHttpClient.cs" />
+    <Compile Include="Services\Client\IHttpClientFactory.cs" />
     <Compile Include="Services\TestSession\AutomationSession.cs" />
     <Compile Include="Services\TestSession\BrowserStackService.cs" />
     <Compile Include="Services\TestSession\IBrowserStackService.cs" />
     <Compile Include="Services\TestSession\SessionDetail.cs" />
     <Compile Include="Services\TestSession\SessionStatus.cs" />
+    <Compile Include="Services\TestSession\SessionUpdate.cs" />
     <Compile Include="TestResultNotifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

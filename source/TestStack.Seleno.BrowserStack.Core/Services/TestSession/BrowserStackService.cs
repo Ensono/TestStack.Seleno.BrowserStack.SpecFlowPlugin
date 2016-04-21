@@ -1,77 +1,55 @@
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
+using TestStack.Seleno.BrowserStack.Core.Services.Client;
 
 namespace TestStack.Seleno.BrowserStack.Core.Services.TestSession
 {
     public class BrowserStackService : IBrowserStackService
     {
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public BrowserStackService(IConfigurationProvider configurationProvider)
+        public BrowserStackService(IConfigurationProvider configurationProvider, IHttpClientFactory clientFactory)
         {
             _configurationProvider = configurationProvider;
+            _clientFactory = clientFactory;
         }
 
         public virtual AutomationSession GetSessionDetail(string sessionId)
         {
             var result = new SessionDetail();
-            using (var client = CreateAuthenticatedClient())
+            using (var client = _clientFactory.Create(_configurationProvider.BrowserStackApiUrl))
             {
-                var response = client.GetAsync(GetRequestUri(sessionId)).Result;
+                var response = client.GetAsync(GetSessionRelativeUrl(sessionId)).Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    result = response.Content.ReadAsAsync<SessionDetail>(Formatters).Result;
+                    result = response.Content.ReadAsAsync<SessionDetail>(client.GetFormatters()).Result;
                 }
             }
 
             return result.AutomationSession;
         }
 
-        private static JsonMediaTypeFormatter[] Formatters
-        {
-            get
-            {
-                return new[]
-                {
-                    new JsonMediaTypeFormatter
-                    {
-                        UseDataContractJsonSerializer = false,
-                        SerializerSettings = new JsonSerializerSettings
-                        {
-                            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                            NullValueHandling = NullValueHandling.Ignore,
-                        }
-                    }
-                };
-            }
-        }
+      
+       
 
         public virtual void UpdateTestStatus(string sessionId, SessionStatus status, string reason)
         {
-            using (var client = CreateAuthenticatedClient())
+            using (var client = _clientFactory.Create(_configurationProvider.BrowserStackApiUrl))
             {
-                client.PutAsJsonAsync(GetRequestUri(sessionId), new {status = status.ToString().ToLower(), reason}).Wait();
+                client.PutAsJsonAsync(GetSessionRelativeUrl(sessionId), new SessionUpdate(status, reason)).Wait();
             }
         }
 
-        private HttpClient CreateAuthenticatedClient()
+        private static string GetSessionRelativeUrl(string sessionId)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                _configurationProvider.Encoded64Token);
-
-            return client;
+            return string.Format("sessions/{0}.json", sessionId);
         }
 
-        private static string GetRequestUri(string sessionId)
-        {
-            return string.Format("https://www.browserstack.com/automate/sessions/{0}.json", sessionId);
-        }
     }
 
 }
