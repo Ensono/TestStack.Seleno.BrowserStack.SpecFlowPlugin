@@ -135,10 +135,11 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         public override void SetTestClassInitializeMethod(TestClassGenerationContext generationContext)
         {
             base.SetTestClassInitializeMethod(generationContext);
-            generationContext.TestClassInitializeMethod.Statements.Add(new CodeSnippetStatement(@"            var configurationProvider = new ConfigurationProvider();
+            generationContext.TestClassInitializeMethod.Statements.Add(new CodeSnippetStatement(@"             var configurationProvider = new ConfigurationProvider();
             _remoteBrowserConfigurator = new RemoteBrowserConfigurator(new BrowserHostFactory(configurationProvider),
-                                                                       new BrowserConfigurationParser(),
-                                                                       new CapabilitiesBuilder(configurationProvider);"));
+                new BrowserConfigurationParser(new BrowserStackService(configurationProvider,
+                    new HttpClientFactory(configurationProvider))),
+                new CapabilitiesBuilder(configurationProvider));"));
         }
 
         #region private methods
@@ -156,7 +157,8 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             var initializeSelenoMethod = new CodeMemberMethod {Name = "InitialiseAndRegisterBrowserHost" };
             initializeSelenoMethod.Parameters.Add(new CodeParameterDeclarationExpression("System.String", "browserConfiguration = null"));
             initializeSelenoMethod.Statements.Add(new CodeSnippetExpression(@"ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<ConfigurationProvider, IConfigurationProvider>();
-            ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<BrowserStackService, IBrowserStackService>(); ;
+            ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<BrowserStackService, IBrowserStackService>(); 
+            ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<HttpClientFactory, IHttpClientFactory>(); 
 
             var scenarioTitle = ScenarioContext.Current.ScenarioInfo.Title;
             var featureTitle = FeatureContext.Current.FeatureInfo.Title;
@@ -174,6 +176,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Configuration"));
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Services.TestSession"));
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Capabilities"));
+            generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Services.Client"));
         }
 
         private void AddTestCaseAttributeForEachBrowser(CodeMemberMethod testMethod, string browser,

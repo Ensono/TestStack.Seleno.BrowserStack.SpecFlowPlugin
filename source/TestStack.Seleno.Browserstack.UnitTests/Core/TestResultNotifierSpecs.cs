@@ -7,7 +7,7 @@ using TestStack.Seleno.BrowserStack.Core;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
-namespace TestStack.Seleno.Browserstack.UnitTests.Bindings
+namespace TestStack.Seleno.Browserstack.UnitTests.Core
 {
     [TestFixture]
     public class TestResultNotifierSpecs

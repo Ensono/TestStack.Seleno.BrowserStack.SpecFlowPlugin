@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using TestStack.Seleno.BrowserStack.Core.Extensions;
 
-namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Extensions
+namespace TestStack.Seleno.Browserstack.UnitTests.Core.Extensions
 {
     [TestFixture]
     public class CategorySelectionSpecs

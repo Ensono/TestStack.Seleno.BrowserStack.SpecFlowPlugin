@@ -7,7 +7,7 @@ using OpenQA.Selenium.Remote;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.Configuration.Contracts;
 
-namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Configuration
+namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 {
     [TestFixture]
     public class BrowserHostFactorySpecs

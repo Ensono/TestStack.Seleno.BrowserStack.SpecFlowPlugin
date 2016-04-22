@@ -7,7 +7,7 @@ using TestStack.Seleno.BrowserStack.Core.Capabilities;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Exceptions;
 
-namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Configuration
+namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 {
     [TestFixture]
     public class RemoteBrowserConfiguratorSpecs

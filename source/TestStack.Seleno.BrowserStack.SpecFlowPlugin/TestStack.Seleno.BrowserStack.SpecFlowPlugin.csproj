@@ -76,6 +76,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="App.config.transform" />
+    <None Include="browsers.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

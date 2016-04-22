@@ -9,9 +9,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.Client
 {
     public class HttpClientWrapper : Disposable, IHttpClient
     {
-        private readonly HttpMessageInvoker _client;
+        internal HttpMessageInvoker Client { get; }
 
-        public MediaTypeFormatter[] GetFormatters()
+        public virtual MediaTypeFormatter[] GetFormatters()
         {
             return new[]
             {
@@ -30,14 +30,14 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.Client
 
         public HttpClientWrapper(HttpMessageInvoker client)
         {
-            _client = client;
+            Client = client;
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && _client != null)
+            if (disposing && Client != null)
             {
-                _client.Dispose();
+                Client.Dispose();
             }
 
             base.Dispose(disposing);
@@ -46,12 +46,12 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.Client
 
         public Task<HttpResponseMessage> GetAsync(string requestUri)
         {
-            return _client.SendAsync(CreateRequestMessage(HttpMethod.Get, requestUri), CancellationToken.None);
+            return Client.SendAsync(CreateRequestMessage(HttpMethod.Get, requestUri), CancellationToken.None);
         }
 
         public virtual HttpRequestMessage CreateRequestMessage(HttpMethod httpMethod, string requestUri)
         {
-            return new HttpRequestMessage(HttpMethod.Get, requestUri);
+            return new HttpRequestMessage(httpMethod, requestUri);
         }
 
         public Task<HttpResponseMessage> PutAsJsonAsync<T>(string requestUri, T data)
@@ -61,7 +61,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.Client
 
             putRequestMessage.Content = new ObjectContent<T>(data, formatter);
 
-            return _client.SendAsync(putRequestMessage, CancellationToken.None);
+            return Client.SendAsync(putRequestMessage, CancellationToken.None);
         }
     }
 }

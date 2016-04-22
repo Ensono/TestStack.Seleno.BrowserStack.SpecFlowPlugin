@@ -1,9 +1,11 @@
 using TestStack.Seleno.BrowserStack.Core.Exceptions;
+using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
     public class BrowserConfigurationParser : IBrowserConfigurationParser
     {
+        private readonly IBrowserStackService _browserStackService;
         public const char ConfigurationItemSeparator = ',';
         public const string ItemSpaceSeparator = "_";
 
@@ -15,23 +17,39 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         private const string BrowserVersionMustBeNumericErrorMessage = "Browser version must be numeric";
 
+        public BrowserConfigurationParser(IBrowserStackService browserStackService)
+        {
+            _browserStackService = browserStackService;
+        }
+
         public BrowserConfiguration Parse(string value)
         {
             bool isMobileDevice;
             var parameters = ValidateAndExtractBrowserConfiguration(value, out isMobileDevice);
+            BrowserConfiguration result;
 
             if (isMobileDevice)
             {
-                return new BrowserConfiguration(parameters[0], parameters[1].Replace(ItemSpaceSeparator, " "));
+                result =  new BrowserConfiguration(parameters[0], parameters[1].Replace(ItemSpaceSeparator, " "));
             }
-
-            if (parameters.Length == 1)
+            else if (parameters.Length == 1)
             {
-                return new BrowserConfiguration(parameters[0]);
+                result = new BrowserConfiguration(parameters[0]);
+            }
+            else
+            {
+
+                result = new BrowserConfiguration(parameters[0], parameters[1],
+                    parameters[2].Replace(ItemSpaceSeparator, " "),
+                    parameters[3]);
             }
 
-            return new BrowserConfiguration(parameters[0], parameters[1], parameters[2].Replace(ItemSpaceSeparator, " "),
-                parameters[3]);
+            if (_browserStackService.IsNotSupported(result))
+            {
+                throw new UnsupportedBrowserException(result);
+            }
+
+            return result;
         }
 
         private static string[] ValidateAndExtractBrowserConfiguration(string value, out bool isMobileDevice)

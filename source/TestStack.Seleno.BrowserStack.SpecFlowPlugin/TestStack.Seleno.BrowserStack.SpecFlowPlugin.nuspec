@@ -20,5 +20,6 @@
   <files>
 	<!-- config -->
     <file src="App.config.transform" target="content" />
+	<file src="browsers.json" target="content" />
   </files>
 </package>

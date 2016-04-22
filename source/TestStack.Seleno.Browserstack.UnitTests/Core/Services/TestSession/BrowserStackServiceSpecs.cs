@@ -1,18 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using NSubstitute;
 using NUnit.Framework;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Services.Client;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
-namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.TestSession
+namespace TestStack.Seleno.Browserstack.UnitTests.Core.TestSession
 {
     [TestFixture]
     public class BrowserStackServiceSpecs
@@ -21,6 +20,30 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.TestSession
         private IConfigurationProvider _configurationProvider;
         private IHttpClientFactory _clientFactory;
 
+        private static readonly ObjectContent<List<BrowserConfiguration>> SupportedBrowsersContent =
+            new ObjectContent<List<BrowserConfiguration>>(new List<BrowserConfiguration>
+            {
+                new BrowserConfiguration("iPad", "iPad Mini"),
+                new BrowserConfiguration("chrome", "48.0", "Windows", "10"),
+                new BrowserConfiguration("iphone", "iPhone 6S Plus"),
+                new BrowserConfiguration("Android", "Samsumg S5 "),
+            }, new JsonMediaTypeFormatter());
+
+
+        private static readonly BrowserConfiguration[] SupportedBrowsersTestCase =
+        {
+            new BrowserConfiguration("iPad", "iPad Mini"),
+            new BrowserConfiguration("chrome", "48.0", "Windows", "10"),
+        };
+
+        private static readonly BrowserConfiguration[] UnSupportedBrowsersTestCase =
+        {
+            new BrowserConfiguration("iPad", "IPad super holographic pro!"),
+            new BrowserConfiguration("3DInternetExplorer", "1.0","VirtualWindows","1.0b"),
+        };
+
+
+
         [SetUp]
         public void SetUp()
         {
@@ -28,21 +51,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.TestSession
             _clientFactory = Substitute.For<IHttpClientFactory>();
             _sut = new BrowserStackService(_configurationProvider, _clientFactory);
         }
-
-        //[Test]
-        //public void Formatters_ShouldReturnOnlyConfiguredJsonMediaTypeFormatter()
-        //{
-        //    BrowserStackService
-        //        .Formatters
-        //        .Should()
-        //        .HaveCount(1)
-        //        .And
-        //        .OnlyContain(
-        //            x =>
-        //                !x.UseDataContractJsonSerializer &&
-        //                x.SerializerSettings.ContractResolver is CamelCasePropertyNamesContractResolver &&
-        //                x.SerializerSettings.NullValueHandling == NullValueHandling.Ignore);
-        //}
 
         [Test]
         public void GetSessionDetail_ShouldGetBrowserStackSessionDetailWhenStatusIsOk()
@@ -124,7 +132,68 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.TestSession
 
         }
 
+        [TestCaseSource(nameof(SupportedBrowsersTestCase))]
+        public void IsNotSupported_ShouldReturnFalseWhenBrowserConfigurationCouldBeFound(BrowserConfiguration supportedBrowserConfiguration)
+        {
+            // Arrange
+            const string baseAddress = "http://some/address";
+            var client = Substitute.For<IHttpClient>();
 
+            _clientFactory.Create(baseAddress).Returns(client);
+            _configurationProvider.BrowserStackApiUrl.Returns(baseAddress);
+            client.GetAsync("browsers.json")
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) {Content = SupportedBrowsersContent }));
+            // Act
 
+            var result = _sut.IsNotSupported(supportedBrowserConfiguration);
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [TestCaseSource(nameof(UnSupportedBrowsersTestCase))]
+        public void IsNotSupported_ShouldReturnTrueWhenBrowserConfigurationCouldNotBeFound(BrowserConfiguration unsupportedBrowserConfiguration)
+        {
+            // Arrange
+            const string baseAddress = "http://some/address";
+            var client = Substitute.For<IHttpClient>();
+
+            _clientFactory.Create(baseAddress).Returns(client);
+            _configurationProvider.BrowserStackApiUrl.Returns(baseAddress);
+            client
+                .GetAsync("browsers.json")
+                .Returns(Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = SupportedBrowsersContent }));
+            // Act
+
+            var result = _sut.IsNotSupported(unsupportedBrowserConfiguration);
+
+            // Assert
+            result.Should().BeTrue();
+        }
+
+        [TestCase(HttpStatusCode.Continue)]
+        [TestCase(HttpStatusCode.SwitchingProtocols)]
+        [TestCase(HttpStatusCode.Ambiguous)]
+        [TestCase(HttpStatusCode.Unauthorized)]
+        [TestCase(HttpStatusCode.BadRequest)]
+        public void IsNotSupported_ShouldReturnTrueWhenServiceResponseIsNotOk(HttpStatusCode httpStatusCode)
+        {
+            // Arrange
+            const string baseAddress = "http://some/address";
+            var client = Substitute.For<IHttpClient>();
+            var anyBrowserConfiguration = new BrowserConfiguration();
+
+            _clientFactory.Create(baseAddress).Returns(client);
+            _configurationProvider.BrowserStackApiUrl.Returns(baseAddress);
+            client
+                .GetAsync("browsers.json")
+                .Returns(Task.FromResult(new HttpResponseMessage(httpStatusCode)));
+            // Act
+
+            var result = _sut.IsNotSupported(anyBrowserConfiguration);
+
+            // Assert
+            result.Should().BeTrue();
+        }
     }
 }

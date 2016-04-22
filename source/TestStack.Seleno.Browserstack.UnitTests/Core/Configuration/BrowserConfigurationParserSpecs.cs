@@ -2,21 +2,25 @@
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Exceptions;
+using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
-namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Configuration
+namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 {
     [TestFixture]
     public class BrowserConfigurationParserSpecs
     {
         private BrowserConfigurationParser _sut;
+        private IBrowserStackService _browserStackService;
 
         [SetUp]
         public void SetUp()
         {
-            _sut = new BrowserConfigurationParser();
+            _browserStackService = Substitute.For<IBrowserStackService>();
+            _sut = new BrowserConfigurationParser(_browserStackService);
         }
 
         [TestCase("")]
@@ -88,6 +92,25 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Configuration
             result
                 .Should()
                 .Match(DesktopBrowserConfiguration(browserName, browserVersion, osName, osVersion));
+        }
+
+        [TestCase("unknown,46.0,Windows,10", "unknown 46.0 on Windows 10 is not supported")]
+        [TestCase("unknown,some device", "some device is not supported")]
+        public void Parse_ShouldThrowUnsupportedBrowserConfigurationExceptionWhenBrowserStackServiceIsSupportedReturnsFalse(
+            string unsupportedConfiguration, string errorMessage)
+        {
+            // Arrange
+            BrowserConfiguration browserConfiguration = null;
+            _browserStackService.IsNotSupported(Arg.Do<BrowserConfiguration>(x => browserConfiguration = x)).Returns(true);
+
+            Action attemptToParseUnSupportedBrowserConfiguration = () => _sut.Parse(unsupportedConfiguration);
+
+            //Assert
+            var exception = attemptToParseUnSupportedBrowserConfiguration
+                .ShouldThrow<UnsupportedBrowserException>()
+                .WithMessage(errorMessage).Which;
+
+            exception.Browser.Should().BeSameAs(browserConfiguration);
         }
 
         [Test]

@@ -7,7 +7,7 @@ using OpenQA.Selenium;
 using TestStack.Seleno.BrowserStack.Core.Capabilities;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 
-namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin.Capabilities
+namespace TestStack.Seleno.Browserstack.UnitTests.Core.Capabilities
 {
     [TestFixture]
     public class CapabilitiesBuilderSpecs
