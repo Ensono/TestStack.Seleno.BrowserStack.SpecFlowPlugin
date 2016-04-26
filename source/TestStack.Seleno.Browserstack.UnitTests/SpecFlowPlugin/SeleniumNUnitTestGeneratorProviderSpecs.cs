@@ -1,14 +1,11 @@
 ﻿using System;
 using System.CodeDom;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using Gherkin.Ast;
 using NSubstitute;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using TechTalk.SpecFlow.Generator;
 using TechTalk.SpecFlow.Generator.UnitTestProvider;
 using TechTalk.SpecFlow.Parser;
@@ -45,7 +42,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
                     .Statements
                     .OfType<CodeSnippetStatement>();
             var testMethodStatements = testMethod.Statements.OfType<CodeSnippetStatement>();
-            var testMethodAttributes = testMethod.CustomAttributes.OfType<CodeAttributeDeclaration>();
+            var descritionAttributeArgument = new CodeAttributeArgument(new CodePrimitiveExpression(myFriendTestName));
 
 
             // Act
@@ -54,12 +51,11 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             // Assert
             scenarioInitializedMethodStatements
                 .Should()
-                .OnlyContain(
-                    x => x.Value == "            InitialiseAndRegisterBrowserHost(_currentBrowserConfiguration);");
+                .OnlyContain(CodeSnippet("InitialiseAndRegisterBrowserHost(_currentBrowserConfiguration);"));
 
-            testMethodStatements.Should().OnlyContain(x => x.Value == "            _currentBrowserConfiguration = null;");
-            testMethodAttributes.Should().Contain(x => x.Name == "NUnit.Framework.TestAttribute");
-            testMethodAttributes.Should().Contain(DescriptionAttributeWith(myFriendTestName));
+            testMethodStatements.Should().OnlyContain(CodeSnippet("_currentBrowserConfiguration = null;"));
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestAttribute");
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.DescriptionAttribute", descritionAttributeArgument);
         }
 
         [Test]
@@ -77,12 +73,13 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
 
             // Assert
             testClassInitializeMethodAttributes.Should().OnlyContain(x => x.Name == "NUnit.Framework.TestFixtureSetUpAttribute");
-            testClassInitilizeMethodStatements.Should()
-                .OnlyContain(x => x.Value == @"             var configurationProvider = new ConfigurationProvider();
+            testClassInitilizeMethodStatements
+                .Should()
+                .OnlyContain(CodeSnippet(@"var configurationProvider = new ConfigurationProvider();
             _remoteBrowserConfigurator = new RemoteBrowserConfigurator(new BrowserHostFactory(configurationProvider),
                 new BrowserConfigurationParser(new BrowserStackService(configurationProvider,
                     new HttpClientFactory(configurationProvider))),
-                new CapabilitiesBuilder(configurationProvider));");
+                new CapabilitiesBuilder(configurationProvider));"));
         }
 
         [Test]
@@ -90,21 +87,21 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
         {
             // Arrange
             var generationContext = CreateTestClassGenerationContext();
+            var testCleanUpMethodStatements =
+                generationContext.TestCleanupMethod.Statements.OfType<CodeSnippetStatement>();
 
             // Act
             _sut.FinalizeTestClass(generationContext);
 
             // Assert
-            generationContext.TestCleanupMethod.Statements.OfType<CodeSnippetStatement>()
-                .Should()
-                .OnlyContain(x => x.Value == @"            if (_host != null)
+            
+            testCleanUpMethodStatements.Should().OnlyContain(CodeSnippet(@"if (_host != null)
             {
                 _host.Dispose();
                 _host = null;
-            }");
+            }"));
 
         }
-
     
         [Test]
         public void SetTestMethodCategories_ShouldNotAddTestCaseAttributesWhenNoneOfScenarioCategoriesStartsWithBrowser()
@@ -151,19 +148,23 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             var generationContext = CreateTestClassGenerationContext();
             var scenarioCategories = new[] { "My first category", "browser:chrome", "some other category","browser:iPhone,iPhone 6S Plus" };
             var scenarioCategoriesNotStartingWithBrowser =
-                scenarioCategories.Where(c => !c.StartsWith("browser", StringComparison.InvariantCultureIgnoreCase));
-            var testMethodAttributes = testMethod.CustomAttributes.OfType<CodeAttributeDeclaration>();
+                scenarioCategories.Where(c => !c.StartsWith("browser", StringComparison.InvariantCultureIgnoreCase)).ToList();
+            var browsers =
+                scenarioCategories.Except(scenarioCategoriesNotStartingWithBrowser)
+                    .Select(b => b.Replace("browser:", string.Empty))
+                    .ToList();
 
             // Act
             _sut.SetTestMethodCategories(generationContext, testMethod, scenarioCategories);
 
             // Assert
-            foreach (var scenarioCategory in scenarioCategoriesNotStartingWithBrowser)
-            {
-                testMethodAttributes.Should().Contain(CategoryAttributeWith(scenarioCategory));
-            }
+            scenarioCategoriesNotStartingWithBrowser
+                .ForEach(category => testMethod.CustomAttributes.Should().Contain("NUnit.Framework.CategoryAttribute", SimpleAttributeArgument(category)));
+
+            browsers.ForEach(browser => _sut.Received(1).AddTestCaseAttributeForEachBrowser(testMethod, browser, null, null));
         }
 
+       
 
         [TestCase(true)]
         [TestCase(false)]
@@ -173,7 +174,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             var testMethod = new CodeMemberMethod();
             var generationContext = CreateTestClassGenerationContext();
             var scenarioCategories = new[] { "My first category", "browser:chrome", "some other category" };
-            var testMethodAttributes = testMethod.CustomAttributes.OfType<CodeAttributeDeclaration>();
             var testMethodParameters = testMethod.Parameters.OfType<CodeParameterDeclarationExpression>();
 
             if (initialiseCurrentBrowserConfigurationWithNull)
@@ -193,7 +193,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
         [Test]
         public void AddTestCaseAttributeForEachBrowser_ShouldAddBrowserInTestMethodUserDataDictionary()
         {
-
             // Arrange
             var testMethod = new CodeMemberMethod();
             const string browser = "chrome";
@@ -202,8 +201,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser);
 
             //Assert
-            testMethod.UserData.Keys.Should().Contain("browser:chrome");
-            testMethod.UserData.Values.Should().Contain("chrome");
+            testMethod.UserData.Should().OnlyContain("browser:chrome", "chrome");
         }
 
 
@@ -220,13 +218,12 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser);
 
             //Assert
-            testMethod.UserData.Keys.Should().Contain("browser:chrome");
-            testMethod.UserData.Values.Should().Contain("chromium");
+            testMethod.UserData.Should().OnlyContain("browser:chrome", "chromium");
         }
 
 
-        [Ignore("In Progress")]
-        public void AddTestCaseAttributeForEachBrowser_ShoulAddTestCaseAttributeForBrowser()
+        [Test]
+        public void AddTestCaseAttributeForEachBrowser_ShoulAddTestCaseAttributeForBrowserWithCategoryAndTestNameFromTestMethodDescription()
         {
 
             // Arrange
@@ -234,15 +231,13 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             const string browser = "chrome,48.0,Windows,10";
             const string myFriendlyTestName = "This is my friendly test method";
 
-
             testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("NUnit.Framework.DescriptionAttribute",
                 new CodeAttributeArgument(new CodePrimitiveExpression(myFriendlyTestName))));
-            var testMethodAttributes = testMethod.CustomAttributes.OfType<CodeAttributeDeclaration>();
-            var arguments = new Dictionary<string,string>()
+            var arguments = new[]
             {
-                {"", browser},
-                {"Category",  "chrome 48.0 Windows 10"},
-                {"TestCase",  myFriendlyTestName + " on chrome 48.0 Windows 10"}
+                new CodeAttributeArgument(new CodePrimitiveExpression(browser)),
+                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browser)),
+                new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName + " on chrome 48.0 Windows 10")),
             };
 
 
@@ -250,18 +245,69 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser);
 
             //Assert
-            testMethodAttributes.Should().Contain(TestCaseAttributeWith(arguments));
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", arguments);
         }
 
-        private Expression<Func<CodeAttributeDeclaration, bool>> TestCaseAttributeWith(IEnumerable<KeyValuePair<string,string>> arguments)
+        [Test]
+        public void AddTestCaseAttributeForEachBrowser_ShoulAddTestCaseAttributeForBrowserWithCategoryAndSpecifiedTestName()
         {
-            return
-                x =>
-                    x.Name == "NUnit.Framework.TestCaseAttribute" && x.Arguments.Count == 3;
 
+            // Arrange
+            var testMethod = new CodeMemberMethod();
+            const string browser = "chrome,48.0,Windows,10";
+            const string myFriendlyTestName = "This is my friendly test method";
+
+            var expectedArguments = new[]
+            {
+                new CodeAttributeArgument(new CodePrimitiveExpression(browser)),
+                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browser)),
+                new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName)),
+            };
+            Func<string> testNameFormatter = () => myFriendlyTestName;
+            
+            // Act
+            _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser, testNameFormatter);
+
+            //Assert
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
         }
+
+        [Test]
+        public void AddTestCaseAttributeForEachBrowser_ShoulAddTestCaseAttributeWithExistingArgumentsAndBrowserArgument()
+        {
+
+            // Arrange
+            var testMethod = new CodeMemberMethod();
+            const string browser = "chrome,48.0,Windows,10";
+            const string myFriendlyTestName = "This is my friendly test method";
+
+            var expectedArguments = new[]
+            {
+                new CodeAttributeArgument(new CodePrimitiveExpression(browser)),
+                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browser)),
+                new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName)),
+            };
+            var existingAttributeArguments = new []
+            {
+                new CodeAttributeArgument("Author",new CodePrimitiveExpression("FT")),
+                new CodeAttributeArgument("Ignored",new CodePrimitiveExpression("Not quite ready")),
+            };
+            Func<string> testNameFormatter = () => myFriendlyTestName;
+
+            // Act
+            _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser, testNameFormatter, existingAttributeArguments);
+
+            //Assert
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", existingAttributeArguments.Concat(expectedArguments));
+        }
+
 
         #region private helper methods
+
+        private static CodeAttributeArgument SimpleAttributeArgument(string ctg)
+        {
+            return new CodeAttributeArgument(new CodePrimitiveExpression(ctg));
+        }
 
         private static Expression<Func<CodeSnippetStatement, bool>> CodeSnippet(string value)
         {
@@ -272,22 +318,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
         {
             return p => p.Name == name && p.Type.BaseType == type;
         }
-
-        private static Expression<Func<CodeAttributeDeclaration, bool>> DescriptionAttributeWith(string myFriendTestName)
-        {
-            return x =>
-                x.Name == "NUnit.Framework.DescriptionAttribute" &&
-                x.Arguments.Count == 1 & x.Arguments[0].Value is CodePrimitiveExpression &&
-                ((CodePrimitiveExpression) x.Arguments[0].Value).Value.Equals(myFriendTestName);
-        }
-
-        private static Expression<Func<CodeAttributeDeclaration, bool>> CategoryAttributeWith(string scenarioCategory)
-        {
-            return x => x.Name == "NUnit.Framework.CategoryAttribute" && x.Arguments.Count == 1 &&
-                        ((CodePrimitiveExpression)x.Arguments[0].Value).Value.Equals(scenarioCategory);
-        }
-
-
 
         private TestClassGenerationContext CreateTestClassGenerationContext()
         {
