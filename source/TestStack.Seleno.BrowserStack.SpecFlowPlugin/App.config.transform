@@ -12,5 +12,9 @@
     <add key="browserStackRemoteDriverUrl" value="http://hub.browserstack.com/wd/hub/" />
     <add key="buildNumber" value="" />
     <add key="browserStackApiUrl" value="https://www.browserstack.com/automate/" />
+    <!--
+     <add key="browserStack.user" value="<yourUserNameHere>" />
+     <add key="browserstack.key" value="<yourAccessKeyHere>" />
+    -->
   </appSettings>
 </configuration>

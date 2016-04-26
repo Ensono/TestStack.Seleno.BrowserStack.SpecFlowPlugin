@@ -26,11 +26,10 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
                         @"            InitialiseAndRegisterBrowserHost(_currentBrowserConfiguration);"));
                 _scenarioSetupMethodsAdded = true;
             }
-            testMethod.Statements.Insert(0,new CodeSnippetStatement("            _currentBrowserConfiguration = null;"));
+            testMethod.Statements.Insert(0, new CodeSnippetStatement("            _currentBrowserConfiguration = null;"));
         }
 
-        public override void SetTestMethodCategories(TestClassGenerationContext generationContext,
-            CodeMemberMethod testMethod, IEnumerable<string> scenarioCategories)
+        public override void SetTestMethodCategories(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, IEnumerable<string> scenarioCategories)
         {
             var categories = scenarioCategories as string[] ?? scenarioCategories.ToArray();
 
@@ -179,7 +178,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Services.Client"));
         }
 
-        private void AddTestCaseAttributeForEachBrowser(CodeMemberMethod testMethod, string browser,
+        public virtual void AddTestCaseAttributeForEachBrowser(CodeMemberMethod testMethod, string browser,
             Func<string> testNameFormatter = null,
             IEnumerable<CodeAttributeArgument> attributeArguments = null)
         {
