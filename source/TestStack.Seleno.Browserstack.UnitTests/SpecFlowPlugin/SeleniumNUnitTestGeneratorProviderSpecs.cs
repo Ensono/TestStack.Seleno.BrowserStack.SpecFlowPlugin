@@ -1,5 +1,6 @@
 ﻿using System;
 using System.CodeDom;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
@@ -251,7 +252,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
         [Test]
         public void AddTestCaseAttributeForEachBrowser_ShoulAddTestCaseAttributeForBrowserWithCategoryAndSpecifiedTestName()
         {
-
             // Arrange
             var testMethod = new CodeMemberMethod();
             const string browser = "chrome,48.0,Windows,10";
@@ -299,6 +299,66 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
 
             //Assert
             testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", existingAttributeArguments.Concat(expectedArguments));
+        }
+
+        [Test]
+        public void SetRow_ShouldAddTestCaseAttributeWithAnArgumentForEachArgumentsWhenNoTagsSpecified()
+        {
+            // Arrange
+            var generationContext = CreateTestClassGenerationContext();
+            var testMethod = new CodeMemberMethod();
+            var arguments = new [] {"London", "Bath","HereFord"};
+            var tags = new string[0];
+            var expectedArguments = arguments.Select(SimpleAttributeArgument).ToList();
+            expectedArguments.Add(SimpleAttributeArgument(null));
+
+            // Act
+            _sut.SetRow(generationContext, testMethod, arguments, tags, false);
+
+            // Assert
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
+        }
+
+
+        [Test]
+        public void SetRow_ShouldAddTestCaseAttributeWithAnArgumentForEachForEachArgumentsAndTagsWhenTagsSpecified()
+        {
+            // Arrange
+            var generationContext = CreateTestClassGenerationContext();
+            var testMethod = new CodeMemberMethod();
+            var arguments = new[] { "London", "Bath", "HereFord" };
+            var tags = new [] {"my tag","another tag"};
+
+            var expectedArguments = arguments.Select(SimpleAttributeArgument).ToList();
+            var tagExpressions = tags.Select(tag => (CodeExpression) new CodePrimitiveExpression(tag)).ToArray();
+            expectedArguments.Add(new CodeAttributeArgument(new CodeArrayCreateExpression(typeof(string[]), tagExpressions)));
+
+            // Act
+            _sut.SetRow(generationContext, testMethod, arguments, tags, false);
+
+            // Assert
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
+        }
+
+        [Test]
+        public void SetRow_ShouldAddTestCaseAttributeWithAnIgnoredArgumentWhenTestMethodIsIgnored()
+        {
+            // Arrange
+            var generationContext = CreateTestClassGenerationContext();
+            var testMethod = new CodeMemberMethod();
+            var arguments = new string[0];
+            var tags = new string[0];
+            var expectedArguments = new[]
+            {
+                SimpleAttributeArgument(null),
+                new CodeAttributeArgument("Ignored", new CodePrimitiveExpression("Ignored scenario"))
+            };
+
+            // Act
+            _sut.SetRow(generationContext, testMethod, arguments, tags, true);
+
+            // Assert
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
         }
 
 

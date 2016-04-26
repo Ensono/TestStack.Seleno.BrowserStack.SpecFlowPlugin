@@ -80,9 +80,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             return
                 testCaseAttributeArguments.Count == arguments.Length &&
                 (testCaseAttributeArguments.Count == 0 ||
-                (arguments.Where(
-                    (arg, i) => arg.Name.Equals(testCaseAttributeArguments[i].Name) &&
-                                CodePrimitiveExpressionValue(arg.Value) .Equals(CodePrimitiveExpressionValue(testCaseAttributeArguments[i].Value))).Any()));
+                 arguments.Where((arg, i) => arg.Name.Equals(testCaseAttributeArguments[i].Name) && AreEqual(arg.Value, testCaseAttributeArguments[i].Value)).Any());
         }
 
         private static string CodePrimitiveExpressionValue(CodeExpression codeExpression)
@@ -94,6 +92,48 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
                 result = (string)expression.Value;
             }
             return result;
+        }
+
+        private static bool AreEqual(CodeExpression codeExpression, CodeExpression anotherCodeExpression)
+        {
+            if (codeExpression.GetType() != anotherCodeExpression.GetType()) return false;
+
+            if (codeExpression is CodePrimitiveExpression)
+            {
+                return
+                    CodePrimitiveExpressionValue(codeExpression)
+                        .Equals(CodePrimitiveExpressionValue(anotherCodeExpression),
+                            StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (codeExpression is CodeArrayCreateExpression)
+            {
+                var codeExpressions = (CodeArrayCreateExpression) codeExpression;
+                var anotherCodeExpressions = (CodeArrayCreateExpression) anotherCodeExpression;
+
+                if (codeExpressions.CreateType.BaseType != anotherCodeExpressions.CreateType.BaseType ||
+                    codeExpressions.Initializers.Count != anotherCodeExpressions.Initializers.Count)
+                {
+                    return false;
+                }
+
+                for (var i = 0; i < codeExpressions.Initializers.Count; i++)
+                {
+                    if (!AreEqual(codeExpressions.Initializers[i], anotherCodeExpressions.Initializers[i]))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            return false;
+
+
+            //return codeExpression.GetType() == anotherCodeExpression.GetType() && 
+            //( codeExpression is CodePrimitiveExpression && CodePrimitiveExpressionValue(codeExpression).Equals(CodePrimitiveExpressionValue(anotherCodeExpression))) ||
+            //(codeExpression is CodeArrayCreateExpression && ((CodeArrayCreateExpression)codeExpression).Initializers)
+
         }
     }
 }

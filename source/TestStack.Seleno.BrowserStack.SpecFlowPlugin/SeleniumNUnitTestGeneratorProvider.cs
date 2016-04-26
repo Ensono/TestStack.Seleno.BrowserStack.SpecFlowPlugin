@@ -68,7 +68,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
              arg => new CodeAttributeArgument(new CodePrimitiveExpression(arg))).ToList();
 
             // addressing ReSharper bug: TestCase attribute with empty string[] param causes inconclusive result - https://github.com/techtalk/SpecFlow/issues/116
-            var exampleTagExpressionList = tags.Select(t => (CodeExpression)new CodePrimitiveExpression(t)).ToArray();
+            var exampleTagExpressionList = tags.Select(t => new CodePrimitiveExpression(t)).Cast<CodeExpression>().ToArray();
             var exampleTagsExpression = exampleTagExpressionList.Length == 0 ?
                 (CodeExpression)new CodePrimitiveExpression(null) :
                 new CodeArrayCreateExpression(typeof(string[]), exampleTagExpressionList);
