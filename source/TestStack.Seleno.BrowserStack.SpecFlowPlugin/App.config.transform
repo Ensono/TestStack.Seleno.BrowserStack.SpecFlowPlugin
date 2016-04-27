@@ -2,7 +2,7 @@
 <configuration>
     <specFlow>
         <plugins>
-      <add name="TestStack.Seleno.BrowserStack" path="..\packages\TestStack.Seleno.BrowserStack.SpecFlowPlugin.1.0.0.40\lib\net451" type="GeneratorAndRuntime" />
+      <add name="TestStack.Seleno.BrowserStack" path="..\packages\TestStack.Seleno.BrowserStack.SpecFlowPlugin.1.0.0.32155\lib\net451" type="GeneratorAndRuntime" />
     </plugins>
     <stepAssemblies>
       <stepAssembly assembly="TestStack.Seleno.BrowserStack.Core" />
