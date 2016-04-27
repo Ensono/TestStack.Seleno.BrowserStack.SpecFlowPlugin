@@ -1,6 +1,5 @@
 ﻿using System;
 using System.CodeDom;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
@@ -11,6 +10,7 @@ using TechTalk.SpecFlow.Generator;
 using TechTalk.SpecFlow.Generator.UnitTestProvider;
 using TechTalk.SpecFlow.Parser;
 using TechTalk.SpecFlow.Utils;
+using TestStack.Seleno.Browserstack.UnitTests.Assertions;
 using TestStack.Seleno.BrowserStack.SpecFlowPlugin;
 
 namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
@@ -361,8 +361,120 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
         }
 
+        [Ignore("TO do")]
+        public void SetRow_Should()
+        {
+            
+        }
+
+        [Test]
+        public void SetTestClass_ShouldAddTestFixtureAndDescriptionAttributesWithFeatureTitleToTestClass()
+        {
+            // Arrange
+            var generationContext = CreateTestClassGenerationContext();
+            const string featureTitle = "Awesome feature title!";
+            const string featureDescription = "It is doing something amazing!";
+
+            // Act
+            _sut.SetTestClass(generationContext, featureTitle, featureDescription);
+
+            // Assert
+           generationContext.TestClass.CustomAttributes
+                .Should()
+                .OnlyContain("NUnit.Framework.TestFixtureAttribute")
+                .And
+                .OnlyContain("NUnit.Framework.DescriptionAttribute", SimpleAttributeArgument(featureTitle));
+        }
+
+        [Test]
+        public void SetTestClass_ShouldAddRequiredNameSpaces()
+        {
+            // Arrange
+            var generationContext = CreateTestClassGenerationContext();
+            const string featureTitle = "Awesome feature title!";
+            const string featureDescription = "It is doing something amazing!";
+
+            // Act
+            _sut.SetTestClass(generationContext, featureTitle, featureDescription);
+
+            // Assert
+            generationContext
+                .Should()
+                .HaveNumberOfImports(4)
+                .And
+                .ContainImportedNamespace("TestStack.Seleno.BrowserStack.Core.Configuration")
+                .And
+                .ContainImportedNamespace("TestStack.Seleno.BrowserStack.Core.Services.TestSession")
+                .And
+                .ContainImportedNamespace("TestStack.Seleno.BrowserStack.Core.Capabilities")
+                .And
+                .ContainImportedNamespace("TestStack.Seleno.BrowserStack.Core.Services.Client");
+
+        }
+
+        [Test]
+        public void SetTestClass_ShouldAddPrivateMembers()
+        {
+            // Arrange
+            var generationContext = CreateTestClassGenerationContext();
+            const string featureTitle = "Awesome feature title!";
+            const string featureDescription = "It is doing something amazing!";
+            var members = generationContext.TestClass.Members.OfType<CodeMemberField>();
+
+            // Act
+            _sut.SetTestClass(generationContext, featureTitle, featureDescription);
+
+            // Assert
+            generationContext.TestClass
+                .Should()
+                .HaveNumberOfFieldMembers(3)
+                .And
+                .ContainMemberField("IBrowserHost", "_host")
+                .And
+                .ContainMemberField("System.String", "_currentBrowserConfiguration")
+                .And
+                .ContainMemberField("RemoteBrowserConfigurator", "_remoteBrowserConfigurator");
+        }
+
+        [Test]
+        public void SetTestClass_ShouldAddInitializeSelenoMethodToTestClass()
+        {
+            // Arrange
+            var generationContext = CreateTestClassGenerationContext();
+            const string featureTitle = "Awesome feature title!";
+            const string featureDescription = "It is doing something amazing!";
+            var initialiseAndRegisterBrowserHostMethod = new CodeMemberMethod
+            {
+                Name = "InitialiseAndRegisterBrowserHost",
+                Parameters = { new CodeParameterDeclarationExpression("System.String", "browserConfiguration = null") },
+                Statements =
+                {
+                    new CodeSnippetStatement(
+                        @"ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<ConfigurationProvider, IConfigurationProvider>();
+            ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<BrowserStackService, IBrowserStackService>(); 
+            ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<HttpClientFactory, IHttpClientFactory>(); 
+
+            var scenarioTitle = ScenarioContext.Current.ScenarioInfo.Title;
+            var featureTitle = FeatureContext.Current.FeatureInfo.Title;
+
+            var testSpecification = new TestSpecification(scenarioTitle, featureTitle);
+            _host = _remoteBrowserConfigurator.CreateAndConfigure(testSpecification, browserConfiguration);
+           
+            ScenarioContext.Current.ScenarioContainer.RegisterInstanceAs(_host);")
+                }
+            };
+
+            // Act
+            _sut.SetTestClass(generationContext, featureTitle, featureDescription);
+
+            // Assert
+            generationContext.TestClass.Should().OnlyContainMemberMethod(initialiseAndRegisterBrowserHostMethod);
+        }
+
+
 
         #region private helper methods
+
 
         private static CodeAttributeArgument SimpleAttributeArgument(string ctg)
         {

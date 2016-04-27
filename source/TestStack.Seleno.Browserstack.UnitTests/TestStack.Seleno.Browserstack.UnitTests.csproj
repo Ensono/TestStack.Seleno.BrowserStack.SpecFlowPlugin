@@ -98,6 +98,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assertions\CodeAttributeDeclarationCollectionAssertions.cs" />
+    <Compile Include="Assertions\CodeTypeDeclarationAssertions.cs" />
+    <Compile Include="Assertions\NonGenericDictionaryAssertions.cs" />
+    <Compile Include="Assertions\TestClassGenerationContextAssertions.cs" />
     <Compile Include="Core\Services\Client\HttpClientFactorySpecs.cs" />
     <Compile Include="Core\Services\Client\HttpClientWrapperSpecs.cs" />
     <Compile Include="Core\TestResultNotifierSpecs.cs" />
@@ -109,7 +113,7 @@
     <Compile Include="Core\Extensions\CodeAttributeDeclarationExtensionsSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Services\TestSession\BrowserStackServiceSpecs.cs" />
-    <Compile Include="SpecFlowPlugin\AssertionExtensions.cs" />
+    <Compile Include="Assertions\AssertionExtensions.cs" />
     <Compile Include="SpecFlowPlugin\SeleniumNUnitTestGeneratorProviderSpecs.cs" />
   </ItemGroup>
   <ItemGroup>

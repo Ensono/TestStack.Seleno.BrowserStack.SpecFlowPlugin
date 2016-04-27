@@ -1,45 +1,13 @@
-﻿using System;
+using System;
 using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Collections;
 using FluentAssertions.Execution;
 
-namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
+namespace TestStack.Seleno.Browserstack.UnitTests.Assertions
 {
-    public static class AssertionExtensions
-    {
-        public static CodeAttributeDeclarationCollectionAssertions Should(
-            this CodeAttributeDeclarationCollection attributes)
-        {
-            return new CodeAttributeDeclarationCollectionAssertions(attributes.Cast<CodeAttributeDeclaration>());
-        }
-
-        public static NonGenericDictionaryAssertions Should(this IDictionary dictionary)
-        {
-            return new NonGenericDictionaryAssertions(dictionary);
-        }
-    }
-
-    public class NonGenericDictionaryAssertions : NonGenericCollectionAssertions
-    {
-        public NonGenericDictionaryAssertions(IDictionary dictionary) : base(dictionary)
-        {
-        }
-
-        public void OnlyContain(object key, object value)
-        {
-            var dictionary = (IDictionary) Subject;
-            Execute
-               .Assertion
-               .ForCondition(dictionary.Contains(key) && dictionary[key] == value)
-               .FailWith("Expected to only contain data {0}, but found {1}.", new KeyValuePair<object,object>( key, value),  dictionary);
-        }
-    }
-
-
     public class CodeAttributeDeclarationCollectionAssertions : GenericCollectionAssertions<CodeAttributeDeclaration>
     {
         public CodeAttributeDeclarationCollectionAssertions(IEnumerable<CodeAttributeDeclaration> actualValue) : base(actualValue)
@@ -128,12 +96,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             }
 
             return false;
-
-
-            //return codeExpression.GetType() == anotherCodeExpression.GetType() && 
-            //( codeExpression is CodePrimitiveExpression && CodePrimitiveExpressionValue(codeExpression).Equals(CodePrimitiveExpressionValue(anotherCodeExpression))) ||
-            //(codeExpression is CodeArrayCreateExpression && ((CodeArrayCreateExpression)codeExpression).Initializers)
-
         }
     }
 }
