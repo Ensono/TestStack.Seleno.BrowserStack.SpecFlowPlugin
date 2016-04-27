@@ -2,6 +2,7 @@ using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using FluentAssertions;
 using FluentAssertions.Collections;
 using FluentAssertions.Execution;
@@ -25,18 +26,45 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Assertions
             return new AndConstraint<CodeAttributeDeclarationCollectionAssertions>(this);
         }
 
+        public AndConstraint<CodeAttributeDeclarationCollectionAssertions> OnlyContain(CodeAttributeDeclaration attribute)
+        {
+            Execute
+              .Assertion
+              .ForCondition(Subject.Any(a => a == attribute || (attribute != null && a.Name == attribute.Name && ArgumentAreEquivalents(a.Arguments, attribute.Arguments))))
+              .FailWith($"Expected to only contain attribute {attribute}, but found {1}.", Subject);
+            return new AndConstraint<CodeAttributeDeclarationCollectionAssertions>(this);
+        }
 
         public AndConstraint<CodeAttributeDeclarationCollectionAssertions> OnlyContain(string attributeName, params CodeAttributeArgument[] arguments)
         {
             var matchingAttributes = Subject.Where(d => d.Name.EndsWith(attributeName, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
+            var condition = matchingAttributes.Count == 1 &&
+                            ArgumentAreEquivalents(matchingAttributes[0].Arguments, arguments);
             Execute
                 .Assertion
-                .ForCondition(matchingAttributes.Count == 1 && ArgumentAreEquivalents(matchingAttributes[0].Arguments,arguments))
-                .FailWith("Expected to only contain attribute named {0} with arguments {1}, but found {1}.", attributeName, arguments, matchingAttributes[0]);
+                .ForCondition(condition)
+                .FailWith($@"Expected to only contain [{attributeName}({FormatAttributeArguments(arguments)})]
+
+but found: 
+{FormatMatchingAttribute(matchingAttributes)}");
 
             return new AndConstraint<CodeAttributeDeclarationCollectionAssertions>(this);
         }
+
+        private string FormatMatchingAttribute(List<CodeAttributeDeclaration> matchingAttributes)
+        {
+            var result = "no matching attribute";
+            if (matchingAttributes != null && matchingAttributes.Count == 1)
+            {
+                result = "[" + matchingAttributes[0].Name + "(" +
+                         FormatAttributeArguments(matchingAttributes[0].Arguments) + ")]";
+            }
+
+            return result;
+        }
+
+       
 
         public AndConstraint<CodeAttributeDeclarationCollectionAssertions> OnlyContain(string attributeName, IEnumerable<CodeAttributeArgument> arguments)
         {
@@ -49,6 +77,52 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Assertions
                 testCaseAttributeArguments.Count == arguments.Length &&
                 (testCaseAttributeArguments.Count == 0 ||
                  arguments.Where((arg, i) => arg.Name.Equals(testCaseAttributeArguments[i].Name) && AreEqual(arg.Value, testCaseAttributeArguments[i].Value)).Any());
+        }
+
+        private static string FormatAttributeArguments(CodeAttributeArgument[] arguments)
+        {
+            return string.Join(",",
+                arguments.Select(
+                    a =>
+                        string.IsNullOrWhiteSpace(a.Name)
+                            ? "\"" + FormatAttributeValue(a) + "\""
+                            : a.Name + "=" + "\"" + FormatAttributeValue(a) + "\""));
+
+        }
+
+        private static string FormatAttributeValue(CodeAttributeArgument a)
+        {
+
+            var expression = a.Value as CodePrimitiveExpression;
+
+            if (expression != null)
+            {
+                return expression.Value.ToString();
+            }
+
+            var arrayExpression = a.Value as CodeArrayCreateExpression;
+            var sb = new StringBuilder();
+            if (a.Value is CodeArrayCreateExpression)
+            {
+                return string.Join(",",
+                    arrayExpression.Initializers.OfType<CodeExpression>().Select(CodePrimitiveExpressionValue));
+
+                return sb.ToString();
+            }
+
+            return string.Empty;
+
+        }
+
+        private static string FormatAttributeArguments(CodeAttributeArgumentCollection arguments)
+        {
+            return FormatAttributeArguments(arguments.OfType<CodeAttributeArgument>().ToArray());
+
+        }
+
+        private static bool ArgumentAreEquivalents(CodeAttributeArgumentCollection testCaseAttributeArguments, CodeAttributeArgumentCollection arguments)
+        {
+            return ArgumentAreEquivalents(testCaseAttributeArguments, arguments.OfType<CodeAttributeArgument>().ToArray());
         }
 
         private static string CodePrimitiveExpressionValue(CodeExpression codeExpression)

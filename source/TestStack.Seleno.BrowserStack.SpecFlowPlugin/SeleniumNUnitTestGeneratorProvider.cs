@@ -64,18 +64,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         public override void SetRow(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, IEnumerable<string> arguments,
             IEnumerable<string> tags, bool isIgnored)
         {
-            var args = arguments.Select(
-             arg => new CodeAttributeArgument(new CodePrimitiveExpression(arg))).ToList();
-
-            // addressing ReSharper bug: TestCase attribute with empty string[] param causes inconclusive result - https://github.com/techtalk/SpecFlow/issues/116
-            var exampleTagExpressionList = tags.Select(t => new CodePrimitiveExpression(t)).Cast<CodeExpression>().ToArray();
-            var exampleTagsExpression = exampleTagExpressionList.Length == 0 ?
-                (CodeExpression)new CodePrimitiveExpression(null) :
-                new CodeArrayCreateExpression(typeof(string[]), exampleTagExpressionList);
-            args.Add(new CodeAttributeArgument(exampleTagsExpression));
-
-            if (isIgnored)
-                args.Add(new CodeAttributeArgument("Ignored", new CodePrimitiveExpression("Ignored scenario")));
+            var attributeArguments = CreateRowAttributeArgumentsFrom(arguments, tags, isIgnored);
 
             var browsers = testMethod.UserData.Keys.OfType<string>()
                 .WithBrowserTag()
@@ -92,23 +81,40 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
                     testMethod.CustomAttributes.Remove(codeAttributeDeclaration);
                 }
 
+                var argsString = string.Join(" ,",attributeArguments.Take(attributeArguments.Count - 1).Select(arg =>
+                       $"\"{((CodePrimitiveExpression)arg.Value).Value}\""));
+
                 foreach (var browser in browsers)
                 {
-                    var argsString = string.Concat(args.Take(args.Count - 1).Select(arg =>
-                        $"\"{((CodePrimitiveExpression) arg.Value).Value}\" ,"));
-                    argsString = argsString.TrimEnd(' ', ',');
 
                     AddTestCaseAttributeForEachBrowser(
                         testMethod, 
                         browser,
-                        () => $"{testMethod.GetDescription()} on {browser.UserFriendlyBrowserConfiguration()} with: {argsString}",
-                        args);
+                        argsString,
+                        attributeArguments);
                 }
             }
             else
             {
-                CodeDomHelper.AddAttribute(testMethod, ROW_ATTR, args.ToArray());
+                CodeDomHelper.AddAttribute(testMethod, ROW_ATTR, attributeArguments.ToArray());
             }
+        }
+        
+        public virtual IList<CodeAttributeArgument> CreateRowAttributeArgumentsFrom(IEnumerable<string> arguments, IEnumerable<string> tags, bool isIgnored)
+        {
+            var args = arguments.Select(
+                arg => new CodeAttributeArgument(new CodePrimitiveExpression(arg))).ToList();
+
+            // addressing ReSharper bug: TestCase attribute with empty string[] param causes inconclusive result - https://github.com/techtalk/SpecFlow/issues/116
+            var exampleTagExpressionList = tags.Select(t => new CodePrimitiveExpression(t)).Cast<CodeExpression>().ToArray();
+            var exampleTagsExpression = exampleTagExpressionList.Length == 0
+                ? (CodeExpression) new CodePrimitiveExpression(null)
+                : new CodeArrayCreateExpression(typeof (string[]), exampleTagExpressionList);
+            args.Add(new CodeAttributeArgument(exampleTagsExpression));
+
+            if (isIgnored)
+                args.Add(new CodeAttributeArgument("Ignored", new CodePrimitiveExpression("Ignored scenario")));
+            return args;
         }
 
         public override void SetTestClass(TestClassGenerationContext generationContext, string featureTitle, string featureDescription)
@@ -179,7 +185,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         }
 
         public virtual void AddTestCaseAttributeForEachBrowser(CodeMemberMethod testMethod, string browser,
-            Func<string> testNameFormatter = null,
+            string rowDataAsString = null,
             IEnumerable<CodeAttributeArgument> attributeArguments = null)
         {
             var keyName = $"{CategorySelection.BrowserTagName}{browser}";
@@ -189,10 +195,10 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             }
 
             var browserSpecifications = browser.UserFriendlyBrowserConfiguration();
-
-            if (testNameFormatter == null)
+            var testName = $"{testMethod.GetDescription()} on {browserSpecifications}";
+            if (!string.IsNullOrWhiteSpace(rowDataAsString))
             {
-                testNameFormatter = () => $"{testMethod.GetDescription()} on {browserSpecifications}";
+                testName += $"with: {rowDataAsString}";
             }
 
             var withBrowserArgs = new[] {new CodeAttributeArgument(new CodePrimitiveExpression(browser))}
@@ -200,7 +206,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
                 .Concat(new[]
                 {
                     new CodeAttributeArgument("Category", new CodePrimitiveExpression(browserSpecifications)),
-                    new CodeAttributeArgument("TestName", new CodePrimitiveExpression(testNameFormatter()))
+                    new CodeAttributeArgument("TestName", new CodePrimitiveExpression(testName))
                 })
                 .ToArray();
 
