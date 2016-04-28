@@ -97,7 +97,7 @@ but found:
 
             if (expression != null)
             {
-                return expression.Value.ToString();
+                return (string)expression.Value;
             }
 
             var arrayExpression = a.Value as CodeArrayCreateExpression;

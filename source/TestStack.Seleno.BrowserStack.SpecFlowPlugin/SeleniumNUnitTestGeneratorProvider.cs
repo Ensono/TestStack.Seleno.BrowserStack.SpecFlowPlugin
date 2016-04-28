@@ -161,7 +161,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         {
             var initializeSelenoMethod = new CodeMemberMethod {Name = "InitialiseAndRegisterBrowserHost" };
             initializeSelenoMethod.Parameters.Add(new CodeParameterDeclarationExpression("System.String", "browserConfiguration = null"));
-            initializeSelenoMethod.Statements.Add(new CodeSnippetStatement(@"ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<ConfigurationProvider, IConfigurationProvider>();
+            initializeSelenoMethod.Statements.Add(new CodeSnippetStatement(@"             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<ConfigurationProvider, IConfigurationProvider>();
             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<BrowserStackService, IBrowserStackService>(); 
             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<HttpClientFactory, IHttpClientFactory>(); 
 
