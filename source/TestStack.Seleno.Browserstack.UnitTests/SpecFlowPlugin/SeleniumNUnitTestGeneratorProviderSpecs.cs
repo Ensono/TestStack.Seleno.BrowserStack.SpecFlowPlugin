@@ -234,13 +234,13 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             var testMethod = new CodeMemberMethod();
             const string browser = "chrome,48.0,Windows,10";
             const string myFriendlyTestName = "This is my friendly test method";
-
+            var browserFriendlySpec = browser.Replace(",", " ");
             testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("NUnit.Framework.DescriptionAttribute",
                 new CodeAttributeArgument(new CodePrimitiveExpression(myFriendlyTestName))));
             var arguments = new[]
             {
                 new CodeAttributeArgument(new CodePrimitiveExpression(browser)),
-                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browser)),
+                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browserFriendlySpec)),
                 new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName + " on chrome 48.0 Windows 10")),
             };
 
@@ -259,12 +259,13 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             var testMethod = new CodeMemberMethod();
             const string browser = "chrome,48.0,Windows,10";
             const string myFriendlyTestName = "This is my friendly test method";
+            var browserFriendlySpec = browser.Replace(",", " ");
 
             var expectedArguments = new[]
             {
                 new CodeAttributeArgument(new CodePrimitiveExpression(browser)),
-                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browser)),
-                new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName)),
+                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browserFriendlySpec)),
+                new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName + " on " + browserFriendlySpec)),
             };
             testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("NUnit.Framework.DescriptionAttribute",
                 SimpleAttributeArgument(myFriendlyTestName)));
@@ -277,18 +278,44 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
         }
 
         [Test]
-        public void AddTestCaseAttributeForEachBrowser_ShoulAddTestCaseAttributeWithExistingArgumentsAndBrowserArgument()
+        public void AddTestCaseAttributeForEachBrowser_ShoulAddTestCaseAttributeForBrowserWithCategoryAndSpecifiedTestNameAndRowData()
         {
-
             // Arrange
             var testMethod = new CodeMemberMethod();
             const string browser = "chrome,48.0,Windows,10";
             const string myFriendlyTestName = "This is my friendly test method";
+            const string rowData = "\\\"Some example row data\\\", \\\"another row data\\\", \\\"last row data\\\"";
+            var browserFriendlySpec = browser.Replace(",", " ");
 
             var expectedArguments = new[]
             {
                 new CodeAttributeArgument(new CodePrimitiveExpression(browser)),
-                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browser)),
+                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browserFriendlySpec)),
+                new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName + " on "+ browserFriendlySpec + " with: " + rowData)),
+            };
+            testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("NUnit.Framework.DescriptionAttribute",
+                SimpleAttributeArgument(myFriendlyTestName)));
+
+            // Act
+            _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser, rowData);
+
+            //Assert
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
+        }
+
+        [Test]
+        public void AddTestCaseAttributeForEachBrowser_ShoulAddTestCaseAttributeWithExistingArgumentsAndBrowserArgument()
+        {
+            // Arrange
+            var testMethod = new CodeMemberMethod();
+            const string browser = "chrome,48.0,Windows,10";
+            const string myFriendlyTestName = "This is my friendly test method";
+            var browserFriendlySpec = browser.Replace(",", " ");
+
+            var additionalArguments = new[]
+            {
+                new CodeAttributeArgument(new CodePrimitiveExpression(browser)),
+                new CodeAttributeArgument("Category", new CodePrimitiveExpression(browserFriendlySpec)),
                 new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName +" on chrome 48.0 Windows 10")),
             };
             var existingAttributeArguments = new []
@@ -296,6 +323,8 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
                 new CodeAttributeArgument("Author",new CodePrimitiveExpression("FT")),
                 new CodeAttributeArgument("Ignored",new CodePrimitiveExpression("Not quite ready")),
             };
+
+            var expectedArguments =additionalArguments.Take(1).Concat(existingAttributeArguments).Concat(additionalArguments.Skip(1));
             testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("NUnit.Framework.DescriptionAttribute",
                 SimpleAttributeArgument(myFriendlyTestName)));
 
@@ -303,9 +332,10 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser, string.Empty, existingAttributeArguments);
 
             //Assert
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", existingAttributeArguments.Concat(expectedArguments));
+            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
         }
 
+       
         [Test]
         public void SetRow_ShouldAddTestCaseAttributeWithAnArgumentForEachArgumentsWhenNoTagsSpecified()
         {
@@ -505,7 +535,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
                 Statements =
                 {
                     new CodeSnippetStatement(
-                        @"ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<ConfigurationProvider, IConfigurationProvider>();
+                        @"             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<ConfigurationProvider, IConfigurationProvider>();
             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<BrowserStackService, IBrowserStackService>(); 
             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<HttpClientFactory, IHttpClientFactory>(); 
 

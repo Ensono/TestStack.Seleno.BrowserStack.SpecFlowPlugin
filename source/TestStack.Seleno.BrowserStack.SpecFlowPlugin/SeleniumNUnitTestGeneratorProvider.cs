@@ -183,7 +183,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Capabilities"));
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Services.Client"));
         }
-
+        
         public virtual void AddTestCaseAttributeForEachBrowser(CodeMemberMethod testMethod, string browser,
             string rowDataAsString = null,
             IEnumerable<CodeAttributeArgument> attributeArguments = null)
@@ -198,7 +198,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             var testName = $"{testMethod.GetDescription()} on {browserSpecifications}";
             if (!string.IsNullOrWhiteSpace(rowDataAsString))
             {
-                testName += $"with: {rowDataAsString}";
+                testName += $" with: {rowDataAsString}";
             }
 
             var withBrowserArgs = new[] {new CodeAttributeArgument(new CodePrimitiveExpression(browser))}

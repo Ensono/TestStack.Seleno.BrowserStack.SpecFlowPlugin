@@ -73,10 +73,25 @@ but found:
 
         private static bool ArgumentAreEquivalents(CodeAttributeArgumentCollection testCaseAttributeArguments, CodeAttributeArgument[] arguments)
         {
-            return
-                testCaseAttributeArguments.Count == arguments.Length &&
-                (testCaseAttributeArguments.Count == 0 ||
-                 arguments.Where((arg, i) => arg.Name.Equals(testCaseAttributeArguments[i].Name) && AreEqual(arg.Value, testCaseAttributeArguments[i].Value)).Any());
+            if (testCaseAttributeArguments.Count != arguments.Length)
+            {
+                return false;
+            }
+
+            if (testCaseAttributeArguments.Count == 0)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < testCaseAttributeArguments.Count; i++)
+            {
+                if (!AreEqual(arguments[i].Value, testCaseAttributeArguments[i].Value))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static string FormatAttributeArguments(CodeAttributeArgument[] arguments)
