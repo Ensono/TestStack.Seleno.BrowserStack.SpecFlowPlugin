@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using OpenQA.Selenium.Firefox;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Services.Client;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
@@ -23,10 +24,11 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.TestSession
         private static readonly ObjectContent<List<BrowserConfiguration>> SupportedBrowsersContent =
             new ObjectContent<List<BrowserConfiguration>>(new List<BrowserConfiguration>
             {
-                new BrowserConfiguration("iPad", "iPad Mini"),
+                new BrowserConfiguration("iPad", "iPad Mini") { OsName = "ios", OsVersion = "9.0"},
                 new BrowserConfiguration("chrome", "48.0", "Windows", "10"),
                 new BrowserConfiguration("iphone", "iPhone 6S Plus"),
                 new BrowserConfiguration("Android", "Samsumg S5 "),
+                new BrowserConfiguration("firefox", "ANY","Windows","XP")
             }, new JsonMediaTypeFormatter());
 
 
@@ -34,12 +36,14 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.TestSession
         {
             new BrowserConfiguration("iPad", "iPad Mini"),
             new BrowserConfiguration("chrome", "48.0", "Windows", "10"),
+            new BrowserConfiguration("firefox")
         };
 
         private static readonly BrowserConfiguration[] UnSupportedBrowsersTestCase =
         {
             new BrowserConfiguration("iPad", "IPad super holographic pro!"),
             new BrowserConfiguration("3DInternetExplorer", "1.0","VirtualWindows","1.0b"),
+            new BrowserConfiguration("opera"),
         };
 
 

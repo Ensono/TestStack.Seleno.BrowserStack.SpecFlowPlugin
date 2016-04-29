@@ -5,6 +5,8 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
     public class BrowserConfiguration
     {
+        public const string Any = "ANY";
+
         [JsonProperty("browser")]
         public string Name { get; set; }
 
@@ -19,15 +21,18 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         [JsonProperty("os_version")]
         public string OsVersion { get; set; }
 
-        public bool IsMobileDevice { get; set; }
+        public bool IsMobileDevice
+        {
+            get { return !string.IsNullOrWhiteSpace(Device); }
+        }
 
         [JsonConstructor]
-        public BrowserConfiguration() : this("ANY")
+        public BrowserConfiguration() : this(Any)
         {
         }
 
-        public BrowserConfiguration(string name, string version = "ANY", string osName = "ANY",
-            string osVersion = "ANY")
+        public BrowserConfiguration(string name, string version = Any, string osName = Any,
+            string osVersion = Any)
         {
             Name = name;
             Version = version;
@@ -39,14 +44,17 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         {
             Name = name;
             Device = device;
-            IsMobileDevice = true;
         }
 
         public override string ToString()
         {
+            var version = Version != Any ? " " + Version : string.Empty;
+            var osName = OsName != Any ? $" on {OsName}": string.Empty;
+            var osVersion = OsVersion != Any ? " " + OsVersion : string.Empty;
+
             return IsMobileDevice
                 ? Device
-                : $"{Name} {Version} on {OsName} {OsVersion}";
+                : $"{Name}{version}{osName}{osVersion}";
         }
 
         public override bool Equals(object obj)
@@ -54,13 +62,16 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             var another = obj as BrowserConfiguration;
             if (another == null) return false;
 
+            if (IsMobileDevice && another.IsMobileDevice)
+            {
+                return string.Equals(Device, another.Device, StringComparison.InvariantCultureIgnoreCase);
+            }
+
             return
                 string.Equals(Name, another.Name, StringComparison.InvariantCultureIgnoreCase) &&
-                string.Equals(Device, another.Device, StringComparison.InvariantCultureIgnoreCase) &&
-                string.Equals(Version, another.Version, StringComparison.InvariantCultureIgnoreCase) &&
-                string.Equals(OsName, another.OsName, StringComparison.InvariantCultureIgnoreCase) &&
-                string.Equals(OsVersion, another.OsVersion, StringComparison.InvariantCultureIgnoreCase) &&
-                IsMobileDevice == another.IsMobileDevice;
+                (another.Version == Any   || Version == Any   || string.Equals(Version, another.Version, StringComparison.InvariantCultureIgnoreCase)) &&
+                (another.OsName == Any    || OsName == Any    || string.Equals(OsName, another.OsName, StringComparison.InvariantCultureIgnoreCase)) &&
+                (another.OsVersion == Any || OsVersion == Any || string.Equals(OsVersion, another.OsVersion, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

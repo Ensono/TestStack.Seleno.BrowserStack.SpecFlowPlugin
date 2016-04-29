@@ -48,11 +48,12 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.TestSession
                 var response = client.GetAsync("browsers.json").Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    return 
-                        !response
+                    var supportedBrowsers =
+                        response
                             .Content
-                            .ReadAsAsync<List<BrowserConfiguration>>(client.GetFormatters()).Result
-                            .Exists(b => Equals(b, browserConfiguration));
+                            .ReadAsAsync<List<BrowserConfiguration>>(client.GetFormatters()).Result;
+
+                    return !supportedBrowsers.Exists(b => Equals(b, browserConfiguration));
                 }
             }
             return true;

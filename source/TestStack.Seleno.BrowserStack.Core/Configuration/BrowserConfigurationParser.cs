@@ -38,7 +38,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             }
             else
             {
-
                 result = new BrowserConfiguration(parameters[0], parameters[1],
                     parameters[2].Replace(ItemSpaceSeparator, " "),
                     parameters[3]);
