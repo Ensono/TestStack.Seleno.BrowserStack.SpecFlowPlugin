@@ -6,6 +6,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
     public class BrowserConfiguration
     {
         public const string Any = "ANY";
+        public const string DefaultDesktopResolution = "1024x768";
 
         [JsonProperty("browser")]
         public string Name { get; set; }
@@ -21,6 +22,8 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         [JsonProperty("os_version")]
         public string OsVersion { get; set; }
 
+        public string Resolution { get; set; }
+
         public bool IsMobileDevice
         {
             get { return !string.IsNullOrWhiteSpace(Device); }
@@ -32,12 +35,13 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         }
 
         public BrowserConfiguration(string name, string version = Any, string osName = Any,
-            string osVersion = Any)
+            string osVersion = Any, string resolution = DefaultDesktopResolution)
         {
             Name = name;
             Version = version;
             OsName = osName;
             OsVersion = osVersion;
+            Resolution = resolution;
         }
 
         public BrowserConfiguration(string name, string device)

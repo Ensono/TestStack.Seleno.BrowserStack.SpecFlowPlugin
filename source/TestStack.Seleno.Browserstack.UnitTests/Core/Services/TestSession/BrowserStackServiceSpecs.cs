@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
-using OpenQA.Selenium.Firefox;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Services.Client;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;

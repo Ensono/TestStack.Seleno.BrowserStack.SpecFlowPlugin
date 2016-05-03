@@ -38,9 +38,9 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
         }
 
         [TestCase("firefox,43.0,Windows")]
-        [TestCase("firefox,43.0,OS_X,Lion,Other")]
+        [TestCase("firefox,43.0,OS_X,Lion,1024x768,blah!")]
         [TestCase("android,Samsung_Galaxy_S5,45")]
-        public void Parse_ShouldThrowAnInvalidBrowserConfigurationExceptionWhenTheBrowserConfigurationHasNeitherTwoNorFourParts(string invalidBrowserConfig)
+        public void Parse_ShouldThrowAnInvalidBrowserConfigurationExceptionWhenTheBrowserConfigurationNumberOfParametersIsUnSupported(string invalidBrowserConfig)
         {
             // Arrange
             Action attemptToParseInvalidBrowserConfiguration = () => _sut.Parse(invalidBrowserConfig);
@@ -52,7 +52,25 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
                     .ShouldThrow<InvalidBrowserConfigurationException>()
                     .WithMessage(errorMessage);
         }
-        
+
+        [TestCase("firefox,43.0,OS_X,Lion,Other")]
+        [TestCase("firefox,43.0,OS_X,Lion,AxB")]
+        [TestCase("firefox,43.0,OS_X,Lion,1024")]
+        [TestCase("firefox,43.0,OS_X,Lion,1024x")]
+        [TestCase("firefox,43.0,OS_X,Lion,")]
+        public void Parse_ShouldThrowAnInvalidDesktopResolutionWhenTheBrowserConfigurationthParameterIsNotExpectedResolutionFormat(string invalidBrowserConfig)
+        {
+            // Arrange
+            Action attemptToParseInvalidBrowserConfiguration = () => _sut.Parse(invalidBrowserConfig);
+            var resolution = invalidBrowserConfig.Split(',')[4];
+            var errorMessage =$"{resolution} is not a valid resolution. A valid one looks like 1024x768";
+
+            // Act & Assert
+            attemptToParseInvalidBrowserConfiguration
+                    .ShouldThrow<InvalidDesktopResolution>()
+                    .WithMessage(errorMessage);
+        }
+
         [TestCase("firefox,wrong_version,OS_X,Lion")]
         [TestCase("firefox,46abc,OS_X,Lion")]
         [TestCase("firefox,0x4564,OS_X,Lion")]
@@ -70,6 +88,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
         [TestCase("chrome")]
         [TestCase("firefox,43.0,OS_X,Lion")]
+        [TestCase("chrome,50.0,Windows,10,1280x800")]
         public void Parse_ShouldReturnDesktopBrowserConfiguration(string desktopBrowserConfiguration)
         {
             // Arrange
@@ -78,11 +97,16 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             var browserVersion = "ANY";
             var osName = "ANY";
             var osVersion = "ANY";
-            if (parts.Count == 4)
+            var resolution = "1024x768";
+            if (parts.Count >= 4)
             {
                 browserVersion = parts[1];
                 osName = parts[2];
                 osVersion = parts[3];
+                if (parts.Count == 5)
+                {
+                    resolution = parts[4];
+                }
             }
 
             // Act 
@@ -91,7 +115,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             //Assert
             result
                 .Should()
-                .Match(DesktopBrowserConfiguration(browserName, browserVersion, osName, osVersion));
+                .Match(DesktopBrowserConfiguration(browserName, browserVersion, osName, osVersion, resolution));
         }
 
         [TestCase("unknown,46.0,Windows,10", "unknown 46.0 on Windows 10 is not supported")]
@@ -128,12 +152,12 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             result.Should().Match(MobileBrowserConfiguration(browserName, device));
         }
 
-        private static Expression<Func<BrowserConfiguration, bool>> DesktopBrowserConfiguration(string browserName, string browserVersion, string osName, string osVersion)
+        private static Expression<Func<BrowserConfiguration, bool>> DesktopBrowserConfiguration(string browserName, string browserVersion, string osName, string osVersion, string resolution = "1024x768")
         {
             return
                 x =>
                     x.IsMobileDevice == false && x.Name == browserName && x.Version == browserVersion &&
-                    x.OsName == osName && x.OsVersion == osVersion;
+                    x.OsName == osName && x.OsVersion == osVersion && x.Resolution == resolution;
         }
 
         private static Expression<Func<BrowserConfiguration, bool>> MobileBrowserConfiguration(string browserName, string device)

@@ -1,3 +1,4 @@
+using System.Linq;
 using TestStack.Seleno.BrowserStack.Core.Exceptions;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
@@ -40,7 +41,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             {
                 result = new BrowserConfiguration(parameters[0], parameters[1],
                     parameters[2].Replace(ItemSpaceSeparator, " "),
-                    parameters[3]);
+                    parameters[3], ParseDesktopResolution(parameters));
             }
 
             if (_browserStackService.IsNotSupported(result))
@@ -51,6 +52,18 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             return result;
         }
 
+        private static string ParseDesktopResolution(string[] parameters)
+        {
+            var resolution = parameters.Length == 5 ? parameters[4] : BrowserConfiguration.DefaultDesktopResolution;
+            var resolutionParts = resolution.Split('x');
+            int resolutionH, resolutionV;
+            if (resolutionParts.Length != 2 || !int.TryParse( resolutionParts[0], out resolutionH)  || !int.TryParse(resolutionParts[1], out resolutionV))
+            {
+                throw new InvalidDesktopResolution(resolution);
+            }
+            return resolution;
+        }
+
         private static string[] ValidateAndExtractBrowserConfiguration(string value, out bool isMobileDevice)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -58,8 +71,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
                 throw new InvalidBrowserConfigurationException(UnSpecfiedBrowserConfiguratioErrorMessage);
             }
             var parameters = value.Split(ConfigurationItemSeparator);
+            var supportedNumberOfParameters = new[] {1, 2, 4, 5};
 
-            if (parameters.Length != 2 && parameters.Length != 4 && parameters.Length != 1)
+            if (!supportedNumberOfParameters.Contains(parameters.Length))
             {
                 throw new InvalidBrowserConfigurationException(InvalidBrowserConfigurationErrorMessage);
             }
@@ -77,5 +91,4 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             return parameters;
         }
     }
-
 }

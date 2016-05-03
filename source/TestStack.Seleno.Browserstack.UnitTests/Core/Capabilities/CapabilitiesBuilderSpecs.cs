@@ -114,6 +114,26 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Capabilities
                 .Match(HaveDesktopCapabilities(browserName, version, osName, osVersion, PlatformType.Windows));
         }
 
+        [Test]
+        public void Build_ShouldSetDesktopResolutionCapabilities()
+        {
+            // Arrange
+            const string browserName = "chrome";
+            const string version = "48.0";
+            const string osName = "Windows";
+            const string osVersion = "10";
+            var resolution = "1280x800";
+            _sut.WithBrowserConfiguration(new BrowserConfiguration(browserName, version, osName, osVersion, resolution));
+            
+            // Act
+            var result = _sut.Build();
+
+            // Assert
+            result
+              .Should()
+              .Match(HaveDesktopCapabilities(browserName, version, osName, osVersion, PlatformType.Windows, resolution));
+        }
+
         private Expression<Func<ICapabilities, bool>> DefaultBrowserCapabilities(string userName, string accessKey)
         {
                 return x => x.GetCapability("version").Equals("ANY") &&
@@ -140,7 +160,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Capabilities
                      !x.HasCapability("os");
         }
 
-        private Expression<Func<ICapabilities, bool>> HaveDesktopCapabilities(string browserName, string version, string osName, string osVersion, PlatformType platformType)
+        private Expression<Func<ICapabilities, bool>> HaveDesktopCapabilities(string browserName, string version, string osName, string osVersion, PlatformType platformType, string resolution = "1024x768")
         {
             return
                 x => x.GetCapability("browserName").Equals(browserName) &&
@@ -148,7 +168,8 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Capabilities
                      x.GetCapability("version").Equals(version) &&
                      x.GetCapability("os_version").Equals(osVersion) &&
                      x.GetCapabilityAs<Platform>("platform").IsPlatformType(platformType)&&
-                     x.GetCapability("os").Equals(osName);
+                     x.GetCapability("os").Equals(osName) && 
+                     x.HasCapability("resolution") && x.GetCapability("resolution").Equals(resolution);
         }
     }
 }

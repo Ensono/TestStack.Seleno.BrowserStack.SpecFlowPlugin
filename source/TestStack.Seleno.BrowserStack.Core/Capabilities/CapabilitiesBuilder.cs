@@ -77,6 +77,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
                     var platform = new Platform(platformType);
                     result.SetCapability(RemoteCapabilityType.Default.Platform, platform);
                 }
+                result.SetCapability(RemoteCapabilityType.BrowserStack.ScreenResolution, _browserConfiguration.Resolution);
             }
         }
 
