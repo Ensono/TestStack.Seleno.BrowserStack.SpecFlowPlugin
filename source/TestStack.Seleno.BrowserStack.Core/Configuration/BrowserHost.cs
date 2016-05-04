@@ -1,18 +1,23 @@
 using System;
+using BoDi;
 using OpenQA.Selenium.Remote;
+using TestStack.Seleno.BrowserStack.Core.Extensions;
 using TestStack.Seleno.Configuration;
 using TestStack.Seleno.Configuration.Contracts;
 using TestStack.Seleno.PageObjects;
+using TestStack.Seleno.PageObjects.Actions;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
     public class BrowserHost : IBrowserHost
     {
         private SelenoHost _selenoHost;
+        private readonly IObjectContainer _container;
 
-        public BrowserHost(SelenoHost selenoHost)
+        public BrowserHost(SelenoHost selenoHost, IObjectContainer container)
         {
             _selenoHost = selenoHost;
+            _container = container;
         }
 
         public void Run(Action<IAppConfigurator> configure)
@@ -25,7 +30,15 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             _selenoHost.Run(config => config.WithRemoteWebDriver(remoteWebDriverFactory).WithWebServer(webServer));
         }
 
-        public TPage NavigateToInitialPage<TPage>(string url = "") where TPage : UiComponent, new()
+        public TPage NavigateToInitialPage<TPage>(string url = "") where TPage : Page, new()
+        {
+            var page = NavigateTo<TPage>(url);
+            _container.RegisterInstance(page);
+            page.Container = _container;
+            return page;
+        }
+
+        public virtual TPage NavigateTo<TPage>(string url) where TPage : Page, new()
         {
             return _selenoHost.NavigateToInitialPage<TPage>(url);
         }
@@ -38,7 +51,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
                 var application = _selenoHost.Application;
                 if (application != null)
                 {
-                    var remoteWebDriver = application.Browser as RemoteWebDriver;
+                    var remoteWebDriver = application.Browser as IHasSessionId;
 
                     if (remoteWebDriver != null)
                     {

@@ -137,23 +137,12 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             }"));
         }
 
-        public override void SetTestClassInitializeMethod(TestClassGenerationContext generationContext)
-        {
-            base.SetTestClassInitializeMethod(generationContext);
-            generationContext.TestClassInitializeMethod.Statements.Add(new CodeSnippetStatement(@"             var configurationProvider = new ConfigurationProvider();
-            _remoteBrowserConfigurator = new RemoteBrowserConfigurator(new BrowserHostFactory(configurationProvider),
-                new BrowserConfigurationParser(new BrowserStackService(configurationProvider,
-                    new HttpClientFactory(configurationProvider))),
-                new CapabilitiesBuilder(configurationProvider));"));
-        }
-
         #region private methods
 
         private void AddPrivateMembers(TestClassGenerationContext generationContext)
         {
             generationContext.TestClass.Members.Add(new CodeMemberField("IBrowserHost", "_host"));
             generationContext.TestClass.Members.Add(new CodeMemberField("System.String", "_currentBrowserConfiguration"));
-            generationContext.TestClass.Members.Add(new CodeMemberField("RemoteBrowserConfigurator", "_remoteBrowserConfigurator"));
             
         }
 
@@ -165,11 +154,20 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<BrowserStackService, IBrowserStackService>(); 
             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<HttpClientFactory, IHttpClientFactory>(); 
 
+            var configurationProvider = new ConfigurationProvider();
+            var remoteBrowserConfigurator =
+                new RemoteBrowserConfigurator(
+                    new BrowserHostFactory(configurationProvider, ScenarioContext.Current.ScenarioContainer),
+                    new BrowserConfigurationParser(new BrowserStackService(configurationProvider,
+                        new HttpClientFactory(configurationProvider))),
+                    new CapabilitiesBuilder(configurationProvider));
+
+
             var scenarioTitle = ScenarioContext.Current.ScenarioInfo.Title;
             var featureTitle = FeatureContext.Current.FeatureInfo.Title;
 
             var testSpecification = new TestSpecification(scenarioTitle, featureTitle);
-            _host = _remoteBrowserConfigurator.CreateAndConfigure(testSpecification, browserConfiguration);
+            _host = remoteBrowserConfigurator.CreateAndConfigure(testSpecification, browserConfiguration);
            
             ScenarioContext.Current.ScenarioContainer.RegisterInstanceAs(_host);"));
 

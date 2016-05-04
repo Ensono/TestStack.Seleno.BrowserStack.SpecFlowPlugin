@@ -1,4 +1,5 @@
 ﻿using System;
+using BoDi;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -13,18 +14,20 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
     public class BrowserHostFactorySpecs
     {
         private IConfigurationProvider _configurationProvider;
+        private IObjectContainer _container;
 
         [SetUp]
         public void SetUp()
         {
             _configurationProvider = Substitute.For<IConfigurationProvider>();
+            _container = Substitute.For<IObjectContainer>();
         }
 
         [Test]
         public void Constructor_ShoudlSetCommandTimeOuto5Minutes()
         {
             // Act
-            var sut = new BrowserHostFactory(_configurationProvider);
+            var sut = new BrowserHostFactory(_configurationProvider, _container);
 
             // Assert
             sut.CommandTimeOut.Should().Be(5.Minutes());
@@ -34,7 +37,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
         public void CreateWithCapabilities_ShouldCreateAndRunBrowserHostWithCapabilitiesAndWebServer()
         {
             // Arrange
-            var sut = Substitute.ForPartsOf<BrowserHostFactory>(_configurationProvider);
+            var sut = Substitute.ForPartsOf<BrowserHostFactory>(_configurationProvider, _container);
             var browserHost = Substitute.For<IBrowserHost>();
             var capabilities = Substitute.For<ICapabilities>();
 
