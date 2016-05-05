@@ -15,12 +15,13 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             _selenoHost = selenoHost;
         }
 
-        public void Run(Action<IAppConfigurator> configure)
+        public void Run(Func<RemoteWebDriver> remoteWebDriverFactory, IWebServer webServer)
         {
-            _selenoHost.Run(configure);
+            StartHost(remoteWebDriverFactory, webServer);
+            _selenoHost.Application.Browser.Manage().Window.Maximize();
         }
 
-        public void Run(Func<RemoteWebDriver> remoteWebDriverFactory, IWebServer webServer)
+        public virtual void StartHost(Func<RemoteWebDriver> remoteWebDriverFactory, IWebServer webServer)
         {
             _selenoHost.Run(config => config.WithRemoteWebDriver(remoteWebDriverFactory).WithWebServer(webServer));
         }

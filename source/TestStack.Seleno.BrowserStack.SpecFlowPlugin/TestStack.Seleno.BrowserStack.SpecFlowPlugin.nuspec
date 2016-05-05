@@ -10,9 +10,11 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Custom plugin to generate nunit test to support multiple browser configuration on browser stack using TestStack Seleno</description>
     <releaseNotes>
-		- Multiple browser support with just tag places on scenario like @browser:firefox,43.0,OS_X,Lion
+		- Multiple browser support with just tag placed on scenario like @browser:firefox,43.0,OS_X,Lion
 		- Error notification done with after scenario hook and browser stack api to pass error message.
 		- configure plugin in app.config and set app settings for browser stack
+		- support resolution for desktop like @browser:chrome,50.0,Windows,10,1024x768
+		- Maximize browser window to use full available resolution specified into browser stack capabilities (default 1024x768)
 	</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Selenium Seleno SpecFlow BrowserStack</tags>

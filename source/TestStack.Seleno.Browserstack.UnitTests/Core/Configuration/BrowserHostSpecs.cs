@@ -25,6 +25,30 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             _sut = Substitute.ForPartsOf<BrowserHost>(_selenoHost);
         }
 
+        [Test]
+        public void Run_ShouldStartHostAndMaximizeBrowserWindow()
+        {
+            // Arrange
+            Func<RemoteWebDriver> remoteWebDriverFactory = () => new RemoteWebDriver(new DesiredCapabilities());
+            var webServer = Substitute.For<IWebServer>();
+            _selenoHost.Application = Substitute.For<ISelenoApplication>();
+            var browser = Substitute.For<IWebDriver>();
+            var browserOptions = Substitute.For<IOptions>();
+            var windows = Substitute.For<IWindow>();
+
+            _sut.When(x => x.StartHost(remoteWebDriverFactory, webServer)).DoNotCallBase();
+            _selenoHost.Application.Browser.Returns(browser);
+            browser.Manage().Returns(browserOptions);
+            browserOptions.Window.Returns(windows);
+
+            // Act
+            _sut.Run(remoteWebDriverFactory, webServer);
+
+            // Assert
+            _sut.Received(1).StartHost(remoteWebDriverFactory, webServer);
+            windows.Received(1).Maximize();
+        }
+
 
         [Test]
         public void SessionId_ShouldReturnEmptyWhenApplicationIsNotInitialised()
