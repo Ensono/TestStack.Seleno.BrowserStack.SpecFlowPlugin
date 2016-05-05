@@ -38,7 +38,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
                 var application = _selenoHost.Application;
                 if (application != null)
                 {
-                    var remoteWebDriver = application.Browser as RemoteWebDriver;
+                    var remoteWebDriver = application.Browser as IHasSessionId;
 
                     if (remoteWebDriver != null)
                     {
