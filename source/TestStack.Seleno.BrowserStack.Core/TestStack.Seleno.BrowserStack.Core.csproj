@@ -117,9 +117,7 @@
     <Compile Include="Exceptions\UnsupportedBrowserException.cs" />
     <Compile Include="Extensions\CategorySelection.cs" />
     <Compile Include="Extensions\CodeAttributeDeclarationExtensions.cs" />
-    <Compile Include="Extensions\ObjectContainerExtensions.cs" />
     <Compile Include="NUnitAttributeConstants.cs" />
-    <Compile Include="Page.cs" />
     <Compile Include="Services\Client\HttpClientFactory.cs" />
     <Compile Include="Services\Client\HttpClientWrapper.cs" />
     <Compile Include="Services\Client\IHttpClient.cs" />

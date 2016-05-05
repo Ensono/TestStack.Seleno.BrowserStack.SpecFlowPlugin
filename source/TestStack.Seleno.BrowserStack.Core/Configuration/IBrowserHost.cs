@@ -11,7 +11,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         void Run(Func<RemoteWebDriver> remoteWebDriverFactory, IWebServer webServer);
 
-        TPage NavigateToInitialPage<TPage>(string url = "") where TPage : Page, new();
+        TPage NavigateToInitialPage<TPage>(string url = "") where TPage : UiComponent, new();
 
     }
 }

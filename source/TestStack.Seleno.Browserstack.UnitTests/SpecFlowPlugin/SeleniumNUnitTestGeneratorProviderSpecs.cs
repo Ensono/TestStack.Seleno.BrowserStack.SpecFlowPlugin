@@ -63,6 +63,30 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
         }
 
         [Test]
+        public void SetTestClassInitializeMethod_Should()
+        {
+            // Arrange
+            var generationContext = CreateTestClassGenerationContext();
+            var testClassInitializeMethodAttributes =
+                generationContext.TestClassInitializeMethod.CustomAttributes.OfType<CodeAttributeDeclaration>();
+            var testClassInitilizeMethodStatements =
+                generationContext.TestClassInitializeMethod.Statements.OfType<CodeSnippetStatement>();
+
+            // Act
+            _sut.SetTestClassInitializeMethod(generationContext);
+
+            // Assert
+            testClassInitializeMethodAttributes.Should().OnlyContain(x => x.Name == "NUnit.Framework.TestFixtureSetUpAttribute");
+            testClassInitilizeMethodStatements
+                .Should()
+                .OnlyContain(CodeSnippet(@"var configurationProvider = new ConfigurationProvider();
+            _remoteBrowserConfigurator = new RemoteBrowserConfigurator(new BrowserHostFactory(configurationProvider),
+                new BrowserConfigurationParser(new BrowserStackService(configurationProvider,
+                    new HttpClientFactory(configurationProvider))),
+                new CapabilitiesBuilder(configurationProvider));"));
+        }
+
+        [Test]
         public void FinalizeTestClass_ShouldDisposeBrowserHost()
         {
             // Arrange
@@ -488,11 +512,13 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             // Assert
             generationContext.TestClass
                 .Should()
-                .HaveNumberOfFieldMembers(2)
+                .HaveNumberOfFieldMembers(3)
                 .And
                 .ContainMemberField("IBrowserHost", "_host")
                 .And
-                .ContainMemberField("System.String", "_currentBrowserConfiguration");
+                .ContainMemberField("System.String", "_currentBrowserConfiguration")
+                .And
+                .ContainMemberField("RemoteBrowserConfigurator", "_remoteBrowserConfigurator");
         }
 
         [Test]
@@ -513,20 +539,11 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<BrowserStackService, IBrowserStackService>(); 
             ScenarioContext.Current.ScenarioContainer.RegisterTypeAs<HttpClientFactory, IHttpClientFactory>(); 
 
-            var configurationProvider = new ConfigurationProvider();
-            var remoteBrowserConfigurator =
-                new RemoteBrowserConfigurator(
-                    new BrowserHostFactory(configurationProvider, ScenarioContext.Current.ScenarioContainer),
-                    new BrowserConfigurationParser(new BrowserStackService(configurationProvider,
-                        new HttpClientFactory(configurationProvider))),
-                    new CapabilitiesBuilder(configurationProvider));
-
-
             var scenarioTitle = ScenarioContext.Current.ScenarioInfo.Title;
             var featureTitle = FeatureContext.Current.FeatureInfo.Title;
 
             var testSpecification = new TestSpecification(scenarioTitle, featureTitle);
-            _host = remoteBrowserConfigurator.CreateAndConfigure(testSpecification, browserConfiguration);
+            _host = _remoteBrowserConfigurator.CreateAndConfigure(testSpecification, browserConfiguration);
            
             ScenarioContext.Current.ScenarioContainer.RegisterInstanceAs(_host);")
                 }

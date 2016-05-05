@@ -1,5 +1,4 @@
 ﻿using System;
-using BoDi;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 using TestStack.Seleno.Configuration;
@@ -11,14 +10,12 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
     public class BrowserHostFactory : IBrowserHostFactory
     {
         private readonly IConfigurationProvider _configurationProvider;
-        private readonly IObjectContainer _container;
 
         public TimeSpan CommandTimeOut { get; set; }
 
-        public BrowserHostFactory(IConfigurationProvider configurationProvider, IObjectContainer container)
+        public BrowserHostFactory(IConfigurationProvider configurationProvider)
         {
             _configurationProvider = configurationProvider;
-            _container = container;
             CommandTimeOut = TimeSpan.FromMinutes(5);
         }
 
@@ -35,7 +32,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         public virtual IBrowserHost CreateBrowserHost()
         {
-            return new BrowserHost(new SelenoHost(), _container);
+            return new BrowserHost(new SelenoHost());
         }
 
         public virtual Func<RemoteWebDriver> CreateRemoteDriverWithCapabilities(ICapabilities capabilities)
