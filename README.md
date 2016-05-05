@@ -38,7 +38,7 @@
   </appSettings>
 </configuration>
 ```
-1.4) support resolution for desktop like `@browser:chrome,50.0,Windows,10,1024x768`
+1.4) support resolution for desktop like `@browser:chrome,50.0,Windows,10,1024x768` or `@browser:chrome,1024x768`
 
 1.5) Maximize browser window to use full available resolution specified into browser stack capabilities (default 1024x768)
 

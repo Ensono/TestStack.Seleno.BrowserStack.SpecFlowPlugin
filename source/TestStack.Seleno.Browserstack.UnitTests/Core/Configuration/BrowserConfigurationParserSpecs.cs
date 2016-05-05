@@ -53,6 +53,18 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
                     .WithMessage(errorMessage);
         }
 
+        [Test]
+        public void Parse_ShouldThrownAnInvalidBrowserConfigurationExceptionWhenThereIsOnlyOneParameterWhichIsDesktopResolution()
+        {
+            // Arrange
+            Action attemptToParseInvalidBrowserConfiguration = () => _sut.Parse("1024x768");
+
+            // Act & Assert
+            attemptToParseInvalidBrowserConfiguration
+                    .ShouldThrow<InvalidBrowserConfigurationException>()
+                    .WithMessage("First and only parameter cannot be a desktop resolution");
+        }
+
         [TestCase("firefox,43.0,OS_X,Lion,Other")]
         [TestCase("firefox,43.0,OS_X,Lion,AxB")]
         [TestCase("firefox,43.0,OS_X,Lion,1024")]
@@ -73,7 +85,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
         [TestCase("firefox,wrong_version,OS_X,Lion")]
         [TestCase("firefox,46abc,OS_X,Lion")]
-        [TestCase("firefox,0x4564,OS_X,Lion")]
+        [TestCase("firefox,0xsada,OS_X,Lion")]
         public void Parse_ShouldThrowAnInvalidBrowserConfigurationExceptionWhenTheBrowserConfigurationHasFourPartsButIncorrectBrowserVersion(string invalidBrowserConfig)
         {
             // Arrange
@@ -89,6 +101,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
         [TestCase("chrome")]
         [TestCase("firefox,43.0,OS_X,Lion")]
         [TestCase("chrome,50.0,Windows,10,1280x800")]
+        [TestCase("chrome,1280x1024")]
         public void Parse_ShouldReturnDesktopBrowserConfiguration(string desktopBrowserConfiguration)
         {
             // Arrange
@@ -108,31 +121,32 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
                     resolution = parts[4];
                 }
             }
+            else if (parts.Count == 2)
+            {
+                resolution = parts[1];
+            }
 
             // Act 
             var result = _sut.Parse(desktopBrowserConfiguration);
 
             //Assert
-            result
-                .Should()
-                .Match(DesktopBrowserConfiguration(browserName, browserVersion, osName, osVersion, resolution));
+            result.Should().Match(DesktopBrowserConfiguration(browserName, browserVersion, osName, osVersion, resolution));
         }
 
-        [TestCase("unknown,46.0,Windows,10", "unknown 46.0 on Windows 10 is not supported")]
-        [TestCase("unknown,some device", "some device is not supported")]
-        public void Parse_ShouldThrowUnsupportedBrowserConfigurationExceptionWhenBrowserStackServiceIsSupportedReturnsFalse(
-            string unsupportedConfiguration, string errorMessage)
+        [Test]
+        public void Parse_ShouldThrowUnsupportedBrowserConfigurationExceptionWhenBrowserStackServiceIsSupportedReturnsFalse()
         {
             // Arrange
+
             BrowserConfiguration browserConfiguration = null;
             _browserStackService.IsNotSupported(Arg.Do<BrowserConfiguration>(x => browserConfiguration = x)).Returns(true);
 
-            Action attemptToParseUnSupportedBrowserConfiguration = () => _sut.Parse(unsupportedConfiguration);
+            Action attemptToParseUnSupportedBrowserConfiguration = () => _sut.Parse("unknown,some device");
 
             //Assert
             var exception = attemptToParseUnSupportedBrowserConfiguration
                 .ShouldThrow<UnsupportedBrowserException>()
-                .WithMessage(errorMessage).Which;
+                .WithMessage("some device is not supported").Which;
 
             exception.Browser.Should().BeSameAs(browserConfiguration);
         }
