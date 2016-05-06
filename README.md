@@ -87,9 +87,31 @@ Examples:
 | browser | version | osName  | osVersion  | resolution |
 | chrome  | 50.0    | Windows | 10         | 1024x768   |
 | Safari  | 9.0     | OS X    | El Capitan | 1280x1024  |
+| IE      |         |         |            | 1024x768   |
 ```
 
-  **_Which will result on following calculator step class_**
+You can also imagine also how the example table becomes polluted with the combination of browser configurations and data.
+
+**Scenario Outline**: Add multiple Numbers
+```Cucumber  
+Given I the browser is <browser> <version> on <osName> <osVersion> for <resolution>
+  And I navigated to "http://www.theonlinecalculator.com/"
+  And I have entered <firstNumber> into the calculator
+  And I have entered <secondNumber> into the calculator
+ When I press add
+ Then the result should be <result> on the screen
+
+Examples:
+| browser | version | osName  | osVersion  | resolution | firstNumber | secondNumber | result |
+| chrome  | 50.0    | Windows | 10         | 1024x768   | 10          | 20           | 30     |
+| chrome  | 50.0    | Windows | 10         | 1024x768   | 5           | 5            | 10     |
+| Safari  | 9.0     | OS X    | El Capitan | 1280x1024  | 10          | 20           | 30     |
+| Safari  | 9.0     | OS X    | El Capitan | 1280x1024  | 5           | 5            | 10     |
+| IE      |         | OS X    | El Capitan | 1280x1024  | 10          | 20           | 30     |
+| IE      |         |         |            | 1024x768   | 5           | 5            | 10     |
+```
+
+Which will both result on following calculator step class
 
 ```csharp
  [Binding]
@@ -104,10 +126,10 @@ Examples:
                                    string osVersion, string resolution)
      {
          _capabilities.SetCapability(CapabilityType.BrowserName, browser);
-         _capabilities.SetCapability(CapabilityType.Version, version);
-         _capabilities.SetCapability("os", version);
-         _capabilities.SetCapability("resolution", resolution);
-         _capabilities.SetCapability("os_version", version);
+         _capabilities.SetCapability(CapabilityType.Version, GetValue(version));
+         _capabilities.SetCapability("os", GetValue(version));
+         _capabilities.SetCapability("resolution", GetValue(resolution));
+         _capabilities.SetCapability("os_version", GetValue(version));
          _capabilities.SetCapability("browserstack.user",
                                      ConfigurationManager.AppSettings["browserstack.user"]);
          _capabilities.SetCapability("browserstack.usekey",
@@ -147,6 +169,11 @@ Examples:
          return () => new RemoteWebDriver(new Uri(url), _capabilities);
      }
 
+     private void GetValue(string value)
+     {
+        return string.IsNullOrEmpty(value) ? "ANY" : value;
+     }
+
      [AfterScenario]
      public void CloseBrowserHost()
      {
@@ -159,6 +186,9 @@ Examples:
 
 ### Using TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
+Now rewriting the same 2 scenarios:
+<br/>
+<br/>
 **Scenario**: Add Two Numbers
 ```Cucumber  
 @browser:chrome,50.0,Windows,10,1024x768
@@ -171,6 +201,24 @@ Given I navigated to "http://www.theonlinecalculator.com/"
  When I press add
  Then the result should be 30 on the screen
 
+```
+**Scenario Outline**: Add multiple Numbers
+```Cucumber  
+@browser:chrome,50.0,Windows,10,1024x768
+@browser:safari,9.0,OS_X,El_Capitan,1280x1024
+@browser:IE,1024x768
+
+Given I the browser is <browser> <version> on <osName> <osVersion> for <resolution>
+  And I navigated to "http://www.theonlinecalculator.com/"
+  And I have entered <firstNumber> into the calculator
+  And I have entered <secondNumber> into the calculator
+ When I press add
+ Then the result should be <result> on the screen
+
+Examples:
+| firstNumber | secondNumber | result |
+| 10          | 20           | 30     |
+| 5           | 5            | 10     |
 ```
 
 Which will result on following calculator step class.
@@ -212,6 +260,9 @@ public class CalculatorSteps
    }  
 }
 ```
-- Behind the scenes the Nunit test generated will have has many test cases and test category as specified browser configurations.
+- Behind the scenes, TestStack.Seleno.BrowserStack.SpecFlowPlugin will generate the same result with a Nunit test class per feature and a test method per scenario which will have has many test cases and test categories as specified browser configurations.
 - If the scenario fails for any reason a API call is made to Browser stack API to notify the test has failed with whichever reason it had failed tool.
 Whether the scenario passed or fail then the browser host is automatically dispose notifying browser stack that the test is complete.
+- Supports other devices just by annotating ``@Iphone,Iphone_6S_Plus`` or ``Android,Samsung_Galaxy_S5``
+
+   the list of supported devices https://www.browserstack.com/list-of-browsers-and-platforms?product=automate
