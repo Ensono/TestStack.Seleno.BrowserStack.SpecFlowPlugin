@@ -70,12 +70,20 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             {
                 return string.Equals(Device, another.Device, StringComparison.InvariantCultureIgnoreCase);
             }
+            else if (IsMobileDevice && !another.IsMobileDevice)
+            {
+                return false;
+            }
+            else if (!IsMobileDevice && another.IsMobileDevice)
+            {
+                return false;
+            }
 
             return
                 string.Equals(Name, another.Name, StringComparison.InvariantCultureIgnoreCase) &&
-                (another.Version == Any   || Version == Any   || string.Equals(Version, another.Version, StringComparison.InvariantCultureIgnoreCase)) &&
-                (another.OsName == Any    || OsName == Any    || string.Equals(OsName, another.OsName, StringComparison.InvariantCultureIgnoreCase)) &&
-                (another.OsVersion == Any || OsVersion == Any || string.Equals(OsVersion, another.OsVersion, StringComparison.InvariantCultureIgnoreCase));
+                (another.Version == Any   || decimal.Parse(Version) == decimal.Parse(another.Version)) &&
+                (another.OsName == Any    || string.Equals(OsName, another.OsName, StringComparison.InvariantCultureIgnoreCase)) &&
+                (another.OsVersion == Any || string.Equals(OsVersion, another.OsVersion, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

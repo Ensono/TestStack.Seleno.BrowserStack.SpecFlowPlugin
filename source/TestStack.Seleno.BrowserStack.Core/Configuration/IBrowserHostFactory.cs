@@ -4,6 +4,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
     public interface IBrowserHostFactory
     {
-        IBrowserHost CreateWithCapabilities(ICapabilities capabilities);
+        IBrowserHost CreateWithCapabilities(ICapabilities capabilities, BrowserConfiguration browserConfiguration = null);
     }
 }

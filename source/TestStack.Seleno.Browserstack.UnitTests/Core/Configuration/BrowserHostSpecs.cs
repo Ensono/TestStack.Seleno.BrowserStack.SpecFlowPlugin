@@ -15,6 +15,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
     {
         private BrowserHost _sut;
         private SelenoHost _selenoHost;
+        private BrowserConfiguration _browserConfiguration;
 
         public interface IDummyWebDriver : IWebDriver, IHasSessionId { }
 
@@ -22,7 +23,18 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
         public void SetUp()
         {
             _selenoHost = new SelenoHost();
-            _sut = Substitute.ForPartsOf<BrowserHost>(_selenoHost);
+            _browserConfiguration = new BrowserConfiguration();
+            _sut = Substitute.ForPartsOf<BrowserHost>(_selenoHost, _browserConfiguration);
+        }
+
+        [Test]
+        public void Constructor_ShouldSetBrowserConfigurationProperty()
+        {
+            // Act
+            _sut = Substitute.ForPartsOf<BrowserHost>(_selenoHost, _browserConfiguration);
+
+            // Assert
+            _sut.Configuration.Should().BeSameAs(_browserConfiguration);
         }
 
         [Test]

@@ -37,21 +37,21 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             var sut = Substitute.ForPartsOf<BrowserHostFactory>(_configurationProvider);
             var browserHost = Substitute.For<IBrowserHost>();
             var capabilities = Substitute.For<ICapabilities>();
-
+            var browserConfiguration = new BrowserConfiguration();
             Func <RemoteWebDriver> remoteWebDriverFactory = () => new RemoteWebDriver(capabilities);
             var webServer = Substitute.For<IWebServer>();
             const string remoteUrl = "http://some/remote/url";
 
             _configurationProvider.RemoteUrl.Returns(remoteUrl);
-            sut.When(x => x.CreateBrowserHost()).DoNotCallBase();
+            
+            sut.When(x => x.CreateBrowserHost(browserConfiguration)).DoNotCallBase();
 
-            sut.When(x => x.CreateBrowserHost()).DoNotCallBase();
-            sut.CreateBrowserHost().Returns(browserHost);
+            sut.CreateBrowserHost(browserConfiguration).Returns(browserHost);
             sut.CreateRemoteDriverWithCapabilities(Arg.Is(capabilities)).Returns(remoteWebDriverFactory);
             sut.CreateWebServer(Arg.Is(remoteUrl)).Returns(webServer);
 
             // Act
-            var result = sut.CreateWithCapabilities(capabilities);
+            var result = sut.CreateWithCapabilities(capabilities, browserConfiguration);
 
             // Assert
             result.Should().BeSameAs(browserHost);

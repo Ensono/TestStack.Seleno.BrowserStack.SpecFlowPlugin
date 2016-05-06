@@ -10,9 +10,10 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
     {
         private SelenoHost _selenoHost;
 
-        public BrowserHost(SelenoHost selenoHost)
+        public BrowserHost(SelenoHost selenoHost, BrowserConfiguration browserConfiguration = null)
         {
             _selenoHost = selenoHost;
+            Configuration = browserConfiguration ?? new BrowserConfiguration();
         }
 
         public void Run(Func<RemoteWebDriver> remoteWebDriverFactory, IWebServer webServer)
@@ -30,6 +31,8 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         {
             return _selenoHost.NavigateToInitialPage<TPage>(url);
         }
+
+        public BrowserConfiguration Configuration { get; internal set; }
 
         public string SessionId
         {

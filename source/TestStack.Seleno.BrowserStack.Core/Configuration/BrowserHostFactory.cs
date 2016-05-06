@@ -20,9 +20,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         }
 
 
-        public IBrowserHost CreateWithCapabilities(ICapabilities capabilities)
+        public IBrowserHost CreateWithCapabilities(ICapabilities capabilities, BrowserConfiguration browserConfiguration = null)
         {
-            var instance = CreateBrowserHost();
+            var instance = CreateBrowserHost(browserConfiguration);
 
             instance.Run(CreateRemoteDriverWithCapabilities(capabilities), 
                          CreateWebServer(_configurationProvider.RemoteUrl));
@@ -30,9 +30,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             return instance;
         }
 
-        public virtual IBrowserHost CreateBrowserHost()
+        public virtual IBrowserHost CreateBrowserHost(BrowserConfiguration browserConfiguration)
         {
-            return new BrowserHost(new SelenoHost());
+            return new BrowserHost(new SelenoHost(), browserConfiguration);
         }
 
         public virtual Func<RemoteWebDriver> CreateRemoteDriverWithCapabilities(ICapabilities capabilities)

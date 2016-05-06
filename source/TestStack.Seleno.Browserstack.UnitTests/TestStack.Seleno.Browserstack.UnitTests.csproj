@@ -132,6 +132,7 @@
     <Compile Include="Assertions\NonGenericDictionaryAssertions.cs" />
     <Compile Include="Assertions\TestClassGenerationContextAssertions.cs" />
     <Compile Include="Core\Configuration\BrowserHostSpecs.cs" />
+    <Compile Include="Core\Extensions\BoDiExtensionsSpecs.cs" />
     <Compile Include="Core\Services\Client\HttpClientFactorySpecs.cs" />
     <Compile Include="Core\Services\Client\HttpClientWrapperSpecs.cs" />
     <Compile Include="Core\TestResultNotifierSpecs.cs" />

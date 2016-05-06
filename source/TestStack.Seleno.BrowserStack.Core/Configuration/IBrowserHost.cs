@@ -13,5 +13,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         TPage NavigateToInitialPage<TPage>(string url = "") where TPage : UiComponent, new();
 
+        BrowserConfiguration Configuration { get; }
+
     }
 }

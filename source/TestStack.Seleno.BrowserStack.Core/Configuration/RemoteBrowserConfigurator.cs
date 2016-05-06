@@ -19,13 +19,15 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         public IBrowserHost CreateAndConfigure(TestSpecification testSpecification, string browser = null)
         {
             var builder = _capabilitiesBuilder.WithTestSpecification(testSpecification);
+            BrowserConfiguration browserConfiguration = null;
 
             if (browser != null)
             {
-                builder.WithBrowserConfiguration(_parser.Parse(browser));
+                browserConfiguration = _parser.Parse(browser);
+                builder.WithBrowserConfiguration(browserConfiguration);
             }
-                
-            return _browserHostFactory.CreateWithCapabilities(builder.Build());
+
+            return _browserHostFactory.CreateWithCapabilities(builder.Build(), browserConfiguration);
         }
     }
 }

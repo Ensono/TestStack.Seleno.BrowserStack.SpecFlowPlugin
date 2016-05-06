@@ -115,6 +115,7 @@
     <Compile Include="Disposable.cs" />
     <Compile Include="Exceptions\InvalidBrowserConfigurationException.cs" />
     <Compile Include="Exceptions\UnsupportedBrowserException.cs" />
+    <Compile Include="Extensions\BoDiExtensions.cs" />
     <Compile Include="Extensions\CategorySelection.cs" />
     <Compile Include="Extensions\CodeAttributeDeclarationExtensions.cs" />
     <Compile Include="NUnitAttributeConstants.cs" />
