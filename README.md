@@ -100,7 +100,7 @@ Examples:
      private CalculatorPage _calculatorPage;
 
      [Given(@"I the (.*) is (.*) on (.*) (.*) for (.*)")]
-     public void GivenITheBrowserIs(string browser, string version, string osName,
+     public void GivenTheBrowserIs(string browser, string version, string osName,
                                    string osVersion, string resolution)
      {
          _capabilities.SetCapability(CapabilityType.BrowserName, browser);
@@ -173,7 +173,7 @@ Given I navigated to "http://www.theonlinecalculator.com/"
 
 ```
 
-**_Which will result on following calculator step class_**
+Which will result on following calculator step class.
 
 ```csharp
 [Binding]
@@ -212,6 +212,6 @@ public class CalculatorSteps
    }  
 }
 ```
-
-If the scenario fails for any reason a API call is made to Browser stack API to notify the test has failed with whichever reason it had failed tool.
-Disposing the browser host and internal remote web driver will be done also automatically behind the scenes.
+- Behind the scenes the Nunit test generated will have has many test cases and test category as specified browser configurations.
+- If the scenario fails for any reason a API call is made to Browser stack API to notify the test has failed with whichever reason it had failed tool.
+Whether the scenario passed or fail then the browser host is automatically dispose notifying browser stack that the test is complete.
