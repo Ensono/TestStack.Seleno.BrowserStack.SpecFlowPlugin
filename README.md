@@ -14,10 +14,14 @@
 
 1.1) Multiple browser support with just tag placed on scenario like `@browser:firefox,43.0,OS_X,Lion`
 
+  - list of supported capabilities (combination of browser, version, operating system):
+  https://www.browserstack.com/automate/capabilities
+
+
 1.2) Error notification done with after scenario hook and browser stack API to pass error message.
 
 1.3) configure plugin in App.config and set app settings for browser stack basic settings:
-```
+```xml
 <configuration>
     <specFlow>
         <plugins>
@@ -58,3 +62,156 @@
 Get it from Nuget.org:
 
 https://www.nuget.org/packages/TestStack.Seleno.BrowserStack.SpecFlowPlugin/
+
+***
+
+### Using Only SpecFlow and Seleno alone for multiple browser testing
+
+<br/>
+If you want to perform multiple browser testing for a particular scenario,
+the obvious and only way would be to parameterize the browser configuration like below:
+That approach clutter the scenario with environment considerations..
+<br/>
+<br/>
+
+**Scenario Outline**: Add Two Numbers
+```Cucumber  
+Given I the browser is <browser> <version> on <osName> <osVersion> for <resolution>
+  And I navigated to "http://www.theonlinecalculator.com/"
+  And I have entered 10 into the calculator
+  And I have entered 20 into the calculator
+ When I press add
+ Then the result should be 30 on the screen
+
+Examples:
+| browser | version | osName  | osVersion  | resolution |
+| chrome  | 50.0    | Windows | 10         | 1024x768   |
+| Safari  | 9.0     | OS X    | El Capitan | 1280x1024  |
+```
+
+  **_Which will result on following calculator step class_**
+
+```csharp
+ [Binding]
+ public class CalculatorSteps
+ {
+     private SelenoHost _browserHost;
+     private readonly DesiredCapabilities _capabilities = new DesiredCapabilities();
+     private CalculatorPage _calculatorPage;
+
+     [Given(@"I the (.*) is (.*) on (.*) (.*) for (.*)")]
+     public void GivenITheBrowserIs(string browser, string version, string osName,
+                                   string osVersion, string resolution)
+     {
+         _capabilities.SetCapability(CapabilityType.BrowserName, browser);
+         _capabilities.SetCapability(CapabilityType.Version, version);
+         _capabilities.SetCapability("os", version);
+         _capabilities.SetCapability("resolution", resolution);
+         _capabilities.SetCapability("os_version", version);
+         _capabilities.SetCapability("browserstack.user",
+                                     ConfigurationManager.AppSettings["browserstack.user"]);
+         _capabilities.SetCapability("browserstack.usekey",
+                                     ConfigurationManager.AppSettings["browserstack.usekey"]);
+         _browserHost = new SelenoHost();
+     }
+
+     [Given(@"I navigated to ""(.*)""")]
+     public void GivenINavigatedTo(string url)
+     {
+         _browserHost.Run(config => config
+                                     .WithRemoteWebDriver(BrowserStackRemoteDriver(url))
+                                     .WithWebServer(new InternetWebServer(url)));
+         _calculatorPage = _browserHost.NavigateToInitialPage<CalculatorPage>();
+     }
+
+     [Given(@"I have entered (.*) into the calculator")]
+     public void GivenIHaveEnteredIntoTheCalculator(int number)
+     {
+         _calculatorPage.Enter(number);
+     }
+
+     [When(@"I press add")]
+     public void WhenIPressAdd()
+     {
+         _calculatorPage.ClickOnAddButton();
+     }
+
+     [Then(@"the result should be (.*) on the screen")]
+     public void ThenTheResultShouldBeOnTheScreen(int expectedResult)
+     {
+         _calculatorPage.Result.Should().Be(expectedResult);
+     }
+
+     private Func<RemoteWebDriver> BrowserStackRemoteDriver(string url)
+     {
+         return () => new RemoteWebDriver(new Uri(url), _capabilities);
+     }
+
+     [AfterScenario]
+     public void CloseBrowserHost()
+     {
+        _browserHost.Dispose();
+        _browserHost = null;
+     }
+ }
+
+```
+
+### Using TestStack.Seleno.BrowserStack.SpecFlowPlugin
+
+**Scenario**: Add Two Numbers
+```Cucumber  
+@browser:chrome,50.0,Windows,10,1024x768
+@browser:safari,9.0,OS_X,El_Capitan,1280x1024
+@browser:IE,1024x768
+
+Given I navigated to "http://www.theonlinecalculator.com/"
+  And I have entered 10 into the calculator
+  And I have entered 20 into the calculator
+ When I press add
+ Then the result should be 30 on the screen
+
+```
+
+**_Which will result on following calculator step class_**
+
+```csharp
+[Binding]
+public class CalculatorSteps
+{
+   private IBrowserHost _browserHost;
+   private CalculatorPage _calculatorPage;
+
+   public CalculatorSteps(IBrowserHost browserHost)
+   {
+      _browserHost = browserHost;
+   }
+
+   [Given(@"I navigated to ""(.*)""")]
+   public void GivenINavigatedTo(string url)
+   {
+       _calculatorPage = _browserHost.NavigateToInitialPage<CalculatorPage>(url);
+   }
+
+   [Given(@"I have entered (.*) into the calculator")]
+   public void GivenIHaveEnteredIntoTheCalculator(int number)
+   {
+       _calculatorPage.Enter(number);
+   }
+
+   [When(@"I press add")]
+   public void WhenIPressAdd()
+   {
+       _calculatorPage.ClickOnAddButton();
+   }
+
+   [Then(@"the result should be (.*) on the screen")]
+   public void ThenTheResultShouldBeOnTheScreen(int expectedResult)
+   {
+       _calculatorPage.Result.Should().Be(expectedResult);
+   }  
+}
+```
+
+If the scenario fails for any reason a API call is made to Browser stack API to notify the test has failed with whichever reason it had failed tool.
+Disposing the browser host and internal remote web driver will be done also automatically behind the scenes.
