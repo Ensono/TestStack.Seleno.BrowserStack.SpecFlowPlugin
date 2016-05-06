@@ -183,7 +183,7 @@ Which will both result on following calculator step class
  }
 
 ```
-
+***
 ### Using TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
 Now rewriting the same 2 scenarios:
