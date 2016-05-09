@@ -85,9 +85,9 @@ Given I the browser is <browser> <version> on <osName> <osVersion> for <resoluti
 
 Examples:
 | browser | version | osName  | osVersion  | resolution |
-| chrome  | 50.0    | Windows | 10         | 1024x768   |
+| chrome  | 50.0    | Windows | 10         |            |
 | Safari  | 9.0     | OS X    | El Capitan | 1280x1024  |
-| IE      |         |         |            | 1024x768   |
+| IE      |         |         |            | 800x600    |
 ```
 
 You can also imagine also how the example table becomes polluted with the combination of browser configurations and data.
@@ -103,12 +103,12 @@ Given I the browser is <browser> <version> on <osName> <osVersion> for <resoluti
 
 Examples:
 | browser | version | osName  | osVersion  | resolution | firstNumber | secondNumber | result |
-| chrome  | 50.0    | Windows | 10         | 1024x768   | 10          | 20           | 30     |
-| chrome  | 50.0    | Windows | 10         | 1024x768   | 5           | 5            | 10     |
+| chrome  | 50.0    | Windows | 10         |    		| 10          | 20           | 30     |
+| chrome  | 50.0    | Windows | 10         |            | 5           | 5            | 10     |
 | Safari  | 9.0     | OS X    | El Capitan | 1280x1024  | 10          | 20           | 30     |
 | Safari  | 9.0     | OS X    | El Capitan | 1280x1024  | 5           | 5            | 10     |
 | IE      |         | OS X    | El Capitan | 1280x1024  | 10          | 20           | 30     |
-| IE      |         |         |            | 1024x768   | 5           | 5            | 10     |
+| IE      |         |         |            |            | 5           | 5            | 10     |
 ```
 
 Which will both result on following calculator step class
@@ -191,9 +191,9 @@ Now rewriting the same 2 scenarios:
 <br/>
 **Scenario**: Add Two Numbers
 ```Cucumber  
-@browser:chrome,50.0,Windows,10,1024x768
+@browser:chrome,50.0,Windows,10
 @browser:safari,9.0,OS_X,El_Capitan,1280x1024
-@browser:IE,1024x768
+@browser:IE,800x600
 
 Given I navigated to "http://www.theonlinecalculator.com/"
   And I have entered 10 into the calculator
@@ -204,9 +204,9 @@ Given I navigated to "http://www.theonlinecalculator.com/"
 ```
 **Scenario Outline**: Add multiple Numbers
 ```Cucumber  
-@browser:chrome,50.0,Windows,10,1024x768
+@browser:chrome,50.0,Windows,10
 @browser:safari,9.0,OS_X,El_Capitan,1280x1024
-@browser:IE,1024x768
+@browser:IE
 
 Given I the browser is <browser> <version> on <osName> <osVersion> for <resolution>
   And I navigated to "http://www.theonlinecalculator.com/"
