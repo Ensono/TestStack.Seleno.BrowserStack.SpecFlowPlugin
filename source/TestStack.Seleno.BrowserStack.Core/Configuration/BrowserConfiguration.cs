@@ -26,7 +26,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         public bool IsMobileDevice
         {
-            get { return !string.IsNullOrWhiteSpace(Device); }
+            get { return !string.IsNullOrWhiteSpace(Device); } 
         }
 
         [JsonConstructor]
@@ -53,12 +53,12 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         public override string ToString()
         {
             var version = Version != Any ? " " + Version : string.Empty;
-            var osName = OsName != Any ? $" on {OsName}": string.Empty;
+            var osName = OsName != Any ? String.Format(" on {0}", OsName) : string.Empty;
             var osVersion = OsVersion != Any ? " " + OsVersion : string.Empty;
 
             return IsMobileDevice
                 ? Device
-                : $"{Name}{version}{osName}{osVersion}";
+                : Name + version + osName + osVersion;
         }
 
         public override bool Equals(object obj)

@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using OpenQA.Selenium.Remote;
 
 namespace TestStack.Seleno.BrowserStack.Core.Capabilities
@@ -23,6 +24,8 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
             public static readonly string Build = "build";
             public static readonly string Project = "project";
             public static readonly string TestName = "name";
+            public static readonly string Debug = "browserstack.debug";
+            public static readonly string Video = "browserstack.video";
         }
     }
 }

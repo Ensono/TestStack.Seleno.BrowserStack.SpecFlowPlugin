@@ -15,6 +15,8 @@
 		- configure plugin in app.config and set app settings for browser stack
 		- support resolution for desktop like @browser:chrome,50.0,Windows,10,1024x768
 		- Maximize browser window to use full available resolution specified into browser stack capabilities (default 1024x768)
+		- Added mecanism to pickup component based on browser width (for responsive pages)
+		- set debug browser stack capabilities when debugging a functional test
 	</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Selenium Seleno SpecFlow BrowserStack</tags>

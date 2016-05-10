@@ -54,7 +54,17 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
 
             SetBrowserConfiguration(result);
 
+#if DEBUG
+            ConfigureDebugSetting(result);
+#endif
+
             return result;
+        }
+
+        private void ConfigureDebugSetting(DesiredCapabilities result)
+        {
+            result.SetCapability(RemoteCapabilityType.BrowserStack.Debug, true);
+            result.SetCapability(RemoteCapabilityType.BrowserStack.Video, false);
         }
 
         private void SetBrowserConfiguration(DesiredCapabilities result)

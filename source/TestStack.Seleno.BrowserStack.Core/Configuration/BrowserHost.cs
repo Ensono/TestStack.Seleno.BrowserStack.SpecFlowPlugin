@@ -2,7 +2,7 @@ using System;
 using OpenQA.Selenium.Remote;
 using TestStack.Seleno.Configuration;
 using TestStack.Seleno.Configuration.Contracts;
-using TestStack.Seleno.PageObjects;
+using TestStack.Seleno.BrowserStack.Core.Pages;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
@@ -27,7 +27,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             _selenoHost.Run(config => config.WithRemoteWebDriver(remoteWebDriverFactory).WithWebServer(webServer));
         }
 
-        public TPage NavigateToInitialPage<TPage>(string url = "") where TPage : UiComponent, new()
+        public TPage NavigateToInitialPage<TPage>(string url = "") where TPage : Page, new()
         {
             return _selenoHost.NavigateToInitialPage<TPage>(url);
         }

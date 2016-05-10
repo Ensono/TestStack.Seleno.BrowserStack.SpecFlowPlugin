@@ -40,10 +40,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             return () => new RemoteWebDriver(new Uri(_configurationProvider.RemoteUrl), capabilities, CommandTimeOut);
         }
 
-
         public virtual IWebServer CreateWebServer(string remoteUrl)
         {
-            return new InternetWebServer("https://www.cbreresidential.com/");
+            return new InternetWebServer(remoteUrl);
         }
     }
 }
