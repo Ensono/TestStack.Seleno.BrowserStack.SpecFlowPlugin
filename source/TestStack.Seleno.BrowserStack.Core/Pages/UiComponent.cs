@@ -15,8 +15,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Pages
             get { return _waitFor ?? (_waitFor = new Wait(Execute)); }
         }
 
-        protected internal UiComponent GetResponsiveComponentBasedOn<TComponent>(bool useOriginalComponent)
-            where TComponent : UiComponent, new()
+      protected internal TBaseComponent GetResponsiveComponent<TBaseComponent, TComponent>(bool useOriginalComponent)
+           where TComponent : TBaseComponent, new()
+           where TBaseComponent : UiComponent
         {
             var componentType = typeof(TComponent);
             if (useOriginalComponent)
@@ -24,16 +25,15 @@ namespace TestStack.Seleno.BrowserStack.Core.Pages
                 return GetComponent<TComponent>();
             }
 
-            var responsiveComponentType =
-                componentType.Assembly.GetTypes()
-                    .FirstOrDefault(t => typeof(IResponsiveComponent).IsAssignableFrom(t) && !t.IsAbstract && t.Name.EndsWith(componentType.Name));
+          var responsiveComponentType =
+              componentType.Assembly.GetTypes()
+                  .FirstOrDefault(t => t != componentType &&
+                                        typeof (IResponsiveComponent).IsAssignableFrom(t) &&
+                                        !t.IsAbstract &&
+                                        t.IsSubclassOf(typeof (TBaseComponent)) &&
+                                        t.Name.EndsWith(componentType.Name));
 
-            if (responsiveComponentType != null)
-            {
-                return GetComponent(responsiveComponentType);
-            }
-
-            return GetComponent<TComponent>();
+          return responsiveComponentType != null ? (TBaseComponent)GetComponent(responsiveComponentType) : GetComponent<TComponent>();
         }
 
         protected internal virtual TComponent GetComponent<TComponent>() where TComponent : UiComponent, new()

@@ -10,25 +10,25 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Pages
     {
         public class DummyComponent : UiComponent { }
 
-        public class FancyComponent : UiComponent { }
+        public class FancyComponent : DummyComponent { }
 
-        public class AnotherFancyComponent : UiComponent, IResponsiveComponent { }
+        public class ResponsiveFancyComponent : DummyComponent, IResponsiveComponent { }
 
         [Test]
         public void GetResponsiveComponentBasedOn_ShouldReturnOriginalComponentWhenInvokedWithTrue()
         {
             // Arrange
             var sut = Substitute.ForPartsOf<DummyComponent>();
-            var anotherDummyComponentInstance = new DummyComponent();
+            var componentInstance = new FancyComponent();
 
-            sut.When(x => x.GetComponent<DummyComponent>()).DoNotCallBase();
-            sut.GetComponent<DummyComponent>().Returns(anotherDummyComponentInstance);
+            sut.When(x => x.GetComponent<FancyComponent>()).DoNotCallBase();
+            sut.GetComponent<FancyComponent>().Returns(componentInstance);
 
             // Act
-            var result = sut.GetResponsiveComponentBasedOn<DummyComponent>(true);
+            var result = sut.GetResponsiveComponent<DummyComponent, FancyComponent>(true);
 
             // Assert
-            result.Should().BeSameAs(anotherDummyComponentInstance);
+            result.Should().BeSameAs(componentInstance);
         }
 
         [Test]
@@ -36,32 +36,32 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Pages
         {
             // Arrange
             var sut = Substitute.ForPartsOf<DummyComponent>();
-            var anotherDummyComponentInstance = new DummyComponent();
+            var expectedFancyComponentInstance = new ResponsiveFancyComponent();
 
-            sut.When(x => x.GetComponent<DummyComponent>()).DoNotCallBase();
-            sut.GetComponent<DummyComponent>().Returns(anotherDummyComponentInstance);
+            sut.When(x => x.GetComponent<ResponsiveFancyComponent>()).DoNotCallBase();
+            sut.GetComponent<ResponsiveFancyComponent>().Returns(expectedFancyComponentInstance);
 
             // Act
-            var result = sut.GetResponsiveComponentBasedOn<DummyComponent>(false);
+            var result = sut.GetResponsiveComponent<UiComponent,ResponsiveFancyComponent>(false);
 
             // Assert
-            result.Should().BeSameAs(anotherDummyComponentInstance);
+            result.Should().BeSameAs(expectedFancyComponentInstance);
         }
 
         [Test]
-        public void GetResponsiveComponentBasedOn_ShouldReturnMatchingResponsiveComponentByResponsiveMarkerAndNameConvention()
+        public void GetResponsiveComponentBasedOn_ShouldReturnMatchingResponsiveComponentByResponsiveMarkerAndNamingConvention()
         {
             // Arrange
             var sut = Substitute.ForPartsOf<DummyComponent>();
-            var responsiveComponent = new AnotherFancyComponent();
+            var responsiveComponent = new ResponsiveFancyComponent();
 
             sut.WhenForAnyArgs(x => x.GetComponent(null)).DoNotCallBase();
-            sut.GetComponent(typeof(AnotherFancyComponent)).Returns(responsiveComponent);
+            sut.GetComponent(typeof(ResponsiveFancyComponent)).Returns(responsiveComponent);
             sut.When(x => x.GetComponent<FancyComponent>()).DoNotCallBase();
             sut.GetComponent<FancyComponent>().Returns(null as FancyComponent);
-
+            
             // Act
-            var result = sut.GetResponsiveComponentBasedOn<FancyComponent>(false);
+            var result = sut.GetResponsiveComponent<DummyComponent, FancyComponent>(false);
 
             // Assert
             result.Should().BeSameAs(responsiveComponent);
