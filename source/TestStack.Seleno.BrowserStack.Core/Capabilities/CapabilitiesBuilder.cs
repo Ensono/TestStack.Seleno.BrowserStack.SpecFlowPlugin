@@ -54,10 +54,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
 
             SetBrowserConfiguration(result);
 
-#if DEBUG
-            ConfigureDebugSetting(result);
-#endif
-
             return result;
         }
 

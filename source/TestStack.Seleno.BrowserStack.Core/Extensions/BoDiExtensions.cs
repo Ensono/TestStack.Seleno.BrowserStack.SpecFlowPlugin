@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Reflection;
 using BoDi;
 using Castle.Core.Internal;
 
@@ -44,6 +43,5 @@ namespace TestStack.Seleno.BrowserStack.Core.Extensions
             return !results.IsNullOrEmpty();
 
         }
-
     }
 }

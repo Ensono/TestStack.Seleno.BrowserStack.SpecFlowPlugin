@@ -131,9 +131,11 @@
     <Compile Include="Assertions\CodeTypeDeclarationAssertions.cs" />
     <Compile Include="Assertions\NonGenericDictionaryAssertions.cs" />
     <Compile Include="Assertions\TestClassGenerationContextAssertions.cs" />
+    <Compile Include="Core\PageProviderSpecs.cs" />
     <Compile Include="Core\Configuration\BrowserConfigurationSpecs.cs" />
     <Compile Include="Core\Configuration\BrowserHostSpecs.cs" />
     <Compile Include="Core\Extensions\BoDiExtensionsSpecs.cs" />
+    <Compile Include="Core\Extensions\EnumExtensionsSpecs.cs" />
     <Compile Include="Core\Extensions\WebDriverExtensionsSpecs.cs" />
     <Compile Include="Core\Pages\UIComponentSpecs.cs" />
     <Compile Include="Core\Services\Client\HttpClientFactorySpecs.cs" />

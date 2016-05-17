@@ -5,6 +5,7 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using TestStack.Seleno.BrowserStack.Core.Extensions;
+using TestStack.Seleno.BrowserStack.Core.Pages;
 
 namespace TestStack.Seleno.Browserstack.UnitTests.Core.Extensions
 {
@@ -13,6 +14,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Extensions
     {
         public class Animal { }
         public class Human : Animal { }
+        public class DummyPage : Page { }
 
         [Test]
         public void DoesNotContains_ShouldReturnTrueWhenContainerIsNullForAnyType()
