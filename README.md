@@ -4,7 +4,7 @@
 
 - Test class generator to drive automated web ui tests on browser stack with [ Seleno](http://seleno.teststack.net/) and [SpecFlow](http://www.specflow.org/).
 
-- Configures [SpecFlow](http://www.specflow.org/) automatically using [SpecFlow](http://www.specflow.org/)'s [BoDi](https://github.com/gasparnagy/BoDi) Container to be able to get browser.
+- Configures [SpecFlow](http://www.specflow.org/) automatically using [SpecFlow](http://www.specflow.org/)'s [BoDi](https://github.com/gasparnagy/BoDi) Container to be able to get a browser.
 
 - Creating automated web tests to test an application in addition to testing the application with unit tests is a good practice. [SpecFlow](http://www.specflow.org/) supports behavior driven development and acceptance tests driven development.
 
