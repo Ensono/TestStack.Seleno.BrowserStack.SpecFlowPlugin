@@ -3,7 +3,6 @@ using BoDi;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
-using TestStack.Seleno.BrowserStack.Core;
 using TestStack.Seleno.BrowserStack.Core.Extensions;
 using TestStack.Seleno.BrowserStack.Core.Pages;
 
@@ -22,7 +21,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
             var container = Substitute.For<IObjectContainer>();
             var expectedPage = new DummyPage();
             container.Resolve<DummyPage>(name).Returns(expectedPage);
-            PageProvider.Container = container;
+            PageProvider.SetContainer(container);
 
             // Act
             var result = PageProvider.GetPage<DummyPage>(name);
@@ -37,7 +36,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
             // Arrange
             var container = Substitute.For<IObjectContainer>();
             var sut = new DummyPage();
-            PageProvider.Container = container;
+            PageProvider.SetContainer(container);
 
             // Act
             sut.AndRegister();

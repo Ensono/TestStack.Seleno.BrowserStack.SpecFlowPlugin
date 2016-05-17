@@ -6,22 +6,26 @@ namespace TestStack.Seleno.BrowserStack.Core.Extensions
 {
     public static class PageProvider
     {
-        internal static IObjectContainer Container { get;  set; }
-        private static IObjectContainer InitialisedContainer
+        private static IObjectContainer _container;
+
+        private static IObjectContainer Container
         {
-            get { return (Container ?? ScenarioContext.Current.ScenarioContainer); }
+            get { return _container ?? (_container = ScenarioContext.Current.ScenarioContainer); }
+        }
+
+        internal static void SetContainer(IObjectContainer value)
+        {
+            _container = value;
         }
 
         public static void AndRegister<TPage>(this TPage page) where TPage : Page, new()
         {
-            InitialisedContainer.RegisterInstance(page);
+            Container.RegisterInstance(page);
         }
-
-        
 
         public static TPage GetPage<TPage>(string name = null) where TPage : Page, new()
         {
-            return (Container ?? ScenarioContext.Current.ScenarioContainer).Resolve<TPage>(name);
+            return Container.Resolve<TPage>(name);
         }
     }
 }
