@@ -123,6 +123,7 @@
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\PageProvider.cs" />
     <Compile Include="Extensions\SelenoExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\WebDriverExtensions.cs" />
     <Compile Include="NUnitAttributeConstants.cs" />
     <Compile Include="Pages\IResponsiveComponent.cs" />

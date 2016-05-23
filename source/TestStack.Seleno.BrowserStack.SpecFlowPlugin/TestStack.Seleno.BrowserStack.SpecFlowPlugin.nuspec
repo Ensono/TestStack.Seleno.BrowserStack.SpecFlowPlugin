@@ -16,7 +16,7 @@
 		- support resolution for desktop like @browser:chrome,50.0,Windows,10,1024x768
 		- Maximize browser window to use full available resolution specified into browser stack capabilities (default 1024x768)
 		- Added mecanism to pickup component based on browser width (for responsive pages)
-		- Added PageProvider extensions method to retrieve and register pages with current scenario container
+		- Added PageProvider extensions method to retrieve and register pages (as itself and its concrete ancestor) with current scenario container
 		- Added enum extensions
 	</releaseNotes>
     <copyright>Copyright 2016</copyright>

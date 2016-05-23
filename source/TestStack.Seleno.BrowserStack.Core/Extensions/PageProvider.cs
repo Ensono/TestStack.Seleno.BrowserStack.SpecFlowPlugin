@@ -10,7 +10,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Extensions
 
         private static IObjectContainer Container
         {
-            get { return _container ?? (_container = ScenarioContext.Current.ScenarioContainer); }
+            get { return _container ?? ScenarioContext.Current.ScenarioContainer; }
         }
 
         internal static void SetContainer(IObjectContainer value)
@@ -18,9 +18,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Extensions
             _container = value;
         }
 
-        public static void AndRegister<TPage>(this TPage page) where TPage : Page, new()
+        public static TPage AndRegisterPage<TPage>(this TPage page) where TPage : Page
         {
-            Container.RegisterInstance(page);
+            return Container.RegisterInstance(page);
         }
 
         public static TPage GetPage<TPage>(string name = null) where TPage : Page, new()

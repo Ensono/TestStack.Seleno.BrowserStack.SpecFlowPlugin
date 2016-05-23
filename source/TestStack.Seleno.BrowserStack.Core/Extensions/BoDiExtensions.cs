@@ -7,19 +7,24 @@ namespace TestStack.Seleno.BrowserStack.Core.Extensions
 {
     public static class BoDiExtensions
     {
+        private static void RegisterInstance(this IObjectContainer container, object instance, Type type)
+        {
+            if (container == null || type.IsNotSubClassOrSameAs(instance)) return;
+
+            if (container.DoesNotContains(type))
+            {
+                container.RegisterInstanceAs(instance, type);
+            }
+
+            container.RegisterInstance(instance, type.BaseType);
+        }
+
         public static T RegisterInstance<T>(this IObjectContainer container, T instance) where T : class
         {
             if (container == null) return instance;
 
-            if (container.DoesNotContains(instance))
-            {
-                container.RegisterInstanceAs(instance, instance.GetType());
-            }
+            container.RegisterInstance(instance, instance.GetType());
 
-            if (instance != null && container.DoesNotContains(instance.GetType().BaseType))
-            {
-                container.RegisterInstanceAs(instance, instance.GetType().BaseType);
-            }
             return instance;
         }
 

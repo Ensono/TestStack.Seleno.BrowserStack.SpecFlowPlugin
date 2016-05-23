@@ -13,6 +13,9 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
     {
         public class DummyPage : Page { }
 
+        public class SubPage : DummyPage { }
+
+
         [TestCase(null)]
         [TestCase("namedPage")]
         public void GetPage_ShouldResolveAndReturnPageSpecifiedPageType(string name)
@@ -31,19 +34,20 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
         }
 
         [Test]
-        public void AndRegister_ShouldRegisterThePageAndItsBaseType()
+        public void AndRegister_ShouldRegisterThePageAndItsBaseConcreteType()
         {
             // Arrange
             var container = Substitute.For<IObjectContainer>();
-            var sut = new DummyPage();
+            var sut = new SubPage();
             PageProvider.SetContainer(container);
 
             // Act
-            sut.AndRegister();
+            sut.AndRegisterPage();
 
             // Assert
+            container.Received(1).RegisterInstanceAs(sut, typeof(SubPage));
             container.Received(1).RegisterInstanceAs(sut, typeof(DummyPage));
-            container.Received(1).RegisterInstanceAs(sut, typeof(Page));
+            container.DidNotReceive().RegisterInstanceAs(sut, typeof(Page));
         }
     }
 }
