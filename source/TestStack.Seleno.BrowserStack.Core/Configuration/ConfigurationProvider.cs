@@ -39,5 +39,10 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         {
             get { return ConfigurationManager.AppSettings[Constants.BrowserStackApiUrl]; }
         }
+
+        public string UseLocalBrowser
+        {
+            get {  return ConfigurationManager.AppSettings[Constants.UseLocalBrowser]; }
+        }
     }
 }

@@ -16,6 +16,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
         private IBrowserHostFactory _browserHostFactory;
         private IBrowserConfigurationParser _parser;
         private ICapabilitiesBuilder _capabilitiesBuilder;
+        private IConfigurationProvider _configurationProvider;
 
         [SetUp]
         public void SetUp()
@@ -23,9 +24,10 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             _browserHostFactory = Substitute.For<IBrowserHostFactory>();
             _parser = Substitute.For<IBrowserConfigurationParser>();
             _capabilitiesBuilder = Substitute.For<ICapabilitiesBuilder>();
+            _configurationProvider = Substitute.For<IConfigurationProvider>();
 
             _capabilitiesBuilder.WithTestSpecification(Arg.Any<TestSpecification>()).Returns(_capabilitiesBuilder);
-            _sut = new RemoteBrowserConfigurator(_browserHostFactory,_parser, _capabilitiesBuilder);
+            _sut = new RemoteBrowserConfigurator(_browserHostFactory,_parser, _capabilitiesBuilder, _configurationProvider);
         }
 
         [TestCase(null)]

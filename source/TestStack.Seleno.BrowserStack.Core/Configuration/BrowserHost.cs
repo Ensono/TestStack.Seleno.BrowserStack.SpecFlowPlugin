@@ -24,7 +24,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         public virtual void StartHost(Func<RemoteWebDriver> remoteWebDriverFactory, IWebServer webServer)
         {
-            _selenoHost.Run(config => config.WithRemoteWebDriver(remoteWebDriverFactory).WithWebServer(webServer));
+            _selenoHost.Run(config => config.WithRemoteWebDriver(remoteWebDriverFactory).WithWebServer(webServer));          
         }
 
         public TPage NavigateToInitialPage<TPage>(string url = "") where TPage : Page, new()
@@ -39,6 +39,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             get
             {
                 var sessionId = string.Empty;
+
                 var application = _selenoHost.Application;
                 if (application != null)
                 {

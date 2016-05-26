@@ -144,7 +144,8 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             _remoteBrowserConfigurator = new RemoteBrowserConfigurator(new BrowserHostFactory(configurationProvider),
                 new BrowserConfigurationParser(new BrowserStackService(configurationProvider,
                     new HttpClientFactory(configurationProvider))),
-                new CapabilitiesBuilder(configurationProvider));"));
+                new CapabilitiesBuilder(configurationProvider), 
+                configurationProvider);"));
         }
 
         #region private methods

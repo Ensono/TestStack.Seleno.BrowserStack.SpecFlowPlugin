@@ -11,7 +11,5 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             ScenarioTitle = scenarioTitle;
             FeatureTitle = featureTitle;
         }
-
-
     }
 }
