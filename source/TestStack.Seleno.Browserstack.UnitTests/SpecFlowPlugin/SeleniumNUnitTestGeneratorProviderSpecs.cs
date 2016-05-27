@@ -12,7 +12,6 @@ using TechTalk.SpecFlow.Generator.UnitTestProvider;
 using TechTalk.SpecFlow.Parser;
 using TechTalk.SpecFlow.Utils;
 using TestStack.Seleno.Browserstack.UnitTests.Assertions;
-using TestStack.Seleno.BrowserStack.Core.Extensions;
 using TestStack.Seleno.BrowserStack.SpecFlowPlugin;
 using static System.String;
 
