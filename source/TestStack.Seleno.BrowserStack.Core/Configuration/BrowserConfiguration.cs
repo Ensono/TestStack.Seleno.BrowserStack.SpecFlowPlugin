@@ -13,6 +13,8 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         public string Device { get; set; }
 
+        public bool IsLocalWebDriver { get; set; }
+
         [JsonProperty("browser_version")]
         public string Version { get; set; }
 
@@ -42,12 +44,14 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             OsName = osName;
             OsVersion = osVersion;
             Resolution = resolution;
+            IsLocalWebDriver = false;
         }
 
         public BrowserConfiguration(string name, string device)
         {
             Name = name;
             Device = device;
+            IsLocalWebDriver = false;
         }
 
         public override string ToString()

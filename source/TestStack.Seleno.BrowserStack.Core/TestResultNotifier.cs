@@ -1,4 +1,5 @@
 ﻿using System;
+using Castle.Core.Internal;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Tracing;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
@@ -12,22 +13,26 @@ namespace TestStack.Seleno.BrowserStack.Core
         private readonly IBrowserHost _browser;
         private readonly IBrowserStackService _browserStackService;
         private readonly ITraceListener _traceListener;
+        private readonly IConfigurationProvider _configurationProvider;
 
         public TestResultNotifier(IBrowserHost browser, IBrowserStackService browserStackService,
-            ITraceListener traceListener)
+            ITraceListener traceListener, IConfigurationProvider configurationProvider)
         {
             _browser = browser;
             _browserStackService = browserStackService;
             _traceListener = traceListener;
+            _configurationProvider = configurationProvider;
         }
 
         [AfterScenario]
         public void SendFailingNotificationTestResult()
         {
+            if (!_configurationProvider.UseLocalBrowser.IsNullOrEmpty()) return;
+            
             var sessionId = _browser.SessionId;
+
             if (string.IsNullOrWhiteSpace(sessionId)) return;
-
-
+            
             if (TestException != null)
             {
                 _browserStackService.UpdateTestStatus(sessionId, SessionStatus.Error, TestException.Message);

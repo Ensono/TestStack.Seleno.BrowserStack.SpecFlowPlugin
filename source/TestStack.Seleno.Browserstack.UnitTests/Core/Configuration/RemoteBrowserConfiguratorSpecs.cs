@@ -3,8 +3,10 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using TestStack.Seleno.BrowserStack.Core.Capabilities;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
+using TestStack.Seleno.BrowserStack.Core.Enums;
 using TestStack.Seleno.BrowserStack.Core.Exceptions;
 
 namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
@@ -16,6 +18,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
         private IBrowserHostFactory _browserHostFactory;
         private IBrowserConfigurationParser _parser;
         private ICapabilitiesBuilder _capabilitiesBuilder;
+        private IConfigurationProvider _configurationProvider;
 
         [SetUp]
         public void SetUp()
@@ -23,9 +26,10 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             _browserHostFactory = Substitute.For<IBrowserHostFactory>();
             _parser = Substitute.For<IBrowserConfigurationParser>();
             _capabilitiesBuilder = Substitute.For<ICapabilitiesBuilder>();
+            _configurationProvider = Substitute.For<IConfigurationProvider>();
 
             _capabilitiesBuilder.WithTestSpecification(Arg.Any<TestSpecification>()).Returns(_capabilitiesBuilder);
-            _sut = new RemoteBrowserConfigurator(_browserHostFactory,_parser, _capabilitiesBuilder);
+            _sut = new RemoteBrowserConfigurator(_browserHostFactory,_parser, _capabilitiesBuilder, _configurationProvider);
         }
 
         [TestCase(null)]
@@ -110,6 +114,38 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             _browserHostFactory
                 .DidNotReceive()
                 .CreateWithCapabilities(capabilities);
+        }
+        
+        [TestCase("Chrome", BrowserEnum.Chrome)]
+        [TestCase("Firefox", BrowserEnum.Firefox)]
+        [TestCase("InternetExplorer", BrowserEnum.InternetExplorer)]
+        [TestCase("PhantomJs", BrowserEnum.PhantomJs)]
+        [TestCase("Safari", BrowserEnum.Safari)]
+        public void CreateAndConfigure_ShouldCallCreateLocalBrowser(string browser, BrowserEnum expectedBrowserEnum)
+        {
+            // Arrange
+            var testSpecification = new TestSpecification("Fancy scenario", "178wq76essf");           
+            _configurationProvider.UseLocalBrowser.Returns(browser);
+
+            // Act
+            _sut.CreateAndConfigure(testSpecification, "configuration");
+
+            // Assert
+            _browserHostFactory.Received(1).CreateLocalWebDriver(expectedBrowserEnum, null);
+        }
+
+        [Test]
+        public void CreateAndConfigure_ShouldThrowExceptionWhenEnumCannotBeParsed()
+        {
+            // Arrange
+            var testSpecification = new TestSpecification("Fancy scenario", "178wq76essf");
+            _configurationProvider.UseLocalBrowser.Returns("Unsupported");
+
+            Action unsupportedActionBrowser = () => _sut.CreateAndConfigure(testSpecification, null);
+
+            // Act && Assert
+            unsupportedActionBrowser
+                .ShouldThrow<InvalidBrowserConfigurationException>();
         }
     }
 }

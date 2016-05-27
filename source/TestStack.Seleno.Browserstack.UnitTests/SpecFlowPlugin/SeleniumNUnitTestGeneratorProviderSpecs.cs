@@ -12,7 +12,6 @@ using TechTalk.SpecFlow.Generator.UnitTestProvider;
 using TechTalk.SpecFlow.Parser;
 using TechTalk.SpecFlow.Utils;
 using TestStack.Seleno.Browserstack.UnitTests.Assertions;
-using TestStack.Seleno.BrowserStack.Core.Extensions;
 using TestStack.Seleno.BrowserStack.SpecFlowPlugin;
 using static System.String;
 
@@ -83,7 +82,8 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _remoteBrowserConfigurator = new RemoteBrowserConfigurator(new BrowserHostFactory(configurationProvider),
                 new BrowserConfigurationParser(new BrowserStackService(configurationProvider,
                     new HttpClientFactory(configurationProvider))),
-                new CapabilitiesBuilder(configurationProvider));"));
+                new CapabilitiesBuilder(configurationProvider), 
+                configurationProvider);"));
         }
 
         [Test]

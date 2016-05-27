@@ -8,5 +8,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         string RemoteUrl { get; }
         string BuildNumber { get; }
         string BrowserStackApiUrl { get; }
+        string UseLocalBrowser { get; }
     }
 }

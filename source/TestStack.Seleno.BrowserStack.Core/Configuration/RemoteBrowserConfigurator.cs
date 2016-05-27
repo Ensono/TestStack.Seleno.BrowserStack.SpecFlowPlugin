@@ -1,4 +1,8 @@
+using System;
+using Castle.Core.Internal;
 using TestStack.Seleno.BrowserStack.Core.Capabilities;
+using TestStack.Seleno.BrowserStack.Core.Enums;
+using TestStack.Seleno.BrowserStack.Core.Exceptions;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
@@ -7,13 +11,18 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         private readonly IBrowserHostFactory _browserHostFactory;
         private readonly IBrowserConfigurationParser _parser;
         private readonly ICapabilitiesBuilder _capabilitiesBuilder;
+        private readonly IConfigurationProvider _configurationProvider;
+
+        private const string InvalidBrowserConfigurationErrorMessage =
+            "useLocalBrowser - local browser configuration must be one of the following Chrome, Firefox, InternetExplorer, PhantomJs, Safari";
 
         public RemoteBrowserConfigurator(IBrowserHostFactory browserHostFactory, IBrowserConfigurationParser parser,
-            ICapabilitiesBuilder capabilitiesBuilder)
+            ICapabilitiesBuilder capabilitiesBuilder, IConfigurationProvider configurationProvider)
         {
             _browserHostFactory = browserHostFactory;
             _parser = parser;
             _capabilitiesBuilder = capabilitiesBuilder;
+            _configurationProvider = configurationProvider;
         }
 
         public IBrowserHost CreateAndConfigure(TestSpecification testSpecification, string browser = null)
@@ -27,7 +36,25 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
                 builder.WithBrowserConfiguration(browserConfiguration);
             }
 
-            return _browserHostFactory.CreateWithCapabilities(builder.Build(), browserConfiguration);
+            if (_configurationProvider.UseLocalBrowser.IsNullOrEmpty())
+            {
+                return _browserHostFactory.CreateWithCapabilities(builder.Build(), browserConfiguration);
+            }
+            else
+            {
+                BrowserEnum result;
+
+                if (Enum.IsDefined(typeof(BrowserEnum), _configurationProvider.UseLocalBrowser))
+                {
+                    Enum.TryParse(_configurationProvider.UseLocalBrowser.Replace(" ", string.Empty), out result);                    
+                }
+                else
+                {
+                    throw new InvalidBrowserConfigurationException(InvalidBrowserConfigurationErrorMessage);
+                }
+
+                return _browserHostFactory.CreateLocalWebDriver(result, browserConfiguration);
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
         private IBrowserStackService _browserStackService;
         private ITraceListener _traceListener;
         private TestResultNotifier _sut;
+        private IConfigurationProvider _configurationProvider;
 
         [SetUp]
         public void SetUp()
@@ -23,7 +24,8 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
             _browser = Substitute.For<IBrowserHost>();
             _browserStackService = Substitute.For<IBrowserStackService>();
             _traceListener = Substitute.For<ITraceListener>();
-            _sut = Substitute.ForPartsOf<TestResultNotifier>(_browser, _browserStackService, _traceListener);
+            _configurationProvider = Substitute.For<IConfigurationProvider>();
+            _sut = Substitute.ForPartsOf<TestResultNotifier>(_browser, _browserStackService, _traceListener, _configurationProvider);
         }
 
         [TestCase("")]
@@ -34,7 +36,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
             // Arrange
             var sessionId = Guid.NewGuid().ToString();
             _browser.SessionId.Returns(emptySessionId);
-
+            
             // Act
             _sut.SendFailingNotificationTestResult();
 
@@ -54,8 +56,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
             _browser.SessionId.Returns(sessionId);
             _sut.TestException.Returns(null as Exception);
             _browserStackService.GetSessionDetail(sessionId).Returns(new AutomationSession());
-
-
+            
             // Act
             _sut.SendFailingNotificationTestResult();
 
@@ -71,7 +72,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
             var sessionId = Guid.NewGuid().ToString();
             const string errorMessage = "wrong credentials";
             _browser.SessionId.Returns(sessionId);
-
+            
             _sut.TestException.Returns(new InvalidCredentialException(errorMessage));
             _browserStackService.GetSessionDetail(sessionId).Returns(new AutomationSession());
 
@@ -90,7 +91,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
             var sessionId = Guid.NewGuid().ToString();
             const string sessionUrl = "http://some/session/url";
             var session = new AutomationSession { BrowserUrl = sessionUrl };
-
+            
             _browser.SessionId.Returns(sessionId);
             _browserStackService.GetSessionDetail(sessionId).Returns(session);
 
@@ -109,7 +110,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core
             var sessionId = Guid.NewGuid().ToString();
             const string videoUrl = "http://some/session/video/url";
             var session = new AutomationSession { VideoUrl = "http://some/session/video/url" };
-
+            
             _browser.SessionId.Returns(sessionId);
             _browserStackService.GetSessionDetail(sessionId).Returns(session);
 
