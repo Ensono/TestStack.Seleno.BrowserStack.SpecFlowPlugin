@@ -30,8 +30,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         }
 
         public void Initialize(GeneratorPluginEvents generatorPluginEvents, GeneratorPluginParameters generatorPluginParameters)
-        {
-            throw new System.NotImplementedException();
+        {         
         }
     }
 }

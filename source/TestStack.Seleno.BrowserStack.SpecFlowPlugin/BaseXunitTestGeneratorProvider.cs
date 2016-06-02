@@ -108,7 +108,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
         public virtual void SetTestMethodIgnore(TestClassGenerationContext generationContext, CodeMemberMethod testMethod)
         {
-            CodeDomHelper.AddAttribute(testMethod, IGNORE_ATTR, "Ignored scenario");
+            CodeDomHelper.AddAttribute(testMethod, IGNORE_ATTR);
         }
 
         public virtual void SetRowTest(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string scenarioTitle)
