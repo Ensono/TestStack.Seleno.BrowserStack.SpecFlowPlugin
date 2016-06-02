@@ -20,7 +20,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
     [TestFixture]
     public class SeleniumNUnitTestGeneratorProviderSpecs
     {
-        private SeleniumNUnitTestGeneratorProvider _sut;
+        private SeleniumXUnitTestGeneratorProvider _sut;
         private CodeDomHelper _codeDomHelper;
         private IUnitTestGeneratorProvider _unitTestGeneratorProvider;
 
@@ -29,7 +29,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
         {
             _unitTestGeneratorProvider = Substitute.For<IUnitTestGeneratorProvider>();
             _codeDomHelper = new CodeDomHelper(CodeDomProviderLanguage.CSharp);
-            _sut = Substitute.ForPartsOf<SeleniumNUnitTestGeneratorProvider>(_codeDomHelper);
+            _sut = Substitute.ForPartsOf<SeleniumXUnitTestGeneratorProvider>(_codeDomHelper);
         }
 
         [Test]
@@ -57,8 +57,8 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
                 .OnlyContain(CodeSnippet("InitialiseAndRegisterBrowserHost(_currentBrowserConfiguration);"));
 
             testMethodStatements.Should().OnlyContain(CodeSnippet("_currentBrowserConfiguration = null;"));
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestAttribute");
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.DescriptionAttribute", descritionAttributeArgument);
+            testMethod.CustomAttributes.Should().OnlyContain("Xunit.FactAttribute");
+            testMethod.CustomAttributes.Should().OnlyContain("Xunit.TraitAttribute", descritionAttributeArgument);
         }
 
         [Test]
@@ -75,7 +75,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _sut.SetTestClassInitializeMethod(generationContext);
 
             // Assert
-            testClassInitializeMethodAttributes.Should().OnlyContain(x => x.Name == "NUnit.Framework.TestFixtureSetUpAttribute");
             testClassInitilizeMethodStatements
                 .Should()
                 .OnlyContain(CodeSnippet(@"var configurationProvider = new ConfigurationProvider();
@@ -163,7 +162,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
 
             // Assert
             scenarioCategoriesNotStartingWithBrowser
-                .ForEach(category => testMethod.CustomAttributes.Should().Contain("NUnit.Framework.CategoryAttribute", SimpleAttributeArgument(category)));
+                .ForEach(category => testMethod.CustomAttributes.Should().Contain("Xunit.TraitAttribute", SimpleAttributeArgument(category)));
 
             browsers.ForEach(browser => _sut.Received(1).AddTestCaseAttributeForEachBrowser(testMethod, browser, null, null));
         }
@@ -235,7 +234,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             const string browser = "chrome,48.0,Windows,10";
             const string myFriendlyTestName = "This is my friendly test method";
             var browserFriendlySpec = browser.Replace(",", " ");
-            testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("NUnit.Framework.DescriptionAttribute",
+            testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("Xunit.TraitAttribute",
                 new CodeAttributeArgument(new CodePrimitiveExpression(myFriendlyTestName))));
             var arguments = new[]
             {
@@ -249,7 +248,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser);
 
             //Assert
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", arguments);
+            testMethod.CustomAttributes.Should().OnlyContain("Xunit.InlineDataAttribute", arguments);
         }
 
         [Test]
@@ -267,14 +266,14 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
                 new CodeAttributeArgument("Category", new CodePrimitiveExpression(browserFriendlySpec)),
                 new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName + " on " + browserFriendlySpec)),
             };
-            testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("NUnit.Framework.DescriptionAttribute",
+            testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("Xunit.TraitAttribute",
                 SimpleAttributeArgument(myFriendlyTestName)));
             
             // Act
             _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser);
 
             //Assert
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
+            testMethod.CustomAttributes.Should().OnlyContain("Xunit.InlineDataAttribute", expectedArguments);
         }
 
         [Test]
@@ -293,14 +292,14 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
                 new CodeAttributeArgument("Category", new CodePrimitiveExpression(browserFriendlySpec)),
                 new CodeAttributeArgument("TestName", new CodePrimitiveExpression(myFriendlyTestName + " on "+ browserFriendlySpec + " with: " + rowData)),
             };
-            testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("NUnit.Framework.DescriptionAttribute",
+            testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("Xunit.TraitAttribute",
                 SimpleAttributeArgument(myFriendlyTestName)));
 
             // Act
             _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser, rowData);
 
             //Assert
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
+            testMethod.CustomAttributes.Should().OnlyContain("Xunit.InlineDataAttribute", expectedArguments);
         }
 
         [Test]
@@ -325,14 +324,14 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             };
 
             var expectedArguments =additionalArguments.Take(1).Concat(existingAttributeArguments).Concat(additionalArguments.Skip(1));
-            testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("NUnit.Framework.DescriptionAttribute",
+            testMethod.CustomAttributes.Add(new CodeAttributeDeclaration("Xunit.TraitAttribute",
                 SimpleAttributeArgument(myFriendlyTestName)));
 
             // Act
             _sut.AddTestCaseAttributeForEachBrowser(testMethod, browser, string.Empty, existingAttributeArguments);
 
             //Assert
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
+            testMethod.CustomAttributes.Should().OnlyContain("Xunit.InlineDataAttribute", expectedArguments);
         }
 
        
@@ -351,7 +350,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _sut.SetRow(generationContext, testMethod, arguments, tags, false);
 
             // Assert
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
+            testMethod.CustomAttributes.Should().OnlyContain("Xunit.InlineDataAttribute", expectedArguments);
         }
 
 
@@ -372,7 +371,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _sut.SetRow(generationContext, testMethod, arguments, tags, false);
 
             // Assert
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
+            testMethod.CustomAttributes.Should().OnlyContain("Xunit.InlineDataAttribute", expectedArguments);
         }
 
         [Test]
@@ -393,7 +392,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             _sut.SetRow(generationContext, testMethod, arguments, tags, true);
 
             // Assert
-            testMethod.CustomAttributes.Should().OnlyContain("NUnit.Framework.TestCaseAttribute", expectedArguments);
+            testMethod.CustomAttributes.Should().OnlyContain("Xunit.InlineDataAttribute", expectedArguments);
         }
 
         [Test]
@@ -408,12 +407,12 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
 
             testMethod.UserData.Add("browser:chrome,48.0,Windows,10", "chrome,48.0,Windows,10");
             //testMethod.UserData.Add("browser:iPhone,iPhone_6S_Plus", "iPhone,iPhone_6S_Plus");
-            var remainingTestCaseAttribute = new CodeAttributeDeclaration("NUnit.Framework.TestCaseAttribute", SimpleAttributeArgument("Something"));
+            var remainingTestCaseAttribute = new CodeAttributeDeclaration("Xunit.InlineDataAttribute", SimpleAttributeArgument("Something"));
             testMethod.CustomAttributes.AddRange(new[]
             {
-                new CodeAttributeDeclaration("NUnit.Framework.TestCaseAttribute", Enumerable.Repeat(SimpleAttributeArgument(null), 3).ToArray()),
+                new CodeAttributeDeclaration("Xunit.InlineDataAttribute", Enumerable.Repeat(SimpleAttributeArgument(null), 3).ToArray()),
                 remainingTestCaseAttribute,
-                new CodeAttributeDeclaration("NUnit.Framework.TestCaseAttribute", Enumerable.Repeat(SimpleAttributeArgument("data"), 3).ToArray()),
+                new CodeAttributeDeclaration("Xunit.InlineDataAttribute", Enumerable.Repeat(SimpleAttributeArgument("data"), 3).ToArray()),
             });
 
             // Act
@@ -453,24 +452,22 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
             return value.Replace("browser:", Empty);
         }
 
-        [Test]
-        public void SetTestClass_ShouldAddTestFixtureAndDescriptionAttributesWithFeatureTitleToTestClass()
-        {
-            // Arrange
-            var generationContext = CreateTestClassGenerationContext();
-            const string featureTitle = "Awesome feature title!";
-            const string featureDescription = "It is doing something amazing!";
-
-            // Act
-            _sut.SetTestClass(generationContext, featureTitle, featureDescription);
-
-            // Assert
-           generationContext.TestClass.CustomAttributes
-                .Should()
-                .OnlyContain("NUnit.Framework.TestFixtureAttribute")
-                .And
-                .OnlyContain("NUnit.Framework.DescriptionAttribute", SimpleAttributeArgument(featureTitle));
-        }
+        //[Test]
+        //public void SetTestClass_ShouldAddTestFixtureAndDescriptionAttributesWithFeatureTitleToTestClass()
+        //{
+        //    // Arrange
+        //    var generationContext = CreateTestClassGenerationContext();
+        //    const string featureTitle = "Awesome feature title!";
+        //    const string featureDescription = "It is doing something amazing!";
+        //
+        //    // Act
+        //    _sut.SetTestClass(generationContext, featureTitle, featureDescription);
+        //
+        //    // Assert
+        //   generationContext.TestClass.CustomAttributes
+        //        .Should()
+        //        .OnlyContain("Xunit.TraitAttribute", SimpleAttributeArgument(featureTitle));
+        //}
 
         [Test]
         public void SetTestClass_ShouldAddRequiredNameSpaces()
@@ -578,11 +575,14 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
 
         private TestClassGenerationContext CreateTestClassGenerationContext()
         {
-            return new TestClassGenerationContext(_unitTestGeneratorProvider,
-                new SpecFlowFeature(new[] {new Tag(new Location(), "something")}, new Location(), Empty,
-                    Empty, Empty, Empty,
-                    new Background(new Location(), Empty, Empty, Empty, new Step[0]),
-                    new ScenarioDefinition[0], new Comment[0], Empty), new CodeNamespace(),
+            return new TestClassGenerationContext(
+                _unitTestGeneratorProvider, 
+                new SpecFlowDocument(
+                    new SpecFlowFeature(new[] {new Tag(new Location(), "something")}, new Location(), Empty,
+                    Empty, Empty, Empty, 
+                        new ScenarioDefinition[0], Empty), 
+                    new Comment[0]), 
+                new CodeNamespace(),
                 new CodeTypeDeclaration(), new CodeMemberField(),
                 new CodeMemberMethod(), new CodeMemberMethod(), new CodeMemberMethod(), new CodeMemberMethod(), new CodeMemberMethod(),
                 new CodeMemberMethod(), new CodeMemberMethod(), false);

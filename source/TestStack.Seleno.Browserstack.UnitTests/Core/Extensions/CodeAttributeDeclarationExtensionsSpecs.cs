@@ -8,9 +8,9 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Extensions
     [TestFixture]
     public class CodeAttributeDeclarationExtensionsSpecs
     {
-        const string NunitDescriptionattribute = "NUnit.Framework.DescriptionAttribute";
-        const string NunitTestAttribute = "NUnit.Framework.TestAttribute";
-        const string NunitIgnoreAttribute = "NUnit.Framework.IgnoreAttribute";
+        const string NunitDescriptionattribute = "Xunit.TraitAttribute";
+        const string NunitTestAttribute = "Xunit.FactAttribute";
+        const string NunitIgnoreAttribute = "Xunit.FactAttribute(Skip=\"Ignored\")";
 
         [Test]
         public void GetDescription_ShouldExtractTheMethodDescriptionAttributeValue()

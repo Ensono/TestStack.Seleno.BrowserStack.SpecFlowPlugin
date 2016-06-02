@@ -10,7 +10,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Extensions
         {
             var attribute =
                 testMethod.CustomAttributes.OfType<CodeAttributeDeclaration>()
-                    .FirstOrDefault(attr => attr.Name == NUnitAttributeConstants.DESCRIPTION_ATTR);
+                    .FirstOrDefault(attr => attr.Name == XUnitAttributeConstants.DESCRIPTION_ATTR);
             var description = string.Empty;
 
             if (attribute != null)

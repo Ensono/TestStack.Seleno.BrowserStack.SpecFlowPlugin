@@ -8,9 +8,9 @@ using TestStack.Seleno.BrowserStack.Core;
 
 namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 {
-    public class BaseNunitTestGeneratorProvider : NUnitAttributeConstants, IUnitTestGeneratorProvider
+    public class BaseXunitTestGeneratorProvider : XUnitAttributeConstants, IUnitTestGeneratorProvider
     {
-        public BaseNunitTestGeneratorProvider(CodeDomHelper codeDomHelper)
+        public BaseXunitTestGeneratorProvider(CodeDomHelper codeDomHelper)
         {
             CodeDomHelper = codeDomHelper;
         }
@@ -47,9 +47,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         }
 
         public virtual void SetTestClass(TestClassGenerationContext generationContext, string featureTitle, string featureDescription)
-        {
-            CodeDomHelper.AddAttribute(generationContext.TestClass, TESTFIXTURE_ATTR);
-            CodeDomHelper.AddAttribute(generationContext.TestClass, DESCRIPTION_ATTR, featureTitle);
+        {            
         }
 
         public virtual void SetTestClassCategories(TestClassGenerationContext generationContext, IEnumerable<string> featureCategories)
@@ -59,7 +57,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
         public virtual void SetTestClassIgnore(TestClassGenerationContext generationContext)
         {
-            CodeDomHelper.AddAttribute(generationContext.TestClass, IGNORE_ATTR, "Ignored feature");
+            CodeDomHelper.AddAttribute(generationContext.TestClass, IGNORE_ATTR);
         }
 
         public virtual void FinalizeTestClass(TestClassGenerationContext generationContext)
@@ -67,24 +65,40 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         }
 
         public virtual void SetTestClassInitializeMethod(TestClassGenerationContext generationContext)
-        {
-            CodeDomHelper.AddAttribute(generationContext.TestClassInitializeMethod, TESTFIXTURESETUP_ATTR);
+        {            
         }
 
         public virtual void SetTestClassCleanupMethod(TestClassGenerationContext generationContext)
         {
-            CodeDomHelper.AddAttribute(generationContext.TestClassCleanupMethod, TESTFIXTURETEARDOWN_ATTR);
         }
 
         public virtual void SetTestInitializeMethod(TestClassGenerationContext generationContext)
         {
-            CodeDomHelper.AddAttribute(generationContext.TestInitializeMethod, TESTSETUP_ATTR);
         }
 
         public virtual void SetTestCleanupMethod(TestClassGenerationContext generationContext)
-        {
-            CodeDomHelper.AddAttribute(generationContext.TestCleanupMethod, TESTTEARDOWN_ATTR);
+        {            
         }
+
+//        public virtual void SetTestClassInitializeMethod(TestClassGenerationContext generationContext)
+//        {
+//            CodeDomHelper.AddAttribute(generationContext.TestClassInitializeMethod, TESTFIXTURESETUP_ATTR);
+//        }
+
+//        public virtual void SetTestClassCleanupMethod(TestClassGenerationContext generationContext)
+//        {
+//            CodeDomHelper.AddAttribute(generationContext.TestClassCleanupMethod, TESTFIXTURETEARDOWN_ATTR);
+//        }
+
+//        public virtual void SetTestInitializeMethod(TestClassGenerationContext generationContext)
+//        {
+//            CodeDomHelper.AddAttribute(generationContext.TestInitializeMethod, TESTSETUP_ATTR);
+//        }
+
+//        public virtual void SetTestCleanupMethod(TestClassGenerationContext generationContext)
+//        {
+//            CodeDomHelper.AddAttribute(generationContext.TestCleanupMethod, TESTTEARDOWN_ATTR);
+//        }
 
         public virtual void SetTestMethod(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string friendlyTestName)
         {

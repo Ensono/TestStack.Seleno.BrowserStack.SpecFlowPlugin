@@ -22,11 +22,16 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         {
             var projectSettings = container.Resolve<ProjectSettings>();
             var codeDomHelper = container.Resolve<CodeDomHelper>(projectSettings.ProjectPlatformSettings.Language);
-            container.RegisterInstanceAs<IUnitTestGeneratorProvider>(new SeleniumNUnitTestGeneratorProvider(codeDomHelper));
+            container.RegisterInstanceAs<IUnitTestGeneratorProvider>(new SeleniumXUnitTestGeneratorProvider(codeDomHelper));
         }
 
         public void RegisterConfigurationDefaults(SpecFlowProjectConfiguration specFlowConfiguration)
         {
+        }
+
+        public void Initialize(GeneratorPluginEvents generatorPluginEvents, GeneratorPluginParameters generatorPluginParameters)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

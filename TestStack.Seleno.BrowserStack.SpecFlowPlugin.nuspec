@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>TestStack.Seleno.BrowserStack.SpecFlowPlugin</id>
+    <version>1.0.6.30405</version>
+    <title>TestStack.Seleno.BrowserStack.SpecFlowPlugin</title>
+    <authors>Franck Theolade</authors>
+    <owners>Amido</owners>
+    <projectUrl>https://github.com/amido/TestStack.Seleno.BrowserStack.SpecFlowPlugin</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Custom plugin to generate nunit test to support multiple browser configuration on browser stack using TestStack Seleno</description>
+    <releaseNotes>- Multiple browser support with just tag placed on scenario like @browser:firefox,43.0,OS_X,Lion
+		- Error notification done with after scenario hook and browser stack api to pass error message.
+		- configure plugin in app.config and set app settings for browser stack
+		- support resolution for desktop like @browser:chrome,50.0,Windows,10,1024x768
+		- Maximize browser window to use full available resolution specified into browser stack capabilities (default 1024x768)
+		- Added mecanism to pickup component based on browser width (for responsive pages)
+		- Added PageProvider extensions method to retrieve and register pages (as itself and its concrete ancestor) with current scenario container
+		- Added enum extensions</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Selenium Seleno SpecFlow BrowserStack</tags>
+    <dependencies>
+      <dependency id="SpecFlow.CustomPlugin" version="2.0.0" />
+      <dependency id="SpecFlow.NUnit" version="2.0.0" />
+      <dependency id="Microsoft.AspNet.Mvc" version="5.2.3" />
+      <dependency id="Newtonsoft.Json" version="8.0.3" />
+      <dependency id="TestStack.Seleno" version="0.9.61" />
+    </dependencies>
+  </metadata>
+</package>

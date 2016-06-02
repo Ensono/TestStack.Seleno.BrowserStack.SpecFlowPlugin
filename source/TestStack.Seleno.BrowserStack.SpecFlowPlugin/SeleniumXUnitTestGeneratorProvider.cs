@@ -8,11 +8,11 @@ using TestStack.Seleno.BrowserStack.Core.Extensions;
 
 namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 {
-    public class SeleniumNUnitTestGeneratorProvider : BaseNunitTestGeneratorProvider
+    public class SeleniumXUnitTestGeneratorProvider : BaseXunitTestGeneratorProvider
     {
         private bool _scenarioSetupMethodsAdded = false;
 
-        public SeleniumNUnitTestGeneratorProvider(CodeDomHelper codeDomHelper) : base(codeDomHelper)
+        public SeleniumXUnitTestGeneratorProvider(CodeDomHelper codeDomHelper) : base(codeDomHelper)
         { }
 
         public override void SetTestMethod(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string friendlyTestName)
