@@ -28,9 +28,5 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         public void RegisterConfigurationDefaults(SpecFlowProjectConfiguration specFlowConfiguration)
         {
         }
-
-        public void Initialize(GeneratorPluginEvents generatorPluginEvents, GeneratorPluginParameters generatorPluginParameters)
-        {         
-        }
     }
 }

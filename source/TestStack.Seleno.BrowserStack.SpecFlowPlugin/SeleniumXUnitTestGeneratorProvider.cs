@@ -33,7 +33,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         {
             var categories = scenarioCategories as string[] ?? scenarioCategories.ToArray();
 
-            CodeDomHelper.AddAttributeForEachValue(testMethod, CATEGORY_ATTR, categories.WithoutBrowserTag());
+            categories.WithoutBrowserTag().ToList().ForEach(x => CodeDomHelper.AddAttribute(testMethod, CATEGORY_ATTR, "Category", x));
 
             var hasBrowserTag = false;
 
@@ -86,7 +86,6 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
                 foreach (var browser in browsers)
                 {
-
                     AddTestCaseAttributeForEachBrowser(
                         testMethod, 
                         browser,
@@ -152,10 +151,12 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
         private void AddPrivateMembers(TestClassGenerationContext generationContext)
         {
+            var remoteBrowserConfiguratorMemeber = new CodeMemberField("RemoteBrowserConfigurator", "_remoteBrowserConfigurator");
+            remoteBrowserConfiguratorMemeber.Attributes = MemberAttributes.Static;
+
             generationContext.TestClass.Members.Add(new CodeMemberField("IBrowserHost", "_host"));
             generationContext.TestClass.Members.Add(new CodeMemberField("System.String", "_currentBrowserConfiguration"));
-            generationContext.TestClass.Members.Add(new CodeMemberField("RemoteBrowserConfigurator", "_remoteBrowserConfigurator"));
-            
+            generationContext.TestClass.Members.Add(remoteBrowserConfiguratorMemeber);          
         }
 
         private static void AddInitialiseAndRegisterBrowserHostMethod(TestClassGenerationContext generationContext)
@@ -204,11 +205,6 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
             var withBrowserArgs = new[] {new CodeAttributeArgument(new CodePrimitiveExpression(browser))}
                 .Concat(attributeArguments ?? Enumerable.Empty<CodeAttributeArgument>())
-                .Concat(new[]
-                {
-                    new CodeAttributeArgument("Category", new CodePrimitiveExpression(browserSpecifications)),
-                    new CodeAttributeArgument("TestName", new CodePrimitiveExpression(testName))
-                })
                 .ToArray();
 
             CodeDomHelper.AddAttribute(testMethod, ROW_ATTR, withBrowserArgs);
