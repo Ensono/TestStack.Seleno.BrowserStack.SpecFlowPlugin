@@ -1,8 +1,5 @@
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net.Http;
-using Newtonsoft.Json;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Services.Client;
 

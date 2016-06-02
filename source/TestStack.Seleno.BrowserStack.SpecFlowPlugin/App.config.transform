@@ -2,7 +2,7 @@
 <configuration>
     <specFlow>
         <plugins>
-      <add name="TestStack.Seleno.BrowserStack" path="..\packages\TestStack.Seleno.BrowserStack.SpecFlowPlugin.1.0.6.25156\lib\net451" type="GeneratorAndRuntime" />
+      <add name="TestStack.Seleno.BrowserStack" path="..\packages\TestStack.Seleno.BrowserStack.SpecFlowPlugin.1.0.7.1\lib\net451" type="GeneratorAndRuntime" />
     </plugins>
     <stepAssemblies>
       <stepAssembly assembly="TestStack.Seleno.BrowserStack.Core" />
@@ -12,7 +12,12 @@
     <add key="browserStackRemoteDriverUrl" value="http://hub.browserstack.com/wd/hub/" />
     <add key="buildNumber" value="" />
     <add key="browserStackApiUrl" value="https://www.browserstack.com/automate/" />
-    <!--
+    <!-- Uncomment below to run test locally/remotely-->
+    <!--<add key="useLocalBrowser" value="Chrome" />-->
+    
+    <!-- Please fill in your browser stack username / access key below 
+      (can be found at https://www.browserstack.com/accounts/settings) : -->
+    <!--      
      <add key="browserStack.user" value="<yourUserNameHere>" />
      <add key="browserstack.key" value="<yourAccessKeyHere>" />
     -->

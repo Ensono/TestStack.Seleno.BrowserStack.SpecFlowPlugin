@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace TestStack.Seleno.BrowserStack.Core.Extensions
@@ -35,6 +37,11 @@ namespace TestStack.Seleno.BrowserStack.Core.Extensions
                 .ToDictionary(x => x.Split(keyValueSeparator)[0], x => x.Split(keyValueSeparator)[1]);
 
             return items.ContainsKey(keyName) ? items[keyName] : string.Empty;
+        }
+
+        public static IEnumerable<TEnum> GetAll<TEnum>()
+        {
+            return Enum.GetValues(typeof(TEnum)).Cast<TEnum>();
         }
     }
 }

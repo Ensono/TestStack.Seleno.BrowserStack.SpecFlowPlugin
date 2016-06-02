@@ -12,9 +12,9 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Extensions
     [TestFixture]
     public class BoDiExtensionsSpecs
     {
+        public abstract class Being { }
         public class Animal { }
         public class Human : Animal { }
-        public class DummyPage : Page { }
 
         [Test]
         public void DoesNotContains_ShouldReturnTrueWhenContainerIsNullForAnyType()
@@ -135,6 +135,22 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Extensions
             container.DidNotReceive().RegisterInstanceAs(animal, typeof(Animal));
             container.Received().RegisterInstanceAs(animal, typeof(Human));
             result.Should().BeSameAs(animal);
+        }
+
+        [Test]
+        public void RegisterInstance_ShouldRegisterInstanceAndAllItsConcreteTypes()
+        {
+            // Arrange
+            var container = Substitute.For<IObjectContainer>();
+            var human = new Human();
+
+            // Act
+            container.RegisterInstance(human);
+
+            // Assert
+            container.Received().RegisterInstanceAs(human, typeof(Human));
+            container.Received().RegisterInstanceAs(human, typeof(Animal));
+            container.DidNotReceive().RegisterInstanceAs(human, typeof(Being));
         }
     }
 }
