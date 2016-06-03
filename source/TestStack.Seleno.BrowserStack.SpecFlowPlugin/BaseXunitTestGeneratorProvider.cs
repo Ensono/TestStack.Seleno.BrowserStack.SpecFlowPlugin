@@ -107,6 +107,23 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
         public virtual void SetTestClassCleanupMethod(TestClassGenerationContext generationContext)
         {
+            // xUnit uses IUseFixture<T> on the class
+
+            generationContext.TestClassCleanupMethod.Attributes |= MemberAttributes.Static;
+
+            _currentFixtureDataTypeDeclaration.BaseTypes.Add(typeof(IDisposable));
+
+            // void IDisposable.Dispose() { <fixtureTearDownMethod>(); }
+
+            CodeMemberMethod disposeMethod = new CodeMemberMethod();
+            disposeMethod.PrivateImplementationType = new CodeTypeReference(typeof(IDisposable));
+            disposeMethod.Name = "Dispose";
+            _currentFixtureDataTypeDeclaration.Members.Add(disposeMethod);
+
+            disposeMethod.Statements.Add(
+                new CodeMethodInvokeExpression(
+                    new CodeTypeReferenceExpression(new CodeTypeReference(generationContext.TestClass.Name)),
+                    generationContext.TestClassCleanupMethod.Name));
         }
 
         public virtual void SetTestInitializeMethod(TestClassGenerationContext generationContext)
