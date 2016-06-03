@@ -126,6 +126,7 @@
     <Compile Include="Extensions\CategorySelection.cs" />
     <Compile Include="Extensions\CodeAttributeDeclarationExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Extensions\PageProvider.cs" />
     <Compile Include="Extensions\SelenoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\WebDriverExtensions.cs" />
