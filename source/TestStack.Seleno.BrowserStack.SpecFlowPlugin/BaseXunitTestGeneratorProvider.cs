@@ -205,7 +205,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         
         protected virtual CodeTypeReference CreateFixtureInterface(CodeTypeReference fixtureDataType)
         {
-            return new CodeTypeReference(IUSEFIXTURE_INTERFACE, fixtureDataType);
+            return new CodeTypeReference(ICLASSFIXTURE_INTERFACE, fixtureDataType);
         }
     }
 }

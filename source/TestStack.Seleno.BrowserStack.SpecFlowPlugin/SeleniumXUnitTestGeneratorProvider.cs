@@ -73,7 +73,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
                 foreach (
                     var codeAttributeDeclaration in
                         testMethod.CustomAttributes.Cast<CodeAttributeDeclaration>()
-                            .Where(attr => attr.Name == ROW_ATTR && attr.Arguments.Count == 3)
+                            .Where(attr => attr.Name == ROW_ATTR && attr.Arguments.Count == 1)
                             .ToList())
                 {
                     testMethod.CustomAttributes.Remove(codeAttributeDeclaration);
@@ -207,7 +207,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
             CodeDomHelper.AddAttribute(testMethod, ROW_ATTR, withBrowserArgs);
         }
-
+                
         #endregion
     }
 }
