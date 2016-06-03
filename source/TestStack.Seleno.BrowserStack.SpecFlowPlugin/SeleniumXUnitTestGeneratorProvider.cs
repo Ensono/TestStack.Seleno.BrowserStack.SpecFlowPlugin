@@ -17,8 +17,6 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
         public override void SetTestMethod(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string friendlyTestName)
         {
-            base.SetTestMethod(generationContext, testMethod, friendlyTestName);
-
             if (!_scenarioSetupMethodsAdded)
             {
                 generationContext.ScenarioInitializeMethod.Statements.Add(

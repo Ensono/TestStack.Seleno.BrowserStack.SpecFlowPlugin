@@ -84,7 +84,6 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
             CodeDomHelper.SetTypeReferenceAsInterface(useFixtureType);
 
             generationContext.TestClass.BaseTypes.Add(useFixtureType);
-            // generationContext.TestClass.BaseTypes.Add(DISPOSABLE);
 
             // public void SetFixture(T) { } // explicit interface implementation for generic interfaces does not work with codedom
 
@@ -150,9 +149,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         }
 
         public virtual void SetTestMethod(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string friendlyTestName)
-        {
-            CodeDomHelper.AddAttribute(testMethod, TEST_ATTR);
-            CodeDomHelper.AddAttribute(testMethod, DESCRIPTION_ATTR, "Description", friendlyTestName);
+        {            
         }
 
         public virtual void SetTestMethodIgnore(TestClassGenerationContext generationContext, CodeMemberMethod testMethod)
@@ -188,6 +185,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
             SetProperty(testMethod, FEATURE_TITLE_PROPERTY_NAME, generationContext.Feature.Name);
             SetDescription(testMethod, scenarioTitle);
+            SetTestMethod(generationContext, testMethod, scenarioTitle);
         }
 
         public virtual void SetTestMethodAsRow(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string scenarioTitle, string exampleSetName, string variantName, IEnumerable<KeyValuePair<string, string>> arguments)
