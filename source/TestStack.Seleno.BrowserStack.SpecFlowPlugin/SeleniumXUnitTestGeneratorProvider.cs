@@ -15,7 +15,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         public SeleniumXUnitTestGeneratorProvider(CodeDomHelper codeDomHelper) : base(codeDomHelper)
         { }
 
-        public override void SetTestMethod(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string friendlyTestName)
+        public override void AddBrowserConfiguration(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string friendlyTestName)
         {
             if (!_scenarioSetupMethodsAdded)
             {
@@ -29,11 +29,32 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
         public override void SetTestMethodCategories(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, IEnumerable<string> scenarioCategories)
         {
+            // Clean up FACT attribute
+            foreach (
+                    var codeAttributeDeclaration in
+                        testMethod.CustomAttributes.Cast<CodeAttributeDeclaration>()
+                            .Where(attr => attr.Name == FACT_ATTRIBUTE )
+                            .ToList())
+            {
+                testMethod.CustomAttributes.Remove(codeAttributeDeclaration);
+            }
+
+            foreach (
+                    var codeAttributeDeclaration in
+                        testMethod.CustomAttributes.Cast<CodeAttributeDeclaration>()
+                            .Where(attr => attr.Name == TRAIT_ATTRIBUTE)
+                            .ToList())
+            {
+                testMethod.CustomAttributes.Remove(codeAttributeDeclaration);
+            }
+
             var categories = scenarioCategories as string[] ?? scenarioCategories.ToArray();
 
             categories.WithoutBrowserTag().ToList().ForEach(x => CodeDomHelper.AddAttribute(testMethod, CATEGORY_ATTR, "Category", x));
 
             var hasBrowserTag = false;
+
+            SetRowTest(generationContext, testMethod, "");
 
             foreach (var browser in categories.WithBrowserTag().Select(cat => cat.Replace(CategorySelection.BrowserTagName, string.Empty)))
             {

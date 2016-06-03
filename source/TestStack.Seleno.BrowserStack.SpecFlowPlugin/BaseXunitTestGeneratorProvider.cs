@@ -149,7 +149,12 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         }
 
         public virtual void SetTestMethod(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string friendlyTestName)
-        {            
+        {
+            CodeDomHelper.AddAttribute(testMethod, FACT_ATTRIBUTE, new CodeAttributeArgument("DisplayName", new CodePrimitiveExpression(friendlyTestName)));
+            SetProperty(testMethod, FEATURE_TITLE_PROPERTY_NAME, generationContext.Feature.Name);
+            SetDescription(testMethod, friendlyTestName);
+
+            AddBrowserConfiguration(generationContext, testMethod, friendlyTestName);
         }
 
         public virtual void SetTestMethodIgnore(TestClassGenerationContext generationContext, CodeMemberMethod testMethod)
@@ -181,16 +186,25 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 
         public virtual void SetRowTest(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string scenarioTitle)
         {
+            if (testMethod.CustomAttributes.Cast<CodeAttributeDeclaration>().Any(attr => attr.Name == THEORY_ATTRIBUTE))
+                return;
+
             CodeDomHelper.AddAttribute(testMethod, THEORY_ATTRIBUTE);
 
             SetProperty(testMethod, FEATURE_TITLE_PROPERTY_NAME, generationContext.Feature.Name);
             SetDescription(testMethod, scenarioTitle);
-            SetTestMethod(generationContext, testMethod, scenarioTitle);
+            AddBrowserConfiguration(generationContext, testMethod, scenarioTitle);
         }
 
         public virtual void SetTestMethodAsRow(TestClassGenerationContext generationContext, CodeMemberMethod testMethod, string scenarioTitle, string exampleSetName, string variantName, IEnumerable<KeyValuePair<string, string>> arguments)
         {
         }
+
+        public virtual void AddBrowserConfiguration(TestClassGenerationContext generationContext, CodeMemberMethod testMethod,
+            string friendlyTestName)
+        {
+        }
+
 
         protected void SetProperty(CodeTypeMember codeTypeMember, string name, string value)
         {
