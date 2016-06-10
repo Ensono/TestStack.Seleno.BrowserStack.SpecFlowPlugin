@@ -1,4 +1,5 @@
-﻿using BoDi;
+﻿using System;
+using BoDi;
 using TechTalk.SpecFlow.Generator.Configuration;
 using TechTalk.SpecFlow.Generator.Interfaces;
 using TechTalk.SpecFlow.Generator.Plugins;
@@ -13,20 +14,19 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 {
     public class GeneratorPlugin : IGeneratorPlugin
     {
-        public void RegisterDependencies(ObjectContainer container)
+        public void Initialize(GeneratorPluginEvents generatorPluginEvents,
+            GeneratorPluginParameters generatorPluginParameters)
         {
+            generatorPluginEvents.CustomizeDependencies += this.GeneratorPluginEventsOnCustomizeDependencies;
         }
 
-        public void RegisterCustomizations(ObjectContainer container,
-            SpecFlowProjectConfiguration generatorConfiguration)
+        private void GeneratorPluginEventsOnCustomizeDependencies(object sender, CustomizeDependenciesEventArgs customizeDependenciesEventArgs)
         {
-            var projectSettings = container.Resolve<ProjectSettings>();
-            var codeDomHelper = container.Resolve<CodeDomHelper>(projectSettings.ProjectPlatformSettings.Language);
-            container.RegisterInstanceAs<IUnitTestGeneratorProvider>(new SeleniumNUnitTestGeneratorProvider(codeDomHelper));
-        }
+            customizeDependenciesEventArgs.ObjectContainer.RegisterInstanceAs<IUnitTestGeneratorProvider>(
+                        new SeleniumNUnitTestGeneratorProvider(
+                            customizeDependenciesEventArgs.ObjectContainer.Resolve<CodeDomHelper>(
+                                customizeDependenciesEventArgs.ObjectContainer.Resolve<ProjectSettings>().ProjectPlatformSettings.Language)));
 
-        public void RegisterConfigurationDefaults(SpecFlowProjectConfiguration specFlowConfiguration)
-        {
         }
     }
 }
