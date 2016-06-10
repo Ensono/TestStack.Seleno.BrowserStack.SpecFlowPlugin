@@ -579,10 +579,11 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
         private TestClassGenerationContext CreateTestClassGenerationContext()
         {
             return new TestClassGenerationContext(_unitTestGeneratorProvider,
-                new SpecFlowFeature(new[] {new Tag(new Location(), "something")}, new Location(), Empty,
-                    Empty, Empty, Empty,
-                    new Background(new Location(), Empty, Empty, Empty, new Step[0]),
-                    new ScenarioDefinition[0], new Comment[0], Empty), new CodeNamespace(),
+                new SpecFlowDocument(                
+                    new SpecFlowFeature(new[] {new Tag(new Location(), "something")}, new Location(), Empty,
+                    Empty, Empty, Empty,                   
+                    new ScenarioDefinition[0],Empty), new Comment[0]),
+                new CodeNamespace(),
                 new CodeTypeDeclaration(), new CodeMemberField(),
                 new CodeMemberMethod(), new CodeMemberMethod(), new CodeMemberMethod(), new CodeMemberMethod(), new CodeMemberMethod(),
                 new CodeMemberMethod(), new CodeMemberMethod(), false);

@@ -12,21 +12,15 @@ using TestStack.Seleno.BrowserStack.SpecFlowPlugin;
 namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
 {
     public class GeneratorPlugin : IGeneratorPlugin
-    {
-        public void RegisterDependencies(ObjectContainer container)
-        {
-        }
-
-        public void RegisterCustomizations(ObjectContainer container,
-            SpecFlowProjectConfiguration generatorConfiguration)
-        {
-            var projectSettings = container.Resolve<ProjectSettings>();
-            var codeDomHelper = container.Resolve<CodeDomHelper>(projectSettings.ProjectPlatformSettings.Language);
-            container.RegisterInstanceAs<IUnitTestGeneratorProvider>(new SeleniumNUnitTestGeneratorProvider(codeDomHelper));
-        }
-
-        public void RegisterConfigurationDefaults(SpecFlowProjectConfiguration specFlowConfiguration)
-        {
+    {       
+        public void Initialize(GeneratorPluginEvents generatorPluginEvents, GeneratorPluginParameters generatorPluginParameters)
+        {            
+            generatorPluginEvents.RegisterDependencies += 
+                (sender, args) => 
+                    args.ObjectContainer.RegisterInstanceAs<IUnitTestGeneratorProvider>(
+                        new SeleniumNUnitTestGeneratorProvider(
+                            args.ObjectContainer.Resolve<CodeDomHelper>(
+                                args.ObjectContainer.Resolve<ProjectSettings>().ProjectPlatformSettings.Language)));
         }
     }
 }
