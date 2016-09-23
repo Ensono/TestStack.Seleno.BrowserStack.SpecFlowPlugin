@@ -18,6 +18,7 @@
 		- Added mecanism to pickup component based on browser width (for responsive pages)
 		- Added PageProvider extensions method to retrieve and register pages (as itself and its concrete ancestor) with current scenario container
 		- Added enum extensions
+		- support additional capabilities to be addedin config file
 	</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Selenium Seleno SpecFlow BrowserStack</tags>
