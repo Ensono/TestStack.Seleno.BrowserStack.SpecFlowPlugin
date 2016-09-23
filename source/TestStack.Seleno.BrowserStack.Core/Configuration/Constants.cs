@@ -6,5 +6,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         public const string BuildNumber = "buildNumber";
         public const string BrowserStackApiUrl = "browserStackApiUrl";
         public const string UseLocalBrowser = "useLocalBrowser";
+        public const string Capabilities = "capabilities";
     }
 }

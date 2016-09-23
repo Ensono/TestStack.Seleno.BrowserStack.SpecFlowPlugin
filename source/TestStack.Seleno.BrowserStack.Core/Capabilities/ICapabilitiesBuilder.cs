@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OpenQA.Selenium;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 
@@ -11,7 +12,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
 
        ICapabilitiesBuilder WithBrowserConfiguration(BrowserConfiguration browserConfiguration);
 
-        ICapabilitiesBuilder WithBuildNumber(string buildNumber);
+       ICapabilitiesBuilder WithBuildNumber(string buildNumber);
+
+       ICapabilitiesBuilder WithAdditionalCapabilities(IDictionary<string, object> additionalCapabilities);
 
        ICapabilities Build();
    }

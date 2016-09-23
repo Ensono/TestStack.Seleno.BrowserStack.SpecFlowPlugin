@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Remote;
 using TestStack.Seleno.BrowserStack.Core.Capabilities;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 
@@ -38,7 +40,29 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Capabilities
             // Assert
             result.Should().Match(DefaultBrowserCapabilities(userName, accessKey));
         }
-        
+
+
+
+        [Test]
+        public void Build_ShouldAddCapabilitiesFromConfiguration()
+        {
+            // Arrange
+            var additionalCapabilities = new Dictionary<string, object>
+            {
+                {"someCapability", "doSomething"},
+                {"anotherCapability", "doSomethingElse"}
+            };
+            _configuration.Capabilities.Returns(additionalCapabilities);
+            var sut = new CapabilitiesBuilder(_configuration);
+
+            // Act
+            var result = ((DesiredCapabilities)sut.Build()).ToDictionary();
+
+            // Assert
+            result.Should().Contain(additionalCapabilities);
+        }
+
+
         [Test]
         public void Build_ShouldSetTestNameAndProjectAndBuildNumber()
         {

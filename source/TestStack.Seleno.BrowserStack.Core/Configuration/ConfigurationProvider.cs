@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
+using System.Linq;
 using System.Text;
 using TestStack.Seleno.BrowserStack.Core.Capabilities;
 
@@ -43,6 +46,17 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         public string UseLocalBrowser
         {
             get {  return ConfigurationManager.AppSettings[Constants.UseLocalBrowser]; }
+        }
+
+        public IDictionary<string, object> Capabilities
+        {
+            get
+            {
+                return 
+                    ((NameValueCollection)ConfigurationManager.GetSection(Constants.Capabilities))
+                        .Cast<string>()
+                        .ToDictionary(key => key, key => (object)((NameValueCollection)ConfigurationManager.GetSection(Constants.Capabilities))[key]);
+            }
         }
     }
 }

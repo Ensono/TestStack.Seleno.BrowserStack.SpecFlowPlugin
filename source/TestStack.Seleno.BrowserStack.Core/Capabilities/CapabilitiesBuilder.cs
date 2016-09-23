@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
@@ -13,10 +14,12 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
         private string _accessKey = string.Empty;
         private BrowserConfiguration _browserConfiguration = new BrowserConfiguration();
         private string _buildNumber = string.Empty;
+        private readonly Dictionary<string, object> _additionalCapabilities = new Dictionary<string, object>();
 
         public CapabilitiesBuilder(IConfigurationProvider configurationProvider)
         {
             _configurationProvider = configurationProvider;
+            WithAdditionalCapabilities(configurationProvider.Capabilities);
         }
 
         public ICapabilitiesBuilder WithTestSpecification(TestSpecification testSpecification)
@@ -44,61 +47,67 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
             return this;
         }
 
+        public ICapabilitiesBuilder WithAdditionalCapabilities(IDictionary<string, object> additionalCapabilities)
+        {
+            foreach (var additionalCapability in additionalCapabilities)
+            {
+                if (!_additionalCapabilities.ContainsKey(additionalCapability.Key))
+                {
+                    _additionalCapabilities.Add(additionalCapability.Key, additionalCapability.Value);
+                }
+            }
+            return this;
+        }
+
         public ICapabilities Build()
         {
-            var result = new DesiredCapabilities();
+            var capabilities = new DesiredCapabilities(_additionalCapabilities);
             
-            SetCredentials(result);
+            SetCredentials(capabilities);
 
-            SetTestConfiguration(result);
+            SetTestConfiguration(capabilities);
 
-            SetBrowserConfiguration(result);
+            SetBrowserConfiguration(capabilities);
 
-            return result;
+            return capabilities;
         }
 
-        private void ConfigureDebugSetting(DesiredCapabilities result)
+        private void SetBrowserConfiguration(DesiredCapabilities capabilities)
         {
-            result.SetCapability(RemoteCapabilityType.BrowserStack.Debug, true);
-            result.SetCapability(RemoteCapabilityType.BrowserStack.Video, false);
-        }
-
-        private void SetBrowserConfiguration(DesiredCapabilities result)
-        {
-            result.SetCapability(RemoteCapabilityType.Default.BrowserName, _browserConfiguration.Name);
+            capabilities.SetCapability(RemoteCapabilityType.Default.BrowserName, _browserConfiguration.Name);
 
             if (_browserConfiguration.IsMobileDevice)
             {
-                result.SetCapability(RemoteCapabilityType.BrowserStack.Device, _browserConfiguration.Device);
+                capabilities.SetCapability(RemoteCapabilityType.BrowserStack.Device, _browserConfiguration.Device);
             }
             else
             {
-                result.SetCapability(RemoteCapabilityType.Default.Version, _browserConfiguration.Version);
-                result.SetCapability(RemoteCapabilityType.BrowserStack.Os, _browserConfiguration.OsName);
-                result.SetCapability(RemoteCapabilityType.BrowserStack.OsVersion, _browserConfiguration.OsVersion);
+                capabilities.SetCapability(RemoteCapabilityType.Default.Version, _browserConfiguration.Version);
+                capabilities.SetCapability(RemoteCapabilityType.BrowserStack.Os, _browserConfiguration.OsName);
+                capabilities.SetCapability(RemoteCapabilityType.BrowserStack.OsVersion, _browserConfiguration.OsVersion);
 
                 PlatformType platformType;
                 if (Enum.TryParse(_browserConfiguration.OsName, true, out platformType))
                 {
                     var platform = new Platform(platformType);
-                    result.SetCapability(RemoteCapabilityType.Default.Platform, platform);
+                    capabilities.SetCapability(RemoteCapabilityType.Default.Platform, platform);
                 }
-                result.SetCapability(RemoteCapabilityType.BrowserStack.ScreenResolution, _browserConfiguration.Resolution);
+                capabilities.SetCapability(RemoteCapabilityType.BrowserStack.ScreenResolution, _browserConfiguration.Resolution);
             }
         }
 
-        private void SetTestConfiguration(DesiredCapabilities result)
+        private void SetTestConfiguration(DesiredCapabilities capabilities)
         {
-            result.SetCapability(RemoteCapabilityType.BrowserStack.TestName, _testSpecification.ScenarioTitle);
-            result.SetCapability(RemoteCapabilityType.BrowserStack.Project, _testSpecification.FeatureTitle);
-            result.SetCapability(RemoteCapabilityType.BrowserStack.Build, _buildNumber);
+            capabilities.SetCapability(RemoteCapabilityType.BrowserStack.TestName, _testSpecification.ScenarioTitle);
+            capabilities.SetCapability(RemoteCapabilityType.BrowserStack.Project, _testSpecification.FeatureTitle);
+            capabilities.SetCapability(RemoteCapabilityType.BrowserStack.Build, _buildNumber);
         }
 
-        private void SetCredentials(DesiredCapabilities result)
+        private void SetCredentials(DesiredCapabilities capabilities)
         {
-            result.SetCapability(RemoteCapabilityType.BrowserStack.UserName,
+            capabilities.SetCapability(RemoteCapabilityType.BrowserStack.UserName,
                 string.IsNullOrWhiteSpace(_userName) ? _configurationProvider.UserName : _userName);
-            result.SetCapability(RemoteCapabilityType.BrowserStack.AccessKey,
+            capabilities.SetCapability(RemoteCapabilityType.BrowserStack.AccessKey,
                 string.IsNullOrWhiteSpace(_accessKey) ? _configurationProvider.AccessKey : _accessKey);
         }
     }

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
     public interface IConfigurationProvider  
@@ -9,5 +11,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         string BuildNumber { get; }
         string BrowserStackApiUrl { get; }
         string UseLocalBrowser { get; }
+        IDictionary<string, object> Capabilities { get; }
     }
 }
