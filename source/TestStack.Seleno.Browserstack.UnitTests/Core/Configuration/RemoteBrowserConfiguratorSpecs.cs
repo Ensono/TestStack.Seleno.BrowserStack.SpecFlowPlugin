@@ -3,7 +3,6 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using TestStack.Seleno.BrowserStack.Core.Capabilities;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Enums;
@@ -29,7 +28,33 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             _configurationProvider = Substitute.For<IConfigurationProvider>();
 
             _capabilitiesBuilder.WithTestSpecification(Arg.Any<TestSpecification>()).Returns(_capabilitiesBuilder);
+            _capabilitiesBuilder.WithRunTestLocally(Arg.Any<bool>()).Returns(_capabilitiesBuilder);
             _sut = new RemoteBrowserConfigurator(_browserHostFactory,_parser, _capabilitiesBuilder, _configurationProvider);
+        }
+
+        [Test]
+        public void CreateAndConfigure_ShouldCreateAndReturnPrivateLocalServer_When_ConfigurationSpecifiesToRunTestLocally()
+        {
+            // Arrange
+            var testSpecification = new TestSpecification("Fancy scenario", "178wq76essf");
+            var capabilities = Substitute.For<ICapabilities>();
+            const string browser = "IE,11,Windows,10";
+            var browserConfiguration = new BrowserConfiguration();
+            var browserHost = Substitute.For<IBrowserHost>();
+
+            _parser.Parse(browser).Returns(browserConfiguration);
+            _configurationProvider.RunTestLocally.Returns(true);
+            _capabilitiesBuilder.Build().Returns(capabilities);
+            _browserHostFactory.CreatePrivateLocalServer(capabilities, browserConfiguration).Returns(browserHost);
+            
+            // Act
+            var result = _sut.CreateAndConfigure(testSpecification, browser);
+
+            // Assert
+            _capabilitiesBuilder.Received().WithRunTestLocally(true);
+            result.Should().BeSameAs(browserHost);
+            _browserHostFactory.DidNotReceive().CreateWithCapabilities(capabilities, browserConfiguration);
+            _browserHostFactory.DidNotReceive().CreateLocalWebDriver(Arg.Any<BrowserEnum>(), browserConfiguration);
         }
 
         [TestCase(null)]
@@ -46,6 +71,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
             _capabilitiesBuilder.DidNotReceive().WithCredentials(Arg.Any<string>(), Arg.Any<string>());
             _capabilitiesBuilder.Received().WithTestSpecification(testSpecification);
+            _capabilitiesBuilder.Received().WithRunTestLocally(false);
 
         }
 
@@ -67,6 +93,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             // Assert
             result.Should().BeSameAs(browserHost);
             _capabilitiesBuilder.DidNotReceive().WithBrowserConfiguration(Arg.Any<BrowserConfiguration>());
+            _capabilitiesBuilder.Received().WithRunTestLocally(false);
         }
 
         [Test]
@@ -88,6 +115,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             // Assert
             result.Should().BeSameAs(browserHost);
             _capabilitiesBuilder.Received().WithBrowserConfiguration(Arg.Any<BrowserConfiguration>());
+            _capabilitiesBuilder.Received().WithRunTestLocally(false);
         }
 
         [Test]
@@ -132,6 +160,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
             // Assert
             _browserHostFactory.Received(1).CreateLocalWebDriver(expectedBrowserEnum, null);
+            _capabilitiesBuilder.Received().WithRunTestLocally(false);
         }
 
         [Test]

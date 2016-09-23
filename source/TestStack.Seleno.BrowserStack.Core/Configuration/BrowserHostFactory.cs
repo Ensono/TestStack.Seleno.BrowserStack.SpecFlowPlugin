@@ -39,44 +39,54 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         {
             var instance = CreateBrowserHost(browserConfiguration);
 
-            IWebDriver webDriverFunc;
-
-            switch (browser)
-            {                
-                case BrowserEnum.Firefox:
-                    webDriverFunc = BrowserFactory.FireFox();
-                    break;
-                case BrowserEnum.InternetExplorer:
-                    webDriverFunc = BrowserFactory.InternetExplorer();
-                    break;
-                case BrowserEnum.PhantomJs:
-                    webDriverFunc = BrowserFactory.PhantomJS();
-                    break;
-                case BrowserEnum.Safari:
-                    webDriverFunc = BrowserFactory.Safari();
-                    break;
-                case BrowserEnum.Chrome:
-                default:
-                    webDriverFunc = BrowserFactory.Chrome();
-                    break;                
-            }
-
             instance.Configuration.IsLocalWebDriver = true;
 
-            instance.Run(() => (RemoteWebDriver)webDriverFunc,
-                         CreateWebServer(_configurationProvider.RemoteUrl));
+            instance.Run(LocalWebBrowser(browser), CreateWebServer(_configurationProvider.RemoteUrl));
 
             return instance;
         }
 
-        public virtual Func<RemoteWebDriver> CreateRemoteDriverWithCapabilities(ICapabilities capabilities)
+        public IBrowserHost CreatePrivateLocalServer(ICapabilities capabilities, BrowserConfiguration browserConfiguration = null)
+        {
+            var instance = CreateBrowserHost(browserConfiguration);
+
+            instance.Run(CreateRemoteDriverWithCapabilities(capabilities), new PrivateLocaleServer(_configurationProvider));
+
+            return instance;
+        }
+
+        internal virtual Func<RemoteWebDriver> CreateRemoteDriverWithCapabilities(ICapabilities capabilities)
         {
             return () => new RemoteWebDriver(new Uri(_configurationProvider.RemoteUrl), capabilities, CommandTimeOut);
         }
 
-        public virtual IWebServer CreateWebServer(string remoteUrl)
+
+        internal virtual IWebServer CreateWebServer(string remoteUrl)
         {
             return new InternetWebServer(remoteUrl);
+        }
+
+        internal virtual Func<RemoteWebDriver> LocalWebBrowser(BrowserEnum browser)
+        {
+            switch (browser)
+            {
+                case BrowserEnum.Firefox:
+                    return BrowserFactory.FireFox;
+
+                case BrowserEnum.InternetExplorer:
+                    return BrowserFactory.InternetExplorer;
+                case BrowserEnum.PhantomJs:
+                    return BrowserFactory.PhantomJS;
+
+                case BrowserEnum.Safari:
+                    return BrowserFactory.Safari;
+
+
+                case BrowserEnum.Chrome:
+                default:
+                    return BrowserFactory.Chrome;
+            }
+
         }
     }
 }

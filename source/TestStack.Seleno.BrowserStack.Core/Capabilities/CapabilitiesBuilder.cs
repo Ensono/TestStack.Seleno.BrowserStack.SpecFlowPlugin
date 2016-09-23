@@ -15,6 +15,8 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
         private BrowserConfiguration _browserConfiguration = new BrowserConfiguration();
         private string _buildNumber = string.Empty;
         private readonly Dictionary<string, object> _additionalCapabilities = new Dictionary<string, object>();
+        private bool _runTestLocallyreturn ;
+        private bool _runTestLocally = false;
 
         public CapabilitiesBuilder(IConfigurationProvider configurationProvider)
         {
@@ -38,6 +40,12 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
         public ICapabilitiesBuilder WithBrowserConfiguration(BrowserConfiguration browserConfiguration)
         {
             _browserConfiguration = browserConfiguration;
+            return this;
+        }
+
+        public ICapabilitiesBuilder WithRunTestLocally(bool value)
+        {
+            _runTestLocally = value;
             return this;
         }
 
@@ -69,7 +77,14 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
 
             SetBrowserConfiguration(capabilities);
 
+            SetRunTestLocally(capabilities);
+
             return capabilities;
+        }
+
+        private void SetRunTestLocally(DesiredCapabilities capabilities)
+        {
+            capabilities.SetCapability(RemoteCapabilityType.BrowserStack.RunLocally, _runTestLocally);
         }
 
         private void SetBrowserConfiguration(DesiredCapabilities capabilities)

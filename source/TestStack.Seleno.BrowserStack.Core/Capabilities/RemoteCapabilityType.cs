@@ -26,6 +26,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
             public static readonly string TestName = "name";
             public static readonly string Debug = "browserstack.debug";
             public static readonly string Video = "browserstack.video";
+            public static readonly string RunLocally = "browserstack.local";
         }
     }
 }

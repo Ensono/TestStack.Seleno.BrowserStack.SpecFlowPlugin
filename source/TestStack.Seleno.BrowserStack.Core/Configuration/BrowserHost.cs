@@ -10,7 +10,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
     {
         private SelenoHost _selenoHost;
 
-        public BrowserHost(SelenoHost selenoHost, BrowserConfiguration browserConfiguration = null)
+        public BrowserHost(SelenoHost selenoHost, BrowserConfiguration browserConfiguration = null) 
         {
             _selenoHost = selenoHost;
             Configuration = browserConfiguration ?? new BrowserConfiguration();
@@ -41,14 +41,11 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
                 var sessionId = string.Empty;
 
                 var application = _selenoHost.Application;
-                if (application != null)
-                {
-                    var remoteWebDriver = application.Browser as IHasSessionId;
+                var remoteWebDriver = application?.Browser as IHasSessionId;
 
-                    if (remoteWebDriver != null)
-                    {
-                        sessionId = remoteWebDriver.SessionId.ToString();
-                    }
+                if (remoteWebDriver != null)
+                {
+                    sessionId = remoteWebDriver.SessionId.ToString();
                 }
 
                 return sessionId;

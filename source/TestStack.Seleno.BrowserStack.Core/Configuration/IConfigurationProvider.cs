@@ -12,5 +12,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         string BrowserStackApiUrl { get; }
         string UseLocalBrowser { get; }
         IDictionary<string, object> Capabilities { get; }
+
+        bool RunTestLocally { get; }
     }
 }

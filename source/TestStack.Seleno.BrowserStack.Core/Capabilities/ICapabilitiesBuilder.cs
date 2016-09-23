@@ -12,6 +12,8 @@ namespace TestStack.Seleno.BrowserStack.Core.Capabilities
 
        ICapabilitiesBuilder WithBrowserConfiguration(BrowserConfiguration browserConfiguration);
 
+       ICapabilitiesBuilder WithRunTestLocally(bool value);
+
        ICapabilitiesBuilder WithBuildNumber(string buildNumber);
 
        ICapabilitiesBuilder WithAdditionalCapabilities(IDictionary<string, object> additionalCapabilities);

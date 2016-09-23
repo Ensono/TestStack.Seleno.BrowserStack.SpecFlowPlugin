@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Castle.Core.Internal;
 using TestStack.Seleno.BrowserStack.Core.Capabilities;
 using TestStack.Seleno.BrowserStack.Core.Enums;
@@ -36,25 +37,32 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
                 builder.WithBrowserConfiguration(browserConfiguration);
             }
 
+            var runTestLocally = _configurationProvider.RunTestLocally;
+            var capabilities = builder.WithRunTestLocally(runTestLocally).Build();
+
+
+            if (runTestLocally)
+            {
+                return _browserHostFactory.CreatePrivateLocalServer(capabilities, browserConfiguration);
+            }
+
             if (_configurationProvider.UseLocalBrowser.IsNullOrEmpty())
             {
-                return _browserHostFactory.CreateWithCapabilities(builder.Build(), browserConfiguration);
+                return _browserHostFactory.CreateWithCapabilities(capabilities, browserConfiguration);
+            }
+
+            BrowserEnum result;
+
+            if (Enum.IsDefined(typeof(BrowserEnum), _configurationProvider.UseLocalBrowser))
+            {
+                Enum.TryParse(_configurationProvider.UseLocalBrowser.Replace(" ", string.Empty), out result);                    
             }
             else
             {
-                BrowserEnum result;
-
-                if (Enum.IsDefined(typeof(BrowserEnum), _configurationProvider.UseLocalBrowser))
-                {
-                    Enum.TryParse(_configurationProvider.UseLocalBrowser.Replace(" ", string.Empty), out result);                    
-                }
-                else
-                {
-                    throw new InvalidBrowserConfigurationException(InvalidBrowserConfigurationErrorMessage);
-                }
-
-                return _browserHostFactory.CreateLocalWebDriver(result, browserConfiguration);
+                throw new InvalidBrowserConfigurationException(InvalidBrowserConfigurationErrorMessage);
             }
+
+            return _browserHostFactory.CreateLocalWebDriver(result, browserConfiguration);
         }
     }
 }

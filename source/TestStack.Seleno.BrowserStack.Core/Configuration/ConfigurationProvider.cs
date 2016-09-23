@@ -58,5 +58,14 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
                         .ToDictionary(key => key, key => (object)((NameValueCollection)ConfigurationManager.GetSection(Constants.Capabilities))[key]);
             }
         }
+
+        public bool RunTestLocally
+        {
+            get
+            {
+                bool result;
+                return bool.TryParse(ConfigurationManager.AppSettings[Constants.RunTestLocally], out result) && result;
+            }
+        }
     }
 }
