@@ -180,7 +180,7 @@ namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
         private static void AddTestAutomationCoreAndSeleniumRemoteNamespaces(TestClassGenerationContext generationContext)
         {
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Configuration"));
-            generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Services.TestSession"));
+            generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Services.BrowserStack"));
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Capabilities"));
             generationContext.Namespace.Imports.Add(new CodeNamespaceImport("TestStack.Seleno.BrowserStack.Core.Services.Client"));
         }

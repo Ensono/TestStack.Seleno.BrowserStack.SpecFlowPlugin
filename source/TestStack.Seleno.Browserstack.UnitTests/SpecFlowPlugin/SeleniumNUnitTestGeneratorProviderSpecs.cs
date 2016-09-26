@@ -490,7 +490,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.SpecFlowPlugin
                 .And
                 .ContainImportedNamespace("TestStack.Seleno.BrowserStack.Core.Configuration")
                 .And
-                .ContainImportedNamespace("TestStack.Seleno.BrowserStack.Core.Services.TestSession")
+                .ContainImportedNamespace("TestStack.Seleno.BrowserStack.Core.Services.BrowserStack")
                 .And
                 .ContainImportedNamespace("TestStack.Seleno.BrowserStack.Core.Capabilities")
                 .And
