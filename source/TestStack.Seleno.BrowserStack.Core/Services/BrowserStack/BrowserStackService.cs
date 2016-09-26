@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Services.Client;
+using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
-namespace TestStack.Seleno.BrowserStack.Core.Services.TestSession
+namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
 {
     public class BrowserStackService : IBrowserStackService
     {

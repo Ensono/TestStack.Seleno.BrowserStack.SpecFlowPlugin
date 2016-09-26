@@ -3,6 +3,7 @@ using Castle.Core.Internal;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Tracing;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
+using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
 namespace TestStack.Seleno.BrowserStack.Core

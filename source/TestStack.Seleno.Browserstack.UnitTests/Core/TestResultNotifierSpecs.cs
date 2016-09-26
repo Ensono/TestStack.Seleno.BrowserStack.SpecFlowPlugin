@@ -5,6 +5,7 @@ using NUnit.Framework;
 using TechTalk.SpecFlow.Tracing;
 using TestStack.Seleno.BrowserStack.Core;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
+using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
 namespace TestStack.Seleno.Browserstack.UnitTests.Core

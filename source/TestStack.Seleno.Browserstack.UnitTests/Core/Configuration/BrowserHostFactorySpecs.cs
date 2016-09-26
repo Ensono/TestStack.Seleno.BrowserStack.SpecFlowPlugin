@@ -77,10 +77,10 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             
 
             sut.When(x => x.CreateBrowserHost(browserConfiguration)).DoNotCallBase();
-            sut.When(x => x.CreateLocalWebServer(_configurationProvider)).DoNotCallBase();
+            sut.When(x => x.CreateLocalWebServer()).DoNotCallBase();
 
             sut.CreateBrowserHost(browserConfiguration).Returns(browserHost);
-            sut.CreateLocalWebServer(_configurationProvider).Returns(localWebServer);
+            sut.CreateLocalWebServer().Returns(localWebServer);
 
             sut.StartPrivateServerAndCreateRemoteDriverWithCapabilities(capabilities, localWebServer).Returns(remoteWebDriverFactory);
 
@@ -129,7 +129,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             var sut = Substitute.ForPartsOf<BrowserHostFactory>(_configurationProvider);
 
             // Act
-            var result = sut.CreateLocalWebServer(_configurationProvider);
+            var result = sut.CreateLocalWebServer();
 
             // Assert
             result.Should().BeOfType<PrivateLocalServer>();

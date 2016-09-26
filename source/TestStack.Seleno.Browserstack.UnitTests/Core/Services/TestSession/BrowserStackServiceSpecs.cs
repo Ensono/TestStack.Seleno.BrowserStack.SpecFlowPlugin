@@ -8,6 +8,7 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
+using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 using TestStack.Seleno.BrowserStack.Core.Services.Client;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 

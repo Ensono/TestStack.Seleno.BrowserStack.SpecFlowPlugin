@@ -1,7 +1,6 @@
-using System;
 using System.Linq;
 using TestStack.Seleno.BrowserStack.Core.Exceptions;
-using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
+using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {

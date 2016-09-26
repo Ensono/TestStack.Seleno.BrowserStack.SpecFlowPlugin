@@ -1,29 +1,27 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
-using BrowserStack;
+using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 using TestStack.Seleno.Configuration.Contracts;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
     public class PrivateLocalServer : IWebServer
     {
+        private readonly IBrowserStackLocalServer _localServer;
         private readonly IConfigurationProvider _configuration;
-        private readonly Local _locale = new Local();
 
-        internal virtual bool IsRunning
+        public PrivateLocalServer(IBrowserStackLocalServer localServer, IConfigurationProvider configuration)
         {
-            get { return _locale.isRunning(); }
-        }
-
-        public PrivateLocalServer(IConfigurationProvider configuration)
-        {
+            _localServer = localServer;
             _configuration = configuration;
         }
+       
+     
         public void Start()
         {
-            if (IsRunning) return;
+            if (_localServer.IsRunning) return;
 
-            StartServerWithOptions(
+            _localServer.Start(
                 new KeyValuePair<string, string>("key", _configuration.AccessKey),
                 new KeyValuePair<string, string>("forcelocal", "true")
             );
@@ -31,25 +29,15 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         public void Stop()
         {
-            if (IsRunning)
+            if (_localServer.IsRunning)
             {
-                StopServer();
+                _localServer.Stop();
             }
         }
 
         public string BaseUrl
         {
             get { return _configuration.RemoteUrl; }
-        }
-
-        internal virtual void StartServerWithOptions(params KeyValuePair<string, string>[] options)
-        {
-            _locale.start(options.ToList());
-        }
-
-        internal virtual void StopServer()
-        {
-            _locale.stop();
         }
     }
 }

@@ -4,6 +4,7 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
+using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 
 namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 {
@@ -12,20 +13,14 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
     {
         private PrivateLocalServer _sut;
         private IConfigurationProvider _configuration;
+        private IBrowserStackLocalServer _localServer;
 
         [SetUp]
         public void SetUp()
         {
             _configuration = Substitute.For<IConfigurationProvider>();
-            _sut = Substitute.ForPartsOf<PrivateLocalServer>(_configuration);    
-        }
-
-        [Test]
-        public void Constructor_ShouldNotStartLocalServer()
-        {
-            // Assert
-            _sut.DidNotReceiveWithAnyArgs().StartServerWithOptions();
-            _sut.IsRunning.Should().BeFalse();
+            _localServer = Substitute.For<IBrowserStackLocalServer>();
+            _sut = new PrivateLocalServer(_localServer, _configuration);
         }
 
         [Test]
@@ -35,15 +30,14 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             var accessKey = Guid.NewGuid().ToString().Replace("-", string.Empty);
 
             _configuration.AccessKey.Returns(accessKey);
-            _sut.WhenForAnyArgs(x => x.StartServerWithOptions()).DoNotCallBase();
+            _localServer.IsRunning.Returns(false);
 
             // Act
             _sut.Start();
 
             // Assert
-            _sut.Received(1)
-                .StartServerWithOptions(new KeyValuePair<string, string>("key", _configuration.AccessKey),
-                                        new KeyValuePair<string, string>("forcelocal", "true"));
+            _localServer.Received(1).Start(new KeyValuePair<string, string>("key", _configuration.AccessKey),
+                                           new KeyValuePair<string, string>("forcelocal", "true"));
         }
 
 
@@ -54,28 +48,26 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             var accessKey = Guid.NewGuid().ToString().Replace("-", string.Empty);
 
             _configuration.AccessKey.Returns(accessKey);
-            _sut.WhenForAnyArgs(x => x.StartServerWithOptions()).DoNotCallBase();
-            _sut.IsRunning.Returns(true);
+            _localServer.IsRunning.Returns(true);
 
             // Act
             _sut.Start();
 
             // Assert
-            _sut.DidNotReceiveWithAnyArgs().StartServerWithOptions();
+            _localServer.DidNotReceiveWithAnyArgs().Start();
         }
 
         [Test]
         public void Stop_ShouldStopLocalServerOnlyWhenRunning()
         {
             // Arrange
-            _sut.IsRunning.Returns(true);
-            _sut.When(x => x.StopServer()).DoNotCallBase();
+            _localServer.IsRunning.Returns(true);
 
             // Act
             _sut.Stop();
 
             // Assert
-            _sut.Received(1).StopServer();
+            _localServer.Received(1).Stop();
         }
 
         [Test]
@@ -84,14 +76,13 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             // Arrange
             var accessKey = Guid.NewGuid().ToString().Replace("-", string.Empty);
             _configuration.AccessKey.Returns(accessKey);
-            _sut.IsRunning.Returns(false);
+            _localServer.IsRunning.Returns(false);
 
             // Act
             _sut.Stop();
 
             // Assert
-            _sut.DidNotReceive().StopServer();
-            _sut.IsRunning.Should().BeFalse();
+            _localServer.DidNotReceive().Stop();
         }
 
         [Test]

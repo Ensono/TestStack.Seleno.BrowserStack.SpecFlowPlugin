@@ -6,6 +6,7 @@ using NSubstitute;
 using NUnit.Framework;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Exceptions;
+using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
 namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
