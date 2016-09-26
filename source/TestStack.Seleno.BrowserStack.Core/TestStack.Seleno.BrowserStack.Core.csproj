@@ -136,7 +136,7 @@
     <Compile Include="Configuration\IBrowserHostFactory.cs" />
     <Compile Include="Configuration\IConfigurationProvider.cs" />
     <Compile Include="Configuration\InvalidDesktopResolution.cs" />
-    <Compile Include="Configuration\PrivateLocaleServer.cs" />
+    <Compile Include="Configuration\PrivateLocalServer.cs" />
     <Compile Include="Configuration\RemoteBrowserConfigurator.cs" />
     <Compile Include="Configuration\TestSpecification.cs" />
     <Compile Include="Disposable.cs" />

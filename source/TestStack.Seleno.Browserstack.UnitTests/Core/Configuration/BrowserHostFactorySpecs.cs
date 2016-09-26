@@ -7,6 +7,7 @@ using OpenQA.Selenium.Remote;
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.BrowserStack.Core.Enums;
 using TestStack.Seleno.Configuration.Contracts;
+using TestStack.Seleno.Configuration.WebServers;
 
 namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 {
@@ -49,7 +50,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
             sut.CreateBrowserHost(browserConfiguration).Returns(browserHost);
             sut.CreateRemoteDriverWithCapabilities(Arg.Is(capabilities)).Returns(remoteWebDriverFactory);
-            sut.CreateWebServer(Arg.Is(remoteUrl)).Returns(webServer);
+            sut.CreateInternetWebServer(Arg.Is(remoteUrl)).Returns(webServer);
 
             // Act
             var result = sut.CreateWithCapabilities(capabilities, browserConfiguration);
@@ -67,21 +68,28 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             var browserHost = Substitute.For<IBrowserHost>();
             var capabilities = Substitute.For<ICapabilities>();
             var browserConfiguration = new BrowserConfiguration();
-            Func<RemoteWebDriver> remoteWebDriverFactory = () => new RemoteWebDriver(capabilities);
+            var localWebServer = Substitute.For<IWebServer>();
+
+            Func<RemoteWebDriver> remoteWebDriverFactory = () => null;
             const string remoteUrl = "http://some/remote/url";
 
             _configurationProvider.RemoteUrl.Returns(remoteUrl);
+            
 
             sut.When(x => x.CreateBrowserHost(browserConfiguration)).DoNotCallBase();
+            sut.When(x => x.CreateLocalWebServer(_configurationProvider)).DoNotCallBase();
+
             sut.CreateBrowserHost(browserConfiguration).Returns(browserHost);
-            sut.CreateRemoteDriverWithCapabilities(Arg.Is(capabilities)).Returns(remoteWebDriverFactory);
+            sut.CreateLocalWebServer(_configurationProvider).Returns(localWebServer);
+
+            sut.StartPrivateServerAndCreateRemoteDriverWithCapabilities(capabilities, localWebServer).Returns(remoteWebDriverFactory);
 
             // Act
             var result = sut.CreatePrivateLocalServer(capabilities, browserConfiguration);
 
             // Assert
             result.Should().BeSameAs(browserHost);
-            browserHost.Received().Run(remoteWebDriverFactory, Arg.Is<IWebServer>(s => s is PrivateLocaleServer));
+            browserHost.Received(1).Run(remoteWebDriverFactory, localWebServer);
         }
 
         [Test]
@@ -103,7 +111,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             sut.When(x => x.CreateBrowserHost(browserConfiguration)).DoNotCallBase();
             sut.CreateBrowserHost(browserConfiguration).Returns(browserHost);
             sut.LocalWebBrowser(browserType).Returns(remoteWebDriverFactory);
-            sut.CreateWebServer(Arg.Is(remoteUrl)).Returns(webServer);
+            sut.CreateInternetWebServer(Arg.Is(remoteUrl)).Returns(webServer);
 
             // Act
             var result = sut.CreateLocalWebDriver(browserType, browserConfiguration);
@@ -112,6 +120,34 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             browserConfiguration.IsLocalWebDriver.Should().BeTrue();
             browserHost.Should().BeSameAs(result);
             browserHost.Received().Run(remoteWebDriverFactory, webServer);
+        }
+
+        [Test]
+        public void CreateLocalWebServer_ShouldCreateInstanceOfPrivateLocalServer()
+        {
+            // Arrange
+            var sut = Substitute.ForPartsOf<BrowserHostFactory>(_configurationProvider);
+
+            // Act
+            var result = sut.CreateLocalWebServer(_configurationProvider);
+
+            // Assert
+            result.Should().BeOfType<PrivateLocalServer>();
+        }
+
+        [Test]
+        public void CreateInternetWebServer_ShouldCreateInstanceOfPrivateLocalServer()
+        {
+            // Arrange
+            var sut = Substitute.ForPartsOf<BrowserHostFactory>(_configurationProvider);
+            const string remoteUrl = "http:/localhost/some/where";
+
+            // Act
+            var result = sut.CreateInternetWebServer(remoteUrl);
+
+            // Assert
+            result.Should().BeOfType<InternetWebServer>();
+
         }
     }
 }

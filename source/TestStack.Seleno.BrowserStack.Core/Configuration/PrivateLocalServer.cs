@@ -5,28 +5,36 @@ using TestStack.Seleno.Configuration.Contracts;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
-    public class PrivateLocaleServer : IWebServer
+    public class PrivateLocalServer : IWebServer
     {
         private readonly IConfigurationProvider _configuration;
         private readonly Local _locale = new Local();
 
-        public PrivateLocaleServer(IConfigurationProvider configuration)
+        internal virtual bool IsRunning
+        {
+            get { return _locale.isRunning(); }
+        }
+
+        public PrivateLocalServer(IConfigurationProvider configuration)
         {
             _configuration = configuration;
         }
         public void Start()
         {
+            if (IsRunning) return;
+
             StartServerWithOptions(
                 new KeyValuePair<string, string>("key", _configuration.AccessKey),
-                new KeyValuePair<string, string>("forcelocal", "true") /*,
-                new KeyValuePair<string, string>("binarypath", @"C:\Users\Franck\.browserstack\BrowserStackLocal.exe"),
-                new KeyValuePair<string, string>("logfile", @"C:\Users\Franck\.browserstack\local.log")*/
+                new KeyValuePair<string, string>("forcelocal", "true")
             );
         }
 
         public void Stop()
         {
-            StopServer();
+            if (IsRunning)
+            {
+                StopServer();
+            }
         }
 
         public string BaseUrl

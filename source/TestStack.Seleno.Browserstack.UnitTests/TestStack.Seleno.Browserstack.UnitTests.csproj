@@ -131,6 +131,7 @@
     <Compile Include="Assertions\CodeTypeDeclarationAssertions.cs" />
     <Compile Include="Assertions\NonGenericDictionaryAssertions.cs" />
     <Compile Include="Assertions\TestClassGenerationContextAssertions.cs" />
+    <Compile Include="Core\Configuration\PrivateLocalServerSpecs.cs" />
     <Compile Include="Core\PageProviderSpecs.cs" />
     <Compile Include="Core\Configuration\BrowserConfigurationSpecs.cs" />
     <Compile Include="Core\Configuration\BrowserHostSpecs.cs" />

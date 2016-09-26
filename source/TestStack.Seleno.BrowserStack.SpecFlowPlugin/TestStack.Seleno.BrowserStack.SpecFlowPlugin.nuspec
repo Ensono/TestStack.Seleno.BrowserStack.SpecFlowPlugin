@@ -19,7 +19,7 @@
 		- Added PageProvider extensions method to retrieve and register pages (as itself and its concrete ancestor) with current scenario container
 		- Added enum extensions
 		- support additional capabilities to be added in config file
-		- support local test running using browserstack locale
+		- support local test running using browserstack local capabilities
 	</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>Selenium Seleno SpecFlow BrowserStack</tags>
