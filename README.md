@@ -39,7 +39,13 @@
      <add key="browserStack.user" value="<yourUserNameHere>" />
      <add key="browserstack.key" value="<yourAccessKeyHere>" />
     -->
+    <!-- make test run locally behing on server executing tests -->
+    <add key="runTestLocally" value="true" />
   </appSettings>
+  <!--  add optional custom capabilities  -->
+  <capabilities>
+    <add key="browserstack.debug" value="true"/>
+  </capabilities>
 </configuration>
 ```
 1.4) support resolution for desktop like `@browser:chrome,50.0,Windows,10,1024x768` or `@browser:chrome,1024x768`
@@ -57,6 +63,8 @@
 
 - Adds the browser name as a TestCategory
     - Just run the tests with the categories for the browser you actually have on the environment. Example: Don't run Android browser test as I don't have an android device attached to my machine.
+- Allow to set optional capabilities to send to browserstack
+- Run test locally behing server running test
 
 
 Get it from Nuget.org:
