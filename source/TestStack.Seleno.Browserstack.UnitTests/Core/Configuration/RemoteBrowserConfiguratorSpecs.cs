@@ -119,37 +119,24 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
                 .CreateWithCapabilities(capabilities);
         }
         
-        [TestCase("Chrome", BrowserEnum.Chrome)]
-        [TestCase("Firefox", BrowserEnum.Firefox)]
-        [TestCase("InternetExplorer", BrowserEnum.InternetExplorer)]
-        [TestCase("PhantomJs", BrowserEnum.PhantomJs)]
-        [TestCase("Safari", BrowserEnum.Safari)]
-        public void CreateAndConfigure_ShouldCallCreateLocalBrowser(string browser, BrowserEnum expectedBrowserEnum)
+        [TestCase(BrowserEnum.Chrome)]
+        [TestCase(BrowserEnum.Firefox)]
+        [TestCase(BrowserEnum.InternetExplorer)]
+        [TestCase(BrowserEnum.PhantomJs)]
+        [TestCase(BrowserEnum.Safari)]
+        public void CreateAndConfigure_ShouldCallCreateLocalBrowser(BrowserEnum browserType)
         {
             // Arrange
             var testSpecification = new TestSpecification("Fancy scenario", "178wq76essf");           
-            _configurationProvider.UseLocalBrowser.Returns(browser);
+            _configurationProvider.LocalBrowser.Returns(browserType);
 
             // Act
             _sut.CreateAndConfigure(testSpecification, "configuration");
 
             // Assert
-            _browserHostFactory.Received(1).CreateLocalWebDriver(expectedBrowserEnum, null);
+            _browserHostFactory.Received(1).CreateLocalWebDriver(browserType);
             _capabilitiesBuilder.Received().WithRunTestLocally(false);
         }
-
-        [Test]
-        public void CreateAndConfigure_ShouldThrowExceptionWhenEnumCannotBeParsed()
-        {
-            // Arrange
-            var testSpecification = new TestSpecification("Fancy scenario", "178wq76essf");
-            _configurationProvider.UseLocalBrowser.Returns("Unsupported");
-
-            Action unsupportedActionBrowser = () => _sut.CreateAndConfigure(testSpecification, null);
-
-            // Act && Assert
-            unsupportedActionBrowser
-                .ShouldThrow<InvalidBrowserConfigurationException>();
-        }
+       
     }
 }

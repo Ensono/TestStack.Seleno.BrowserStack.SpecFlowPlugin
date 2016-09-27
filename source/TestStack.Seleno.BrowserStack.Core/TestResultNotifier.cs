@@ -28,7 +28,7 @@ namespace TestStack.Seleno.BrowserStack.Core
         [AfterScenario]
         public void SendFailingNotificationTestResult()
         {
-            if (!_configurationProvider.UseLocalBrowser.IsNullOrEmpty()) return;
+            if (_configurationProvider.LocalBrowser.HasValue) return;
             
             var sessionId = _browser.SessionId;
 

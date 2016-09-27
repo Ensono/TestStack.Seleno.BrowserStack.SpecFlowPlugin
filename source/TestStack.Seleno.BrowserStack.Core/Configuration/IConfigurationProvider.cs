@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TestStack.Seleno.BrowserStack.Core.Enums;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
@@ -10,7 +11,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         string RemoteUrl { get; }
         string BuildNumber { get; }
         string BrowserStackApiUrl { get; }
-        string UseLocalBrowser { get; }
+        BrowserEnum? LocalBrowser { get; }
         IDictionary<string, object> Capabilities { get; }
 
         bool RunTestLocally { get; }

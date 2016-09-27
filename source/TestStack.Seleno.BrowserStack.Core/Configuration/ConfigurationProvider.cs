@@ -5,6 +5,8 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using TestStack.Seleno.BrowserStack.Core.Capabilities;
+using TestStack.Seleno.BrowserStack.Core.Enums;
+using TestStack.Seleno.BrowserStack.Core.Exceptions;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
@@ -43,17 +45,31 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             get { return ConfigurationManager.AppSettings[Constants.BrowserStackApiUrl]; }
         }
 
-        public string UseLocalBrowser
+        public BrowserEnum? LocalBrowser
         {
-            get {  return ConfigurationManager.AppSettings[Constants.UseLocalBrowser]; }
+            get
+            {
+                if (string.IsNullOrWhiteSpace(BrowserName)) return null;
+                
+                if (!Enum.IsDefined(typeof(BrowserEnum), BrowserName))
+                {
+                    var supportedBrowserTypes = string.Join(", ", Enum.GetValues(typeof(BrowserEnum)).Cast<BrowserEnum>().Select(e => e.ToString()).OrderBy(n => n));
+                    throw new InvalidBrowserConfigurationException($"useLocalBrowser - local browser configuration must be one of the following {supportedBrowserTypes}");
+                }
+
+                BrowserEnum result;
+                return Enum.TryParse(BrowserName.Replace(" ", string.Empty), out result) ? result : null as BrowserEnum?;
+            }
         }
+
+       
 
         public IDictionary<string, object> Capabilities
         {
             get
             {
                 return 
-                    ((NameValueCollection)ConfigurationManager.GetSection(Constants.Capabilities))
+                    CapabilityCollection
                         .Cast<string>()
                         .ToDictionary(key => key, key => (object)((NameValueCollection)ConfigurationManager.GetSection(Constants.Capabilities))[key]);
             }
@@ -64,8 +80,18 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             get
             {
                 bool result;
-                return bool.TryParse(ConfigurationManager.AppSettings[Constants.RunTestLocally], out result) && result;
+                return bool.TryParse(ConfigurationManager.AppSettings[Constants.RunTestLocally], out result) && result && (LocalBrowser == null);
             }
+        }
+
+        internal virtual NameValueCollection CapabilityCollection
+        {
+            get { return ((NameValueCollection)ConfigurationManager.GetSection(Constants.Capabilities)); }
+        }
+
+        internal virtual string BrowserName
+        {
+            get { return ConfigurationManager.AppSettings[Constants.UseLocalBrowser]; }
         }
     }
 }

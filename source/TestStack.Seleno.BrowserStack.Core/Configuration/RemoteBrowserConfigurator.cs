@@ -14,9 +14,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         private readonly ICapabilitiesBuilder _capabilitiesBuilder;
         private readonly IConfigurationProvider _configurationProvider;
 
-        private const string InvalidBrowserConfigurationErrorMessage =
-            "useLocalBrowser - local browser configuration must be one of the following Chrome, Firefox, InternetExplorer, PhantomJs, Safari";
-
         public RemoteBrowserConfigurator(IBrowserHostFactory browserHostFactory, IBrowserConfigurationParser parser,
             ICapabilitiesBuilder capabilitiesBuilder, IConfigurationProvider configurationProvider)
         {
@@ -39,23 +36,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
             var capabilities = builder.WithRunTestLocally(_configurationProvider.RunTestLocally).Build();
 
-            if (_configurationProvider.UseLocalBrowser.IsNullOrEmpty())
-            {
-                return _browserHostFactory.CreateWithCapabilities(capabilities, browserConfiguration);
-            }
-
-            BrowserEnum result;
-
-            if (Enum.IsDefined(typeof(BrowserEnum), _configurationProvider.UseLocalBrowser))
-            {
-                Enum.TryParse(_configurationProvider.UseLocalBrowser.Replace(" ", string.Empty), out result);                    
-            }
-            else
-            {
-                throw new InvalidBrowserConfigurationException(InvalidBrowserConfigurationErrorMessage);
-            }
-
-            return _browserHostFactory.CreateLocalWebDriver(result, browserConfiguration);
+            return _configurationProvider.LocalBrowser.HasValue
+                ? _browserHostFactory.CreateLocalWebDriver(_configurationProvider.LocalBrowser.Value, browserConfiguration)
+                : _browserHostFactory.CreateWithCapabilities(capabilities, browserConfiguration);
         }
     }
 }
