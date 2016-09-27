@@ -9,7 +9,17 @@ using Newtonsoft.Json.Linq;
 
 namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
 {
-    public class BrowserStackTunnel : IDisposable
+    public interface IBrowserStackTunnel : IDisposable
+    {
+        void AddBinaryPath(string binaryAbsolute);
+        void AddBinaryArguments(string binaryArguments);
+        void FallbackPaths();
+        void Run(string accessKey, string folder, string logFilePath, string processType);
+        bool IsConnected { get; }
+        void Kill();
+    }
+
+    public class BrowserStackTunnel : IBrowserStackTunnel
     {
         private static readonly string BinaryName = "BrowserStackLocal.exe";
 
@@ -68,10 +78,9 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
             BinaryAbsolute = Path.Combine(BasePaths[_basePathsIndex], BinaryName);
         }
 
-        public void DownloadBinary()
+        internal virtual void DownloadBinary()
         {
             var binaryDirectory = Path.Combine(BinaryAbsolute, "..");
-            //string binaryAbsolute = Path.Combine(binaryDirectory, binaryName);
 
             Directory.CreateDirectory(binaryDirectory);
 
@@ -98,6 +107,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
                 arguments += "-f " + accessKey + " " + folder + " " + BinaryArguments;
             else
                 arguments += accessKey + " " + BinaryArguments;
+
             if (!File.Exists(BinaryAbsolute))
                 DownloadBinary();
 
@@ -130,32 +140,35 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
             };
             DataReceivedEventHandler o = (s, e) =>
             {
-                if (e.Data != null)
+                if (e.Data == null) return;
+                JObject binaryOutput = JObject.Parse(e.Data);
+                if ((binaryOutput.GetValue("state") != null) &&
+                    !binaryOutput.GetValue("state").ToString().ToLower().Equals("connected"))
                 {
-                    JObject binaryOutput = JObject.Parse(e.Data);
-                    if ((binaryOutput.GetValue("state") != null) &&
-                        !binaryOutput.GetValue("state").ToString().ToLower().Equals("connected"))
-                        throw new Exception("Eror while executing BrowserStackLocal " + processType + " " + e.Data);
+                    LocalState = LocalState.Error;
+                    throw new Exception("Eror while executing BrowserStackLocal " + processType + " " + e.Data);
                 }
+
+                LocalState =
+                    string.Equals(binaryOutput.GetValue("state")?.ToString(), "connected",
+                        StringComparison.InvariantCultureIgnoreCase)
+                        ? LocalState.Connected
+                        : LocalState.Connecting;
             };
 
             _process.OutputDataReceived += o;
             _process.ErrorDataReceived += o;
-            _process.Exited += (s, e) => { _process = null; };
+            _process.Exited += (s, e) => _process = null;
 
             _process.Start();
 
             _process.BeginOutputReadLine();
             _process.BeginErrorReadLine();
 
-            TunnelStateChanged(LocalState.Idle, LocalState.Connecting);
+            LocalState = LocalState.Connecting;
             AppDomain.CurrentDomain.ProcessExit += (s, e) => Kill();
 
             _process.WaitForExit();
-        }
-
-        private void TunnelStateChanged(LocalState prevState, LocalState state)
-        {
         }
 
         public bool IsConnected

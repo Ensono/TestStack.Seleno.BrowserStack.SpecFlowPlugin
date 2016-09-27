@@ -127,10 +127,12 @@
     <Compile Include="Configuration\BrowserHostFactory.cs" />
     <Compile Include="Configuration\ConfigurationProvider.cs" />
     <Compile Include="Configuration\Constants.cs" />
+    <Compile Include="Configuration\DateTimeProvider.cs" />
     <Compile Include="Configuration\IBrowserConfigurationParser.cs" />
     <Compile Include="Configuration\IBrowserHost.cs" />
     <Compile Include="Configuration\IBrowserHostFactory.cs" />
     <Compile Include="Configuration\IConfigurationProvider.cs" />
+    <Compile Include="Configuration\IDateTimeProvider.cs" />
     <Compile Include="Configuration\InvalidDesktopResolution.cs" />
     <Compile Include="Services\BrowserStack\BrowserStackTunnel.cs" />
     <Compile Include="Services\BrowserStack\BrowserStackLocalServer.cs" />

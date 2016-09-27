@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 using TestStack.Seleno.Configuration.Contracts;
 
@@ -9,11 +11,16 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
     {
         private readonly IBrowserStackLocalServer _localServer;
         private readonly IConfigurationProvider _configuration;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        public static readonly TimeSpan ServerStartTimeOut = new TimeSpan(0, 0, 0, 30);
 
-        public PrivateLocalServer(IBrowserStackLocalServer localServer, IConfigurationProvider configuration)
+        public PrivateLocalServer(IConfigurationProvider configuration) : this(new BrowserStackLocalServer(), configuration, new DateTimeProvider()) {  }
+
+        public PrivateLocalServer(IBrowserStackLocalServer localServer, IConfigurationProvider configuration, IDateTimeProvider dateTimeProvider)
         {
             _localServer = localServer;
             _configuration = configuration;
+            _dateTimeProvider = dateTimeProvider;
         }
        
      
@@ -25,6 +32,8 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
                 new KeyValuePair<string, string>("key", _configuration.AccessKey),
                 new KeyValuePair<string, string>("forcelocal", "true")
             );
+
+            WaitUntilServerHasStarted();
         }
 
         public void Stop()
@@ -39,5 +48,12 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         {
             get { return _configuration.RemoteUrl; }
         }
+
+        internal virtual void WaitUntilServerHasStarted()
+        {
+            var waitUntil = _dateTimeProvider.Now + ServerStartTimeOut;
+            while (!_localServer.IsRunning && _dateTimeProvider.Now < waitUntil) { }
+        }
+
     }
 }

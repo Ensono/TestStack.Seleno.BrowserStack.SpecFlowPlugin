@@ -7,6 +7,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
 {
     public class BrowserStackLocalServer : IBrowserStackLocalServer
     {
+        private readonly IBrowserStackTunnel _tunnel;
         private static readonly KeyValuePair<string, string> EmptyStringPair = new KeyValuePair<string, string>();
 
         private static readonly List<KeyValuePair<string, string>> ValueCommands = new List
@@ -35,11 +36,67 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
         private string _argumentString = "";
         private string _customBinaryPath = "";
         private string _customLogPath = "";
-        protected readonly BrowserStackTunnel Tunnel= new BrowserStackTunnel();
+
+        public BrowserStackLocalServer() : this(new BrowserStackTunnel()) { }
+
+        public BrowserStackLocalServer(IBrowserStackTunnel tunnel)
+        {
+            _tunnel = tunnel;
+        }
 
         public bool IsRunning
         {
-            get { return Tunnel != null && Tunnel.IsConnected; }
+            get { return _tunnel != null && _tunnel.IsConnected; }
+        }
+
+
+        public void Start(params KeyValuePair<string, string>[] options)
+        {
+            foreach (var pair in options)
+            {
+                var key = pair.Key;
+                var value = pair.Value;
+                AddArgs(key, value);
+            }
+
+            if ((_accessKey == null) || (_accessKey.Trim().Length == 0))
+            {
+                _accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY");
+                if ((_accessKey == null) || (_accessKey.Trim().Length == 0))
+                    throw new Exception("BROWSERSTACK_ACCESS_KEY cannot be empty. " +
+                                        "Specify one by adding key to options or adding to the environment variable BROWSERSTACK_ACCESS_KEY.");
+                Regex.Replace(_accessKey, @"\s+", "");
+            }
+
+            if (!string.IsNullOrWhiteSpace(_customLogPath))
+            {
+                _argumentString += "-logFile \"" + _customLogPath + "\" ";
+            }
+
+            _tunnel.AddBinaryPath(_customBinaryPath);
+            _tunnel.AddBinaryArguments(_argumentString);
+            while (true)
+            {
+                var except = false;
+                try
+                {
+                    _tunnel.Run(_accessKey, _folder, _customLogPath, "start");
+                }
+                catch (Exception)
+                {
+                    except = true;
+                }
+                if (except)
+                    _tunnel.FallbackPaths();
+                else
+                    break;
+            }
+        }
+
+        public void Stop()
+        {
+            _tunnel.Run(_accessKey, _folder, _customLogPath, "stop");
+            _tunnel.Kill();
         }
 
         private void AddArgs(string key, string value)
@@ -89,53 +146,5 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
             }
         }
 
-        public void Start(params KeyValuePair<string, string>[] options)
-        {
-            foreach (var pair in options)
-            {
-                var key = pair.Key;
-                var value = pair.Value;
-                AddArgs(key, value);
-            }
-
-            if ((_accessKey == null) || (_accessKey.Trim().Length == 0))
-            {
-                _accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY");
-                if ((_accessKey == null) || (_accessKey.Trim().Length == 0))
-                    throw new Exception("BROWSERSTACK_ACCESS_KEY cannot be empty. " +
-                                        "Specify one by adding key to options or adding to the environment variable BROWSERSTACK_ACCESS_KEY.");
-                Regex.Replace(_accessKey, @"\s+", "");
-            }
-
-            if (!string.IsNullOrWhiteSpace(_customLogPath))
-            {
-                _argumentString += "-logFile \"" + _customLogPath + "\" ";
-            }
-
-            Tunnel.AddBinaryPath(_customBinaryPath);
-            Tunnel.AddBinaryArguments(_argumentString);
-            while (true)
-            {
-                var except = false;
-                try
-                {
-                    Tunnel.Run(_accessKey, _folder, _customLogPath, "start");
-                }
-                catch (Exception)
-                {
-                    except = true;
-                }
-                if (except)
-                    Tunnel.FallbackPaths();
-                else
-                    break;
-            }
-        }
-
-        public void Stop()
-        {
-            Tunnel.Run(_accessKey, _folder, _customLogPath, "stop");
-            Tunnel.Kill();
-        }
     }
 }

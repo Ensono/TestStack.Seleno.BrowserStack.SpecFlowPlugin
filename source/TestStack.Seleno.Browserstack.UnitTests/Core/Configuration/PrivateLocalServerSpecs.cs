@@ -14,13 +14,15 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
         private PrivateLocalServer _sut;
         private IConfigurationProvider _configuration;
         private IBrowserStackLocalServer _localServer;
+        private IDateTimeProvider _dateTimeProvider;
 
         [SetUp]
         public void SetUp()
         {
             _configuration = Substitute.For<IConfigurationProvider>();
             _localServer = Substitute.For<IBrowserStackLocalServer>();
-            _sut = new PrivateLocalServer(_localServer, _configuration);
+            _dateTimeProvider = Substitute.For<IDateTimeProvider>();
+            _sut = Substitute.ForPartsOf<PrivateLocalServer>(_localServer, _configuration, _dateTimeProvider);
         }
 
         [Test]
@@ -31,13 +33,15 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
             _configuration.AccessKey.Returns(accessKey);
             _localServer.IsRunning.Returns(false);
-
+            _sut.When(x => x.WaitUntilServerHasStarted()).DoNotCallBase();
+            
             // Act
             _sut.Start();
 
             // Assert
             _localServer.Received(1).Start(new KeyValuePair<string, string>("key", _configuration.AccessKey),
                                            new KeyValuePair<string, string>("forcelocal", "true"));
+            _sut.Received(1).WaitUntilServerHasStarted();
         }
 
 
@@ -55,6 +59,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
             // Assert
             _localServer.DidNotReceiveWithAnyArgs().Start();
+            _sut.DidNotReceive().WaitUntilServerHasStarted();
         }
 
         [Test]
@@ -94,7 +99,45 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             
             // Act && Assert
             _sut.BaseUrl.Should().Be(remoteUrl);
+        }
 
+        [Test]
+        public void WaitUntilServerHasStarted_ShouldTimeOutAfter30SecondsWhenServerDidNotStart()
+        {
+            // Arrange
+            _localServer.IsRunning.Returns(false);
+            var now = new DateTime(2016,11,1, 9,0,0);
+            var numberOfIteration = 0;
+
+            _dateTimeProvider
+                .Now
+                .Returns(now, now.AddSeconds(15), now.AddSeconds(30))
+                .AndDoes(c => ++numberOfIteration);
+            
+            // Act
+            _sut.WaitUntilServerHasStarted();
+
+            // Assert
+            numberOfIteration.Should().Be(3);
+        }
+
+        [Test]
+        public void WaitUntilServerHasStarted_ShouldNotWait_WhenServerHasStarted()
+        {
+            // Arrange
+            _localServer.IsRunning.Returns(true);
+            var now = new DateTime(2016, 11, 1, 9, 0, 0);
+            var numberOfIteration = 0;
+
+            _dateTimeProvider
+                .Now
+                .Returns(now, now.AddSeconds(15), now.AddSeconds(30)).AndDoes(c => ++numberOfIteration);
+
+            // Act
+            _sut.WaitUntilServerHasStarted();
+
+            // Assert
+            numberOfIteration.Should().Be(1);
         }
     }
 }

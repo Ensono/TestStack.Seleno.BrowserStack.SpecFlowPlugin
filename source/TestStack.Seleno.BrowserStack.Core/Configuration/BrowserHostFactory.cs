@@ -83,7 +83,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
         internal virtual IWebServer CreateLocalWebServer()
         {
-            return new PrivateLocalServer(new BrowserStackLocalServer(), _configurationProvider);
+            return new PrivateLocalServer(_configurationProvider);
         }
 
         internal virtual Func<RemoteWebDriver> LocalWebBrowser(BrowserEnum browser)
