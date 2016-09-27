@@ -32,31 +32,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             _sut = new RemoteBrowserConfigurator(_browserHostFactory,_parser, _capabilitiesBuilder, _configurationProvider);
         }
 
-        [Test]
-        public void CreateAndConfigure_ShouldCreateAndReturnPrivateLocalServer_When_ConfigurationSpecifiesToRunTestLocally()
-        {
-            // Arrange
-            var testSpecification = new TestSpecification("Fancy scenario", "178wq76essf");
-            var capabilities = Substitute.For<ICapabilities>();
-            const string browser = "IE,11,Windows,10";
-            var browserConfiguration = new BrowserConfiguration();
-            var browserHost = Substitute.For<IBrowserHost>();
-
-            _parser.Parse(browser).Returns(browserConfiguration);
-            _configurationProvider.RunTestLocally.Returns(true);
-            _capabilitiesBuilder.Build().Returns(capabilities);
-            _browserHostFactory.CreatePrivateLocalServer(capabilities, browserConfiguration).Returns(browserHost);
-            
-            // Act
-            var result = _sut.CreateAndConfigure(testSpecification, browser);
-
-            // Assert
-            _capabilitiesBuilder.Received().WithRunTestLocally(true);
-            result.Should().BeSameAs(browserHost);
-            _browserHostFactory.DidNotReceive().CreateWithCapabilities(capabilities, browserConfiguration);
-            _browserHostFactory.DidNotReceive().CreateLocalWebDriver(Arg.Any<BrowserEnum>(), browserConfiguration);
-        }
-
         [TestCase(null)]
         [TestCase("configuration")]
         public void CreateAndConfigure_ShouldAlwaysConfigureTestSpecifications(string browser)

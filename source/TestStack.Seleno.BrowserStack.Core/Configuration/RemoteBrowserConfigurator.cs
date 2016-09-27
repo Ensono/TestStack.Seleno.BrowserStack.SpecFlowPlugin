@@ -37,14 +37,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
                 builder.WithBrowserConfiguration(browserConfiguration);
             }
 
-            var runTestLocally = _configurationProvider.RunTestLocally;
-            var capabilities = builder.WithRunTestLocally(runTestLocally).Build();
-
-
-            if (runTestLocally)
-            {
-                return _browserHostFactory.CreatePrivateLocalServer(capabilities, browserConfiguration);
-            }
+            var capabilities = builder.WithRunTestLocally(_configurationProvider.RunTestLocally).Build();
 
             if (_configurationProvider.UseLocalBrowser.IsNullOrEmpty())
             {

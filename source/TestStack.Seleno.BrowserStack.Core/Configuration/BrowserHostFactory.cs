@@ -43,16 +43,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             return instance;
         }
 
-        public IBrowserHost CreatePrivateLocalServer(ICapabilities capabilities, BrowserConfiguration browserConfiguration = null)
-        {
-            var instance = CreateBrowserHost(browserConfiguration);
-            var localWebServer = CreateLocalWebServer();
-
-            instance.Run(StartPrivateServerAndCreateRemoteDriverWithCapabilities(capabilities, localWebServer), localWebServer);
-
-            return instance;
-        }
-
+      
         #region internal Factories
 
         internal virtual Func<RemoteWebDriver> StartPrivateServerAndCreateRemoteDriverWithCapabilities(ICapabilities capabilities, IWebServer localServer)
@@ -79,11 +70,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         internal virtual IWebServer CreateInternetWebServer(string remoteUrl)
         {
             return new InternetWebServer(remoteUrl);
-        }
-
-        internal virtual IWebServer CreateLocalWebServer()
-        {
-            return new PrivateLocalServer(_configurationProvider);
         }
 
         internal virtual Func<RemoteWebDriver> LocalWebBrowser(BrowserEnum browser)

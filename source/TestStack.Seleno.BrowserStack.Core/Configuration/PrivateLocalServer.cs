@@ -7,12 +7,12 @@ using TestStack.Seleno.Configuration.Contracts;
 
 namespace TestStack.Seleno.BrowserStack.Core.Configuration
 {
-    public class PrivateLocalServer : IWebServer
+    public class PrivateLocalServer : ILifecycleTask
     {
         private readonly IBrowserStackLocalServer _localServer;
         private readonly IConfigurationProvider _configuration;
         private readonly IDateTimeProvider _dateTimeProvider;
-        public static readonly TimeSpan ServerStartTimeOut = new TimeSpan(0, 0, 0, 30);
+        public static readonly TimeSpan ServerStartTimeOut = new TimeSpan(0, 0, 0, 10);
 
         public PrivateLocalServer(IConfigurationProvider configuration) : this(new BrowserStackLocalServer(), configuration, new DateTimeProvider()) {  }
 
@@ -44,16 +44,10 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
             }
         }
 
-        public string BaseUrl
-        {
-            get { return _configuration.RemoteUrl; }
-        }
-
         internal virtual void WaitUntilServerHasStarted()
         {
             var waitUntil = _dateTimeProvider.Now + ServerStartTimeOut;
             while (!_localServer.IsRunning && _dateTimeProvider.Now < waitUntil) { }
         }
-
     }
 }

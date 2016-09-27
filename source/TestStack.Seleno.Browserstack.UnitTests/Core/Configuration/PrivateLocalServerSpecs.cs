@@ -89,18 +89,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             // Assert
             _localServer.DidNotReceive().Stop();
         }
-
-        [Test]
-        public void BaseUrl_ShouldBeSameAsConfigurationRemoteUrl()
-        {
-            // Arrange
-            const string remoteUrl = "http:/localhost/some/where";
-            _configuration.RemoteUrl.Returns(remoteUrl);
-            
-            // Act && Assert
-            _sut.BaseUrl.Should().Be(remoteUrl);
-        }
-
+       
         [Test]
         public void WaitUntilServerHasStarted_ShouldTimeOutAfter30SecondsWhenServerDidNotStart()
         {
@@ -111,7 +100,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
             _dateTimeProvider
                 .Now
-                .Returns(now, now.AddSeconds(15), now.AddSeconds(30))
+                .Returns(now, now.AddSeconds(5), now.AddSeconds(10))
                 .AndDoes(c => ++numberOfIteration);
             
             // Act

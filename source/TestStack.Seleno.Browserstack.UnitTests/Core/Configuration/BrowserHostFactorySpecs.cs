@@ -61,38 +61,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
         }
 
         [Test]
-        public void CreatePrivateLocalServer_ShouldCreateAndRunBrowserHostWithCapabilitiesAndWebServer()
-        {
-            // Arrange
-            var sut = Substitute.ForPartsOf<BrowserHostFactory>(_configurationProvider);
-            var browserHost = Substitute.For<IBrowserHost>();
-            var capabilities = Substitute.For<ICapabilities>();
-            var browserConfiguration = new BrowserConfiguration();
-            var localWebServer = Substitute.For<IWebServer>();
-
-            Func<RemoteWebDriver> remoteWebDriverFactory = () => null;
-            const string remoteUrl = "http://some/remote/url";
-
-            _configurationProvider.RemoteUrl.Returns(remoteUrl);
-            
-
-            sut.When(x => x.CreateBrowserHost(browserConfiguration)).DoNotCallBase();
-            sut.When(x => x.CreateLocalWebServer()).DoNotCallBase();
-
-            sut.CreateBrowserHost(browserConfiguration).Returns(browserHost);
-            sut.CreateLocalWebServer().Returns(localWebServer);
-
-            sut.StartPrivateServerAndCreateRemoteDriverWithCapabilities(capabilities, localWebServer).Returns(remoteWebDriverFactory);
-
-            // Act
-            var result = sut.CreatePrivateLocalServer(capabilities, browserConfiguration);
-
-            // Assert
-            result.Should().BeSameAs(browserHost);
-            browserHost.Received(1).Run(remoteWebDriverFactory, localWebServer);
-        }
-
-        [Test]
         public void CreateLocalWebDriver_ShouldCreateLocalBrowserBasedOnBrowserType()
         {
             // Arrange
@@ -120,19 +88,6 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
             browserConfiguration.IsLocalWebDriver.Should().BeTrue();
             browserHost.Should().BeSameAs(result);
             browserHost.Received().Run(remoteWebDriverFactory, webServer);
-        }
-
-        [Test]
-        public void CreateLocalWebServer_ShouldCreateInstanceOfPrivateLocalServer()
-        {
-            // Arrange
-            var sut = Substitute.ForPartsOf<BrowserHostFactory>(_configurationProvider);
-
-            // Act
-            var result = sut.CreateLocalWebServer();
-
-            // Assert
-            result.Should().BeOfType<PrivateLocalServer>();
         }
 
         [Test]
