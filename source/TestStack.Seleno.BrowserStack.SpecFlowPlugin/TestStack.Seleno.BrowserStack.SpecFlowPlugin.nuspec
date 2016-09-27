@@ -27,6 +27,6 @@
   <files>
 	<!-- config -->
     <file src="App.config.transform" target="content" />
-    <file src="BrowserStackLocalServerRunner.cs" target="content" />
+    <file src="BrowserStackLocalServerRunner.cs.pp" target="content" />
   </files>
 </package>

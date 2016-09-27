@@ -2,7 +2,7 @@
 using TestStack.Seleno.BrowserStack.Core.Configuration;
 using TestStack.Seleno.Configuration.Contracts;
 
-namespace TestStack.Seleno.BrowserStack.SpecFlowPlugin
+namespace $rootnamespace$
 {
     [SetUpFixture]
     public class BrowserStackLocalServerRunner
