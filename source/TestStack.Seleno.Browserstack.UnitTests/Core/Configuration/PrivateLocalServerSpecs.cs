@@ -100,7 +100,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
             _dateTimeProvider
                 .Now
-                .Returns(now, now.AddSeconds(5), now.AddSeconds(10))
+                .Returns(now, now.AddSeconds(10), now.AddSeconds(20))
                 .AndDoes(c => ++numberOfIteration);
             
             // Act
@@ -120,7 +120,7 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
             _dateTimeProvider
                 .Now
-                .Returns(now, now.AddSeconds(15), now.AddSeconds(30)).AndDoes(c => ++numberOfIteration);
+                .Returns(now, now.AddSeconds(10), now.AddSeconds(20)).AndDoes(c => ++numberOfIteration);
 
             // Act
             _sut.WaitUntilServerHasStarted();

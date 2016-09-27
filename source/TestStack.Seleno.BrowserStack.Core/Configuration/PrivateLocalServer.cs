@@ -12,7 +12,7 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
         private readonly IBrowserStackLocalServer _localServer;
         private readonly IConfigurationProvider _configuration;
         private readonly IDateTimeProvider _dateTimeProvider;
-        public static readonly TimeSpan ServerStartTimeOut = new TimeSpan(0, 0, 0, 10);
+        public static readonly TimeSpan ServerStartTimeOut = new TimeSpan(0, 0, 0, 20);
 
         public PrivateLocalServer(IConfigurationProvider configuration) : this(new BrowserStackLocalServer(), configuration, new DateTimeProvider()) {  }
 
