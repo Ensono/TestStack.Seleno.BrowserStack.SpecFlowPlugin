@@ -318,6 +318,30 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Services.BrowserStack
             _sut.LocalState.Should().Be(LocalState.Connected);
         }
 
+
+        [Test]
+        public void OutputDataReceivedEvent_ShouldUpdateLocalStateToConnectingWhenNoStateSpecifiedFromDataReceivedEventArgs()
+        {
+            // Arrange
+            const string arguments = "-d start -f 987987 /folder /BrowserStackLocal.exe";
+            const string processType = "start";
+
+            var newProcess = Substitute.For<IProcess>();
+            var eventArgs = DataReceivedEventArgs(new { other="something"});
+
+
+            _sut.CreateProcess(Arg.Any<ProcessStartInfo>()).Returns(newProcess);
+            _sut.RunProcess(arguments, processType);
+
+
+            // Act
+            newProcess.OutputDataReceived += Raise.Event<DataReceivedEventHandler>(new object(), eventArgs);
+
+
+            // Assert
+            _sut.LocalState.Should().Be(LocalState.Connecting);
+        }
+
         [Test]
         public void ProcessExitedEvent_ShouldSetProcessToNull()
         {
