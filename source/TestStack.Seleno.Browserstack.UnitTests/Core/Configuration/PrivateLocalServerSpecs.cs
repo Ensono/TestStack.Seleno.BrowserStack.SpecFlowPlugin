@@ -40,7 +40,8 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Core.Configuration
 
             // Assert
             _localServer.Received(1).Start(new KeyValuePair<string, string>("key", _configuration.AccessKey),
-                                           new KeyValuePair<string, string>("forcelocal", "true"));
+                                           new KeyValuePair<string, string>("forcelocal", "true"),
+                                           new KeyValuePair<string, string>("force", "true"));
             _sut.Received(1).WaitUntilServerHasStarted();
         }
 

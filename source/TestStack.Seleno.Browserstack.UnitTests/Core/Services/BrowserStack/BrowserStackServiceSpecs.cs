@@ -12,7 +12,7 @@ using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 using TestStack.Seleno.BrowserStack.Core.Services.Client;
 using TestStack.Seleno.BrowserStack.Core.Services.TestSession;
 
-namespace TestStack.Seleno.Browserstack.UnitTests.Core.TestSession
+namespace TestStack.Seleno.Browserstack.UnitTests.Core.Services.BrowserStack
 {
     [TestFixture]
     public class BrowserStackServiceSpecs

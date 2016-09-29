@@ -1,7 +1,10 @@
 ﻿using System.CodeDom;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq;
+using FluentAssertions;
 using TechTalk.SpecFlow.Generator;
+using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 
 namespace TestStack.Seleno.Browserstack.UnitTests.Assertions
 {
@@ -26,6 +29,11 @@ namespace TestStack.Seleno.Browserstack.UnitTests.Assertions
         public static TestClassGenerationContextAssertions Should(this TestClassGenerationContext context)
         {
             return new TestClassGenerationContextAssertions(context);
+        }
+
+        public static ProcessStartInfoAssertions Should(this ProcessStartInfo processStartInfo)
+        {
+            return new ProcessStartInfoAssertions(processStartInfo);
         }
 
     }

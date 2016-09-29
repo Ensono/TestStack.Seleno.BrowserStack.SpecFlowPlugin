@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using TestStack.Seleno.BrowserStack.Core.Services.BrowserStack;
 using TestStack.Seleno.Configuration.Contracts;
 
@@ -30,7 +28,8 @@ namespace TestStack.Seleno.BrowserStack.Core.Configuration
 
             _localServer.Start(
                 new KeyValuePair<string, string>("key", _configuration.AccessKey),
-                new KeyValuePair<string, string>("forcelocal", "true")
+                new KeyValuePair<string, string>("forcelocal", "true"),
+                new KeyValuePair<string, string>("force", "true")
             );
 
             WaitUntilServerHasStarted();

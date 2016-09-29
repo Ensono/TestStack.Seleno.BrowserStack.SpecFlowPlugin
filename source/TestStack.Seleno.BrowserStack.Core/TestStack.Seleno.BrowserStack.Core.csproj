@@ -134,6 +134,7 @@
     <Compile Include="Configuration\IConfigurationProvider.cs" />
     <Compile Include="Configuration\IDateTimeProvider.cs" />
     <Compile Include="Configuration\InvalidDesktopResolution.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Services\BrowserStack\BrowserStackTunnel.cs" />
     <Compile Include="Services\BrowserStack\BrowserStackLocalServer.cs" />
     <Compile Include="Configuration\PrivateLocalServer.cs" />
@@ -157,6 +158,7 @@
     <Compile Include="Pages\UiComponent.cs" />
     <Compile Include="Services\BrowserStack\IBrowserStackLocalServer.cs" />
     <Compile Include="Services\BrowserStack\LocalState.cs" />
+    <Compile Include="Services\BrowserStack\ProcessWrapper.cs" />
     <Compile Include="Services\Client\HttpClientFactory.cs" />
     <Compile Include="Services\Client\HttpClientWrapper.cs" />
     <Compile Include="Services\Client\IHttpClient.cs" />

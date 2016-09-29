@@ -59,10 +59,10 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
                 AddArgs(key, value);
             }
 
-            if ((_accessKey == null) || (_accessKey.Trim().Length == 0))
+            if (string.IsNullOrWhiteSpace(_accessKey))
             {
                 _accessKey = Environment.GetEnvironmentVariable("BROWSERSTACK_ACCESS_KEY");
-                if ((_accessKey == null) || (_accessKey.Trim().Length == 0))
+                if (string.IsNullOrWhiteSpace(_accessKey))
                     throw new Exception("BROWSERSTACK_ACCESS_KEY cannot be empty. " +
                                         "Specify one by adding key to options or adding to the environment variable BROWSERSTACK_ACCESS_KEY.");
                 Regex.Replace(_accessKey, @"\s+", "");
@@ -75,21 +75,18 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
 
             _tunnel.AddBinaryPath(_customBinaryPath);
             _tunnel.AddBinaryArguments(_argumentString);
-            while (true)
+            var hasStarted = _tunnel.IsConnected;
+            while (!hasStarted)
             {
-                var except = false;
                 try
                 {
                     _tunnel.Run(_accessKey, _folder, _customLogPath, "start");
+                    hasStarted = true;
                 }
                 catch (Exception)
                 {
-                    except = true;
-                }
-                if (except)
                     _tunnel.FallbackPaths();
-                else
-                    break;
+                }
             }
         }
 

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using TestStack.Seleno.BrowserStack.Core.Extensions;
 
 namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
 {
@@ -34,40 +36,29 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
         };
 
         private int _basePathsIndex = -1;
+        internal IProcess Process { get; set; }
+        internal string BinaryAbsolute = "";
+        internal string BinaryArguments = "";
+        internal LocalState LocalState = LocalState.Idle;
+        internal string LogFilePath = "";
 
-        private Process _process;
-        protected string BinaryAbsolute = "";
-        protected string BinaryArguments = "";
-        public LocalState LocalState;
-        protected string LogFilePath = "";
-        protected FileSystemWatcher LogfileWatcher;
-
-        protected StringBuilder Output;
-
-        public BrowserStackTunnel()
-        {
-            LocalState = LocalState.Idle;
-            Output = new StringBuilder();
-        }
 
         public void Dispose()
         {
-            if (_process != null)
+            if (Process != null)
                 Kill();
         }
 
         public virtual void AddBinaryPath(string binaryAbsolute)
         {
-            if ((binaryAbsolute == null) || (binaryAbsolute.Trim().Length == 0))
-                binaryAbsolute = Path.Combine(BasePaths[++_basePathsIndex], BinaryName);
+            if (string.IsNullOrWhiteSpace(binaryAbsolute))
+                binaryAbsolute = Path.Combine(BasePaths.CyclicElementAtOrDefault(++_basePathsIndex), BinaryName);
             BinaryAbsolute = binaryAbsolute;
         }
 
         public virtual void AddBinaryArguments(string binaryArguments)
         {
-            if (binaryArguments == null)
-                binaryArguments = "";
-            BinaryArguments = binaryArguments;
+            BinaryArguments = string.IsNullOrWhiteSpace(binaryArguments) ? string.Empty : binaryArguments;
         }
 
         public virtual void FallbackPaths()
@@ -76,6 +67,114 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
                 throw new Exception("No More Paths to try. Please specify a binary path in options.");
             _basePathsIndex++;
             BinaryAbsolute = Path.Combine(BasePaths[_basePathsIndex], BinaryName);
+        }
+
+        public virtual void Run(string accessKey, string folder, string logFilePath, string processType)
+        {
+            var arguments = "-d " + processType + " ";
+            if ((folder != null) && (folder.Trim().Length != 0))
+                arguments += "-f " + accessKey + " " + folder + " " + BinaryArguments;
+            else
+                arguments += accessKey + " " + BinaryArguments;
+
+            if (BinaryFileDoesNotExists)
+            {
+                DownloadBinary();
+            }
+
+            Process?.Close();
+
+            if (processType.ToLower().Contains("start") && !string.IsNullOrEmpty(logFilePath) && LogFileExists(logFilePath))
+                Log(logFilePath);
+
+            RunProcess(arguments, processType);
+        }
+
+        public virtual bool IsConnected
+        {
+            get { return LocalState == LocalState.Connected; }
+        }
+
+        public virtual void Kill()
+        {
+            if (Process != null)
+            {
+                Process.Close();
+                Process.Kill();
+                Process = null;
+                LocalState = LocalState.Disconnected;
+            }
+        }
+
+        internal virtual bool LogFileExists(string logFilePath)
+        {
+            return File.Exists(logFilePath);
+        }
+
+        internal virtual void Log(string logFilePath)
+        {
+            File.WriteAllText(logFilePath, string.Empty);
+        }
+
+        internal virtual bool BinaryFileDoesNotExists
+        {
+            get { return !File.Exists(BinaryAbsolute); }
+        }
+
+        internal virtual void RunProcess(string arguments, string processType)
+        {
+            Process = CreateProcess(new ProcessStartInfo
+            {
+                FileName = BinaryAbsolute,
+                Arguments = arguments,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+                UseShellExecute = false
+            });
+
+            DataReceivedEventHandler o = (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(e.Data)) return;
+                var binaryOutput = JObject.Parse(e.Data);
+                if ((binaryOutput.GetValue("state") != null) &&
+                    !binaryOutput.GetValue("state").ToString().ToLower().Equals("connected"))
+                {
+                    LocalState = LocalState.Error;
+                    throw new Exception("Eror while executing BrowserStackLocal " + processType + " " + e.Data);
+                }
+
+                LocalState =
+                    string.Equals(binaryOutput.GetValue("state")?.ToString(), "connected",
+                        StringComparison.InvariantCultureIgnoreCase)
+                        ? LocalState.Connected
+                        : LocalState.Connecting;
+            };
+
+            Process.OutputDataReceived += o;
+            Process.ErrorDataReceived += o;
+            Process.Exited += (s, e) => Process = null;
+
+            Process.Start();
+
+            Process.BeginOutputReadLine();
+            Process.BeginErrorReadLine();
+
+            LocalState = LocalState.Connecting;
+            Process.CurrentAppDomainProcessExited +=  (s, e) => Kill();
+
+            Process.WaitForExit();
+        }
+
+        internal virtual IProcess CreateProcess(ProcessStartInfo processStartInfo)
+        {
+            return new ProcessWrapper(new Process
+            {
+                StartInfo = processStartInfo,
+                EnableRaisingEvents = true
+            });
         }
 
         internal virtual void DownloadBinary()
@@ -100,91 +199,6 @@ namespace TestStack.Seleno.BrowserStack.Core.Services.BrowserStack
             dInfo.SetAccessControl(dSecurity);
         }
 
-        public virtual void Run(string accessKey, string folder, string logFilePath, string processType)
-        {
-            var arguments = "-d " + processType + " ";
-            if ((folder != null) && (folder.Trim().Length != 0))
-                arguments += "-f " + accessKey + " " + folder + " " + BinaryArguments;
-            else
-                arguments += accessKey + " " + BinaryArguments;
-
-            if (!File.Exists(BinaryAbsolute))
-                DownloadBinary();
-
-            _process?.Close();
-
-            if (processType.ToLower().Contains("start") && !string.IsNullOrEmpty(logFilePath) && File.Exists(logFilePath))
-                File.WriteAllText(logFilePath, string.Empty);
-
-            RunProcess(arguments, processType);
-        }
-
-        private void RunProcess(string arguments, string processType)
-        {
-            var processStartInfo = new ProcessStartInfo
-            {
-                FileName = BinaryAbsolute,
-                Arguments = arguments,
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                RedirectStandardInput = true,
-                UseShellExecute = false
-            };
-
-            _process = new Process
-            {
-                StartInfo = processStartInfo,
-                EnableRaisingEvents = true
-            };
-            DataReceivedEventHandler o = (s, e) =>
-            {
-                if (e.Data == null) return;
-                JObject binaryOutput = JObject.Parse(e.Data);
-                if ((binaryOutput.GetValue("state") != null) &&
-                    !binaryOutput.GetValue("state").ToString().ToLower().Equals("connected"))
-                {
-                    LocalState = LocalState.Error;
-                    throw new Exception("Eror while executing BrowserStackLocal " + processType + " " + e.Data);
-                }
-
-                LocalState =
-                    string.Equals(binaryOutput.GetValue("state")?.ToString(), "connected",
-                        StringComparison.InvariantCultureIgnoreCase)
-                        ? LocalState.Connected
-                        : LocalState.Connecting;
-            };
-
-            _process.OutputDataReceived += o;
-            _process.ErrorDataReceived += o;
-            _process.Exited += (s, e) => _process = null;
-
-            _process.Start();
-
-            _process.BeginOutputReadLine();
-            _process.BeginErrorReadLine();
-
-            LocalState = LocalState.Connecting;
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => Kill();
-
-            _process.WaitForExit();
-        }
-
-        public bool IsConnected
-        {
-            get { return LocalState == LocalState.Connected; }
-        }
-
-        public void Kill()
-        {
-            if (_process != null)
-            {
-                _process.Close();
-                _process.Kill();
-                _process = null;
-                LocalState = LocalState.Disconnected;
-            }
-        }
+      
     }
 }
