@@ -111,7 +111,7 @@ Given I the browser is <browser> <version> on <osName> <osVersion> for <resoluti
 
 Examples:
 | browser | version | osName  | osVersion  | resolution | firstNumber | secondNumber | result |
-| chrome  | 50.0    | Windows | 10         |    		| 10          | 20           | 30     |
+| chrome  | 50.0    | Windows | 10         |    	| 10          | 20           | 30     |
 | chrome  | 50.0    | Windows | 10         |            | 5           | 5            | 10     |
 | Safari  | 9.0     | OS X    | El Capitan | 1280x1024  | 10          | 20           | 30     |
 | Safari  | 9.0     | OS X    | El Capitan | 1280x1024  | 5           | 5            | 10     |
@@ -216,8 +216,7 @@ Given I navigated to "http://www.theonlinecalculator.com/"
 @browser:safari,9.0,OS_X,El_Capitan,1280x1024
 @browser:IE
 
-Given I the browser is <browser> <version> on <osName> <osVersion> for <resolution>
-  And I navigated to "http://www.theonlinecalculator.com/"
+Given I navigated to "http://www.theonlinecalculator.com/"
   And I have entered <firstNumber> into the calculator
   And I have entered <secondNumber> into the calculator
  When I press add
